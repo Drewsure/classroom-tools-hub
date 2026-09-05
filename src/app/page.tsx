@@ -243,17 +243,6 @@ export default function Home() {
         Click ★ to favorite · Sound on for best experience
       </footer>
 
-      {/* Ministar Teachers Lotus — small animated graphic */}
-      <div className="flex justify-center pb-2 overflow-hidden" style={{ width: "200px", height: "125px", margin: "0 auto" }}>
-        <iframe
-          src="/ministar-lotus.html"
-          title="Ministar Teachers Lotus"
-          className="border-0"
-          style={{ width: "400px", height: "250px", transform: "scale(0.5)", transformOrigin: "top left", pointerEvents: "none" }}
-          loading="lazy"
-        />
-      </div>
-
       {activeTool && (
         <ToolLauncher
           tool={activeTool}

@@ -93,12 +93,47 @@ const PE_FLASHCARDS = [
 ];
 
 // ===== PE Dice Presets =====
-const PE_DICE_PRESETS = {
-  movements: ["Jump", "Hop", "Spin", "Clap", "Stomp", "March"],
-  bodyParts: ["Head", "Shoulders", "Knees", "Toes", "Elbows", "Ankles"],
-  animals:   ["Frog", "Bird", "Crab", "Kangaroo", "Rabbit", "Snake"],
-  colors:    ["Green=Run", "Red=Freeze", "Yellow=Slow", "Purple=Hop", "Orange=Crab", "Blue=Fly"],
-  numbers:   ["3 times", "5 times", "10 times", "2 times", "8 times", "1 time"],
+const PE_DICE_PRESETS: Record<string, { text: string; emoji: string }[]> = {
+  movements: [
+    { text: "Jump",  emoji: "🤸" },
+    { text: "Hop",   emoji: "🦘" },
+    { text: "Spin",  emoji: "🌀" },
+    { text: "Clap",  emoji: "👏" },
+    { text: "Stomp", emoji: "🦶" },
+    { text: "March", emoji: "🥁" },
+  ],
+  bodyParts: [
+    { text: "Head",      emoji: "🧠" },
+    { text: "Shoulders", emoji: "💪" },
+    { text: "Knees",     emoji: "🦵" },
+    { text: "Toes",      emoji: "🦶" },
+    { text: "Elbows",    emoji: "💪" },
+    { text: "Ankles",    emoji: "🦶" },
+  ],
+  animals: [
+    { text: "Frog",     emoji: "🐸" },
+    { text: "Bird",     emoji: "🐦" },
+    { text: "Crab",     emoji: "🦀" },
+    { text: "Kangaroo", emoji: "🦘" },
+    { text: "Rabbit",   emoji: "🐰" },
+    { text: "Snake",    emoji: "🐍" },
+  ],
+  colors: [
+    { text: "Green=Run",    emoji: "🟢" },
+    { text: "Red=Freeze",   emoji: "🔴" },
+    { text: "Yellow=Slow",  emoji: "🟡" },
+    { text: "Purple=Hop",   emoji: "🟣" },
+    { text: "Orange=Crab",  emoji: "🟠" },
+    { text: "Blue=Fly",     emoji: "🔵" },
+  ],
+  numbers: [
+    { text: "3 times",  emoji: "3️⃣" },
+    { text: "5 times",  emoji: "5️⃣" },
+    { text: "10 times", emoji: "🔟" },
+    { text: "2 times",  emoji: "2️⃣" },
+    { text: "8 times",  emoji: "8️⃣" },
+    { text: "1 time",   emoji: "1️⃣" },
+  ],
 };
 
 // ===== Station descriptions =====
@@ -122,8 +157,9 @@ export function PEEnglishHub() {
   const [usedSimonCommands, setUsedSimonCommands] = useState<Set<number>>(new Set());
   const [flippedCard, setFlippedCard] = useState<string | null>(null);
   const [popupFlippedCard, setPopupFlippedCard] = useState<string | null>(null);
+  const [randomCard, setRandomCard] = useState<typeof PE_FLASHCARDS[0] | null>(null);
   const [showJapanese, setShowJapanese] = useState(true);
-  const [diceResult, setDiceResult] = useState<string>("");
+  const [diceResult, setDiceResult] = useState<{ text: string; emoji: string } | null>(null);
   const [diceCategory, setDiceCategory] = useState<keyof typeof PE_DICE_PRESETS>("movements");
   const [diceRolling, setDiceRolling] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(600);
@@ -225,6 +261,14 @@ export function PEEnglishHub() {
   };
 
   // Dice roll
+  // Draw a random flashcard
+  const drawRandomCard = () => {
+    const card = PE_FLASHCARDS[Math.floor(Math.random() * PE_FLASHCARDS.length)];
+    setRandomCard(card);
+    setPopupFlippedCard(null);
+    sound.playWhoosh();
+  };
+
   const rollDice = () => {
     setDiceRolling(true);
     sound.playDiceRoll();
@@ -597,6 +641,13 @@ export function PEEnglishHub() {
                 日本語 {showJapanese ? "ON" : "OFF"}
               </button>
               <button
+                onClick={() => { drawRandomCard(); openPopup("random-card"); }}
+                className="flex items-center gap-1 px-3 py-1 rounded-full bg-purple-500/30 hover:bg-purple-500/50 text-purple-200 border border-purple-400/40 text-xs font-bold transition-all"
+                title="Draw a random flashcard"
+              >
+                <Shuffle className="h-3 w-3" /> Random Card
+              </button>
+              <button
                 onClick={() => { setPopupFlippedCard(null); openPopup("flashcards"); }}
                 className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
               >
@@ -667,12 +718,17 @@ export function PEEnglishHub() {
           {/* Dice display */}
           <div className="flex flex-col items-center gap-3">
             <div className={cn(
-              "w-32 h-32 rounded-2xl bg-gradient-to-br from-white to-slate-100 flex items-center justify-center shadow-2xl border-4 border-white",
+              "w-32 h-32 rounded-2xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white gap-1",
               diceRolling && "animate-[diceTumble_0.3s_linear_infinite]"
             )}>
-              <span className="text-xl font-black text-slate-800 text-center px-2 leading-tight">
-                {diceResult || "?"}
-              </span>
+              {diceResult ? (
+                <>
+                  <span className="text-4xl">{diceResult.emoji}</span>
+                  <span className="text-sm font-black text-slate-800 text-center px-2 leading-tight">{diceResult.text}</span>
+                </>
+              ) : (
+                <span className="text-xl font-black text-slate-800">?</span>
+              )}
             </div>
             <Button
               onClick={rollDice}
@@ -884,22 +940,27 @@ export function PEEnglishHub() {
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-col items-center gap-6">
+                <div className="flex flex-col items-center gap-8">
                   <div className={cn(
-                    "w-48 h-48 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex items-center justify-center shadow-2xl border-8 border-white",
+                    "w-80 h-80 sm:w-96 sm:h-96 rounded-[2rem] bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-8 border-white gap-4",
                     diceRolling && "animate-[diceTumble_0.3s_linear_infinite]"
                   )}>
-                    <span className="text-3xl font-black text-slate-800 text-center px-4 leading-tight">
-                      {diceResult || "?"}
-                    </span>
+                    {diceResult ? (
+                      <>
+                        <span className="text-[8rem] sm:text-[10rem] leading-none">{diceResult.emoji}</span>
+                        <span className="text-4xl sm:text-5xl font-black text-slate-800 text-center px-4 leading-tight">{diceResult.text}</span>
+                      </>
+                    ) : (
+                      <span className="text-8xl font-black text-slate-800">?</span>
+                    )}
                   </div>
                   <Button
                     onClick={rollDice}
                     disabled={diceRolling}
                     size="lg"
-                    className="rounded-full px-10 bg-white text-slate-900 hover:bg-white/90 font-bold text-xl"
+                    className="rounded-full px-12 py-4 bg-white text-slate-900 hover:bg-white/90 font-bold text-2xl shadow-lg"
                   >
-                    <Play className="mr-2 h-6 w-6 fill-current" />
+                    <Play className="mr-2 h-7 w-7 fill-current" />
                     {diceRolling ? "Rolling..." : "Roll Dice"}
                   </Button>
                 </div>
