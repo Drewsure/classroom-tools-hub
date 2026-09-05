@@ -1,0 +1,79 @@
+{
+  "name": "Classroom Tools Hub",
+  "short_name": "Tools Hub",
+  "description": "All-in-one classroom toolkit: 10 fun timers, random name pickers, group generators, chance games, tally counters, sound pad, and a custom dashboard. Built for teachers — works offline on tablets and Chromebooks.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05030f",
+  "theme_color": "#05030f",
+  "categories": ["education", "productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Classroom Timers",
+      "short_name": "Timers",
+      "description": "Open the timers category",
+      "url": "/?cat=timers",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Name Pickers",
+      "short_name": "Pickers",
+      "description": "Open the name pickers category",
+      "url": "/?cat=pickers",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Custom Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open your custom dashboard",
+      "url": "/?tool=custom-dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sound Pad",
+      "short_name": "Sounds",
+      "description": "Open the sound pad",
+      "url": "/?tool=sound-pad",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
