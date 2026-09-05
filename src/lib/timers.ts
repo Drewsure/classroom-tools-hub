@@ -114,14 +114,21 @@ export const TIMER_CONFIGS: TimerConfig[] = [
 ];
 
 export const PRESET_TIMES = [
-  { label: "1 min", seconds: 60 },
-  { label: "2 min", seconds: 120 },
-  { label: "3 min", seconds: 180 },
-  { label: "5 min", seconds: 300 },
-  { label: "10 min", seconds: 600 },
-  { label: "15 min", seconds: 900 },
-  { label: "20 min", seconds: 1200 },
-  { label: "30 min", seconds: 1800 },
+  { label: "5s",   seconds: 5 },
+  { label: "10s",  seconds: 10 },
+  { label: "15s",  seconds: 15 },
+  { label: "30s",  seconds: 30 },
+  { label: "45s",  seconds: 45 },
+  { label: "1m",   seconds: 60 },
+  { label: "1:30", seconds: 90 },
+  { label: "2m",   seconds: 120 },
+  { label: "2:30", seconds: 150 },
+  { label: "3m",   seconds: 180 },
+  { label: "5m",   seconds: 300 },
+  { label: "10m",  seconds: 600 },
+  { label: "15m",  seconds: 900 },
+  { label: "20m",  seconds: 1200 },
+  { label: "30m",  seconds: 1800 },
 ];
 
 export function formatTime(totalSeconds: number): {

@@ -72,7 +72,7 @@ const PE_FLASHCARDS = [
   { id: "red",    set: "Signal Lights", front: "🔴 RED LIGHT",    back: "FREEZE!\n止まる (とまる)\nフリーズ", color: "bg-red-500" },
   { id: "yellow", set: "Signal Lights", front: "🟡 YELLOW LIGHT", back: "SLOW MOTION\nゆっくり歩く\nスローモーション", color: "bg-yellow-500" },
   { id: "purple", set: "Signal Lights", front: "🟣 PURPLE LIGHT", back: "HOP LIKE A FROG\nカエルのように跳ぶ\nホップ", color: "bg-purple-500" },
-  { id: "orange", set: "Signal Lights", front: "🟠 ORANGE LIGHT", back: "CRAB WALK\nカニ歩き\nクラブ ウォーク", color: "bg-orange-500" },
+  { id: "orange-light", set: "Signal Lights", front: "🟠 ORANGE LIGHT", back: "CRAB WALK\nカニ歩き\nクラブ ウォーク", color: "bg-orange-500" },
   { id: "blue",   set: "Signal Lights", front: "🔵 BLUE LIGHT",   back: "FLY LIKE A BIRD\n鳥のように飛ぶ\nフライ", color: "bg-blue-500" },
   { id: "pink",   set: "Signal Lights", front: "🩷 PINK LIGHT",   back: "KANGAROO JUMP\nカンガルージャンプ\nジャンプ", color: "bg-pink-500" },
   // SET 2: Stations
