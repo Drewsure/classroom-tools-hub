@@ -213,15 +213,14 @@ export function PhonicCardPanel({
           aria-label="Physical phonic card"
         >
           <div className="flex flex-col lg:flex-row gap-5">
-            {/* ===== LARGE Card image + Say ... button below =====
-                 Card image constrained to match flash card height (h-[28rem] sm:h-[34rem]) */}
+            {/* ===== LARGE Card image + Say ... button below ===== */}
             <div className="flex flex-col items-center gap-4 lg:w-3/5">
-              {/* Card image — matches flash card height (28rem mobile, 34rem desktop) */}
-              <div className="relative w-full max-w-sm rounded-2xl overflow-hidden bg-white/5 border border-white/15 shadow-2xl h-[28rem] sm:h-[34rem]">
+              {/* Card image — NOW LARGE (same size as letter card) */}
+              <div className="relative w-full max-w-2xl rounded-2xl overflow-hidden bg-white/5 border border-white/15 shadow-2xl">
                 <img
                   src={card.cardImage}
                   alt={`Phonic card ${card.letter.toUpperCase()} for ${card.word}`}
-                  className="w-full h-full object-cover select-none"
+                  className="w-full h-auto block select-none"
                   draggable={false}
                 />
                 <div className="absolute top-3 left-3 px-3 py-1 rounded-md bg-black/60 text-white text-sm font-bold backdrop-blur-sm">
