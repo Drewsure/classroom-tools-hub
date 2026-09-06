@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   useDramaticSound,
@@ -66,6 +66,20 @@ function weatherGif(type: WeatherType): string {
 type Mode = "flashcard" | "selection" | "present";
 type FlashcardPhase = "idle" | "flipping" | "result";
 
+function speakWeather(type: WeatherType, sentence: boolean) {
+  try {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const label = WEATHER_META[type].label;
+    const u = new SpeechSynthesisUtterance(sentence ? `It's ${label} today.` : label);
+    u.lang = "en-US";
+    u.rate = 0.85;
+    u.pitch = 1.1;
+    window.speechSynthesis.speak(u);
+  } catch {
+    // speech synthesis unavailable — silently ignore
+  }
+}
 export function WeatherFlashcards() {
   const sound = useDramaticSound();
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
@@ -89,6 +103,18 @@ export function WeatherFlashcards() {
 
   // Present mode state
   const [presentIdx, setPresentIdx] = useState(0);
+  // ===== Spoken weather words (ESL) — browser speech synthesis =====
+  useEffect(() => {
+    if (mode === "flashcard" && phase === "result" && current) {
+      speakWeather(current, revealAnswer === "yes");
+    }
+  }, [mode, phase, current, revealAnswer]);
+
+  useEffect(() => {
+    if (mode === "present" && phase === "result" && presentCard) {
+      speakWeather(presentCard, true);
+    }
+  }, [mode, phase, presentCard]);
 
   // ===== Flashcard mode: draw random =====
   const drawRandom = useCallback(() => {
@@ -136,6 +162,7 @@ export function WeatherFlashcards() {
   const toggleMark = useCallback((type: WeatherType, mark: "correct" | "wrong") => {
     setMarks((prev) => ({ ...prev, [type]: prev[type] === mark ? null : mark }));
     sound.playTick(mark === "correct" ? 880 : 440);
+    if (mark === "correct") speakWeather(type, false);
   }, [sound]);
 
   const clearMarks = useCallback(() => {

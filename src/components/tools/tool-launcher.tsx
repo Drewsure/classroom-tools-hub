@@ -25,6 +25,7 @@ import { ActivityHub } from "./activity-hub";
 import { OfflineAudioPlayer } from "./offline-audio-player";
 import { PEEnglishHub } from "./pe-english-hub";
 import { EnterNames } from "./enter-names";
+import { AttendanceButton } from "./attendance-dialog";
 import { ClassicTimer } from "@/components/timers/classic-timer";
 import { Stopwatch } from "@/components/timers/stopwatch";
 import { RocketTimer } from "@/components/timers/rocket-timer";
@@ -95,7 +96,8 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <AttendanceButton />
+            <div className="flex items-center gap-2 shrink-0">
             <Button
               onClick={() => setSoundEnabled((s) => !s)}
               variant="outline"

@@ -12,6 +12,7 @@ import {
 import { ToolLauncher } from "@/components/tools/tool-launcher";
 import { useFavorites } from "@/hooks/use-favorites";
 import { Star } from "lucide-react";
+import { AttendanceButton } from "@/components/tools/attendance-dialog";
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<ToolDef | null>(null);
@@ -53,6 +54,7 @@ export default function Home() {
             {TOOLS.length} tools
           </span>
           {/* Category filter — compact pills, inline */}
+          <AttendanceButton />
           <div className="flex gap-1 shrink-0">
             <button
               onClick={() => setActiveCategory("all")}
