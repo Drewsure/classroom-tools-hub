@@ -167,7 +167,10 @@ export function useAttendance() {
 
   const classes = readClasses();
   let activeId = readActiveId();
-  if (!activeId || !classes.some((c) => c.id === activeId)) activeId = classes.length ? classes[0].id : null;
+  if (!activeId || !classes.some((c) => c.id === activeId)) {
+    activeId = classes.length ? classes[0].id : null;
+    if (activeId) writeActiveId(activeId); // persist so toggles/badges target a real class
+  }
   const activeClass = classes.find((c) => c.id === activeId) ?? null;
 
   const entryFor = useCallback((name: string): AttEntry => {

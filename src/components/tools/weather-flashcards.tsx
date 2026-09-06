@@ -103,18 +103,6 @@ export function WeatherFlashcards() {
 
   // Present mode state
   const [presentIdx, setPresentIdx] = useState(0);
-  // ===== Spoken weather words (ESL) — browser speech synthesis =====
-  useEffect(() => {
-    if (mode === "flashcard" && phase === "result" && current) {
-      speakWeather(current, revealAnswer === "yes");
-    }
-  }, [mode, phase, current, revealAnswer]);
-
-  useEffect(() => {
-    if (mode === "present" && phase === "result" && presentCard) {
-      speakWeather(presentCard, true);
-    }
-  }, [mode, phase, presentCard]);
 
   // ===== Flashcard mode: draw random =====
   const drawRandom = useCallback(() => {
@@ -208,6 +196,19 @@ export function WeatherFlashcards() {
   const correctCount = correctTypes.length;
   const wrongCount = wrongTypes.length;
   const presentCard = correctTypes[presentIdx];
+  // ===== Spoken weather words (ESL) — browser speech synthesis =====
+  // NOTE: must live after the presentCard declaration (avoids TDZ crash)
+  useEffect(() => {
+    if (mode === "flashcard" && phase === "result" && current) {
+      speakWeather(current, revealAnswer === "yes");
+    }
+  }, [mode, phase, current, revealAnswer]);
+
+  useEffect(() => {
+    if (mode === "present" && phase === "result" && presentCard) {
+      speakWeather(presentCard, true);
+    }
+  }, [mode, phase, presentCard]);
 
   return (
     <div className={cn("flex flex-col items-center gap-4 py-2", fullscreen && "fixed inset-0 z-50 bg-black/95 p-4 overflow-y-auto")}>

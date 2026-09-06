@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 /* ============================================================
    SHARED STUDENT ROSTER STORE
@@ -107,7 +107,11 @@ export function useStudentRoster() {
   const activeId = readActiveId();
 
   const activeRoster = rosters.find((r) => r.id === activeId) ?? null;
-  const students = activeRoster?.students ?? [];
+  // Stable array identity: identical content -> same reference, so effects
+  // depending on [students] only fire on real changes (fixes infinite loop)
+  const rawStudents = activeRoster?.students ?? [];
+  const studentsKey = JSON.stringify(rawStudents);
+  const students = useMemo(() => JSON.parse(studentsKey) as string[], [studentsKey]);
 
   /** Update the active roster's student list (creates a "Current" roster if none active) */
   const setStudents = useCallback(

@@ -21,7 +21,7 @@ function ToggleChip({ on, emoji, label, color, onClick }: {
 }) {
   return (
     <button onClick={onClick} title={label}
-      className={cn("w-11 h-11 rounded-xl border-2 text-lg flex items-center justify-center transition-all active:scale-90 shrink-0",
+      className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 text-xl sm:text-2xl flex items-center justify-center transition-all active:scale-90 shrink-0",
         on ? color : "bg-white/5 text-white/25 border-white/10 hover:bg-white/10")}>
       {emoji}
     </button>
@@ -174,8 +174,8 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
                 return (
                   <div key={s.name} className="flex items-center gap-2 sm:gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{s.name}</p>
-                      {s.grade && <p className="text-[10px] text-white/40">{s.grade}</p>}
+                      <p className="text-base sm:text-xl font-bold text-white truncate">{s.name}</p>
+                      {s.grade && <p className="text-xs text-white/40">{s.grade}</p>}
                     </div>
                     <ToggleChip on={e.p === 1} emoji="✓" label="Present"
                       color="bg-emerald-500/90 border-emerald-300 text-white"
@@ -188,7 +188,7 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
                       onClick={() => att.setField(s.name, "bag", e.bag ? 0 : 1)} />
                     <button onClick={() => att.cycleCard(s.name)}
                       title={s.card ? `Card: ${CARD_LABEL[s.card]} — click to cycle` : "No card — click to cycle"}
-                      className={cn("w-9 h-9 rounded-full border-2 text-xs font-black shrink-0 transition-all hover:scale-110 active:scale-95",
+                      className={cn("w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 text-sm font-black shrink-0 transition-all hover:scale-110 active:scale-95",
                         s.card ? CARD_STYLES[s.card] : "bg-white/5 text-white/30 border-white/15")}>
                       {s.card ?? "–"}
                     </button>
