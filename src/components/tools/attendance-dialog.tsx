@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAttendance, type CardLevel } from "@/hooks/use-attendance";
@@ -71,21 +71,11 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
     }
   };
 
-  const yearDotDates = useMemo(() => {
-    const out: string[] = [];
-    const now = new Date();
-    for (let i = 279; i >= 0; i--) {
-      const d = new Date(now.getTime() - i * 86400000);
-      out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
-    }
-    return out;
-  }, []);
-
-  if (!open) return null;
+if (!open) return null;
   const cls = att.activeClass;
   const activeCount = att.activeStudents().length;
   const total = cls?.students.length ?? 0;
-  const daySet = new Set(cls ? att.yearDates(cls.id) : []);
+  const dayList = cls ? att.yearDates(cls.id) : [];
   const stats = cls ? att.yearStats(cls.id) : [];
 
   return (
@@ -206,13 +196,20 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
                 <div className="flex items-center gap-2 mb-2">
                   <CalendarDays className="h-4 w-4 text-sky-300" />
                   <h3 className="text-sm font-bold text-white">Year View — {cls.name}</h3>
-                  <span className="text-xs text-white/40">{daySet.size} days recorded</span>
+                  <span className="text-xs text-white/40">{dayList.length}/40 lessons recorded</span>
                 </div>
-                <div className="flex flex-wrap gap-[3px] mb-3">
-                  {yearDotDates.map((d) => (
-                    <div key={d} title={d}
-                      className={cn("w-3 h-3 rounded-[3px]", daySet.has(d) ? "bg-emerald-400" : "bg-white/10")} />
-                  ))}
+                <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 mb-3">
+                  {Array.from({ length: 40 }, (_, i) => {
+                    const d = dayList[i];
+                    return (
+                      <div key={i}
+                        title={d ? "Lesson " + (i + 1) + " - " + d : "Lesson " + (i + 1)}
+                        className={cn("h-8 rounded-lg flex items-center justify-center text-[11px] font-bold transition-all",
+                          d ? "bg-emerald-500/80 text-white shadow" : "bg-white/10 text-white/30")}>
+                        {i + 1}
+                      </div>
+                    );
+                  })}
                 </div>
                 <div className="flex flex-col gap-1 max-h-56 overflow-y-auto pr-1">
                   {stats.length === 0 && <p className="text-xs text-white/40">No students.</p>}
