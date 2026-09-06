@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import { useStudentRoster } from "@/hooks/use-student-roster";
+import { useAttendance } from "@/hooks/use-attendance";
+import { ClassSelect } from "./class-select";
 import { useToolSkin } from "@/hooks/use-tool-skin";
-import { RosterManager } from "./roster-manager";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { SkinParticleField, SkinSceneDecorator } from "@/lib/skins";
 import { Sparkles, RotateCcw, Play, Plus, Trash2, UserPlus, History, X } from "lucide-react";
@@ -31,7 +32,10 @@ export function RandomNamePicker() {
   const { shakeIntensity, shake } = useScreenShake();
 
   // Shared roster (syncs with Group Generator)
-  const { students, setStudents } = useStudentRoster();
+  const { students } = useStudentRoster();
+  const att = useAttendance();
+  // Default name source: the active attendance class (falls back to shared roster)
+  const attClassNames = att.activeClass ? att.activeClass.students.map((s) => s.name) : [];
   // Tool skin
   const { skinId, setSkinId, skin } = useToolSkin("name-picker");
 
@@ -39,7 +43,7 @@ export function RandomNamePicker() {
   const [names, setNames] = useState<NameEntry[]>(() =>
     students.length > 0
       ? toEntries(students)
-      : toEntries(["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona"]),
+      : toEntries(attClassNames.length > 0 ? attClassNames : ["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona"]),
   );
   const idRef = useRef(1000);
 
@@ -47,17 +51,10 @@ export function RandomNamePicker() {
   useEffect(() => {
     if (students.length > 0) {
       setNames(toEntries(students));
+      setPickedNames([]); // class changed: restart at full class
     }
   }, [students]);
 
-  // Sync TO shared roster → when local names change
-  const syncToRoster = useCallback(
-    (newNames: NameEntry[]) => {
-      const texts = newNames.map((n) => n.text).filter(Boolean);
-      setStudents(texts);
-    },
-    [setStudents],
-  );
 
   const [spinning, setSpinning] = useState(false);
   const [highlightIdx, setHighlightIdx] = useState<number | null>(null);
@@ -71,9 +68,15 @@ export function RandomNamePicker() {
   const [removeOnPick, setRemoveOnPick] = useState(true);
   // Pool of names removed this session — so the teacher can restore them
   const [pickedNames, setPickedNames] = useState<{ text: string; ts: number }[]>([]);
+  // ===== Attendance: absent students excluded from play =====
+  const attPresent = new Set(att.activeStudents());
+  const attInClass = (n: string) => (att.activeClass ? att.activeClass.students.some((s) => s.name === n) : false);
+  const attOk = (n: string) => !attInClass(n) || attPresent.has(n);
+  const pool = names.filter((n) => n.text && attOk(n.text));
+  const attExcluded = names.length - pool.length;
 
   const handleSpin = useCallback(() => {
-    if (names.length < 2 || spinning) return;
+    if (pool.length < 2 || spinning) return;
     setWinner(null);
     setSpinning(true);
     sound.playClick();
@@ -83,15 +86,15 @@ export function RandomNamePicker() {
     let currentIdx = 0;
 
     spinIntervalRef.current = setInterval(() => {
-      currentIdx = (currentIdx + 1) % names.length;
+      currentIdx = (currentIdx + 1) % pool.length;
       setHighlightIdx(currentIdx);
       sound.playTick(800 + (tickCount * 10));
 
       tickCount++;
       if (tickCount >= totalTicks) {
         if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
-        const finalIdx = Math.floor(Math.random() * names.length);
-        const winnerName = names[finalIdx].text || `Player ${finalIdx + 1}`;
+        const finalIdx = Math.floor(Math.random() * pool.length);
+        const winnerName = pool[finalIdx].text || `Player ${finalIdx + 1}`;
         setHighlightIdx(finalIdx);
         setWinner(winnerName);
         setSpinning(false);
@@ -104,15 +107,14 @@ export function RandomNamePicker() {
 
         // Remove the winner from the pool if remove-on-pick is ON
         if (removeOnPick) {
-          const winnerEntry = names[finalIdx];
-          const remaining = names.filter((_, i) => i !== finalIdx);
+          const winnerEntry = pool[finalIdx];
+          const remaining = pool.filter((_, i) => i !== finalIdx);
           setNames(remaining);
-          syncToRoster(remaining);
           setPickedNames((prev) => [{ text: winnerEntry.text || `Player ${finalIdx + 1}`, ts: Date.now() }, ...prev]);
         }
       }
     }, 100);
-  }, [names, spinning, sound, flashFn, shake, burstConfetti, removeOnPick, syncToRoster]);
+  }, [pool, spinning, sound, flashFn, shake, burstConfetti, removeOnPick]);
 
   const handleReset = useCallback(() => {
     if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
@@ -128,7 +130,6 @@ export function RandomNamePicker() {
     const restored = [...pickedNames].reverse().map((p) => ({ id: idRef.current++, text: p.text }));
     const merged = [...names, ...restored];
     setNames(merged);
-    syncToRoster(merged);
     setPickedNames([]);
     sound.playClick();
   };
@@ -139,7 +140,6 @@ export function RandomNamePicker() {
     if (!target) return;
     const merged = [...names, { id: idRef.current++, text: target.text }];
     setNames(merged);
-    syncToRoster(merged);
     setPickedNames((prev) => prev.filter((p) => p.ts !== ts));
     sound.playClick();
   };
@@ -147,14 +147,12 @@ export function RandomNamePicker() {
   const addName = () => {
     const newNames = [...names, { id: idRef.current++, text: "" }];
     setNames(newNames);
-    syncToRoster(newNames);
   };
 
   const addNameFromInput = () => {
     if (!newName.trim()) return;
     const newNames = [...names, { id: idRef.current++, text: newName.trim() }];
     setNames(newNames);
-    syncToRoster(newNames);
     setNewName("");
     sound.playClick();
   };
@@ -162,13 +160,11 @@ export function RandomNamePicker() {
   const updateName = (id: number, text: string) => {
     const newNames = names.map((n) => (n.id === id ? { ...n, text } : n));
     setNames(newNames);
-    syncToRoster(newNames);
   };
 
   const removeName = (id: number) => {
     const newNames = names.filter((n) => n.id !== id);
     setNames(newNames);
-    syncToRoster(newNames);
   };
 
   const handleBulkAdd = () => {
@@ -177,7 +173,6 @@ export function RandomNamePicker() {
     const newEntries = lines.map((text) => ({ id: idRef.current++, text }));
     const newNames = [...names, ...newEntries];
     setNames(newNames);
-    syncToRoster(newNames);
     setBulkText("");
     setShowBulk(false);
     sound.playClick();
@@ -186,14 +181,18 @@ export function RandomNamePicker() {
   return (
     <div className="flex flex-col items-center gap-6 py-2">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
+      {attExcluded > 0 && (
+        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-bold" title="Absent students are excluded - change in Attendance">
+          Active: {pool.length}/{names.length} (attendance)
+        </span>
+      )}
 
-      {/* Shared roster manager (save/load classes) */}
-      <div className="w-full max-w-2xl">
-        <RosterManager
-          localStudents={names.map((n) => n.text).filter(Boolean)}
-          onStudentsChange={(s) => setNames(toEntries(s))}
-        />
-      </div>
+      <ClassSelect
+        onPick={(s) => {
+          setNames(toEntries(s));
+          setPickedNames([]);
+        }}
+      />
 
       {/* Remove-on-pick toggle + restore controls */}
       <div className="w-full max-w-2xl flex flex-wrap items-center gap-3">
@@ -274,8 +273,7 @@ export function RandomNamePicker() {
               <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-4">
                 {spinning ? "Spinning..." : "Ready!"}
               </p>
-              <div className="flex flex-wrap gap-3 justify-center max-w-lg">
-                {names.map((name, i) => (
+              <div className="flex flex-wrap gap-3 justify-center max-w-lg">{pool.map((name, i) => (
                   <div
                     key={name.id}
                     className={cn(
@@ -297,11 +295,11 @@ export function RandomNamePicker() {
                 Random Name Picker
               </p>
               <p className="text-white/70 mb-4">
-                {names.length} names ready · Click Spin to pick!
+                {pool.length} names ready · Click Spin to pick!
               </p>
               <Button
                 onClick={handleSpin}
-                disabled={names.length < 2}
+                disabled={pool.length < 2}
                 size="lg"
                 className="rounded-full px-8 bg-white text-purple-700 hover:bg-white/90 shadow-lg text-lg"
               >

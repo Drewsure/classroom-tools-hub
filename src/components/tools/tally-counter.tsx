@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useDramaticSound } from "@/hooks/use-effects";
 import { useToolSkin } from "@/hooks/use-tool-skin";
 import { useStudentRoster } from "@/hooks/use-student-roster";
+import { useAttendance } from "@/hooks/use-attendance";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { RosterManager } from "./roster-manager";
 import { useTimer } from "@/hooks/use-timer";
@@ -35,6 +36,11 @@ export function TallyCounter() {
   const sound = useDramaticSound();
   const { skinId, setSkinId, skin } = useToolSkin("tally-counter");
   const { students } = useStudentRoster();
+  // ===== Attendance (Stage 3): Load Class uses present students only =====
+  const att = useAttendance();
+  const attPresent = new Set(att.activeStudents());
+  const attInClass = (n: string) => (att.activeClass ? att.activeClass.students.some((s) => s.name === n) : false);
+  const attActiveCount = students.filter((n) => !attInClass(n) || attPresent.has(n)).length;
 
   const [counters, setCounters] = useState<Counter[]>([
     { id: 1, label: "Team A", value: 0, color: COUNTER_COLORS[0] },
@@ -116,7 +122,7 @@ export function TallyCounter() {
   /** Load student names as counter labels */
   const loadFromRoster = () => {
     if (students.length === 0) return;
-    const newCounters: Counter[] = students.map((name, i) => ({
+    const newCounters: Counter[] = students.filter((n) => !attInClass(n) || attPresent.has(n)).map((name, i) => ({
       id: idRef.current++,
       label: name,
       value: 0,
@@ -137,6 +143,11 @@ export function TallyCounter() {
   return (
     <div className="flex flex-col items-center gap-4 py-2">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
+      {students.length > 0 && attActiveCount < students.length && (
+        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-bold" title="Absent students are excluded - change in Attendance">
+          Active: {attActiveCount}/{students.length} (attendance)
+        </span>
+      )}
 
       {/* Top bar: summary + toggle timer */}
       <div className="w-full max-w-2xl flex items-center justify-between gap-4 px-6 py-3 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 border border-white/10 shadow-lg flex-wrap">
@@ -279,7 +290,7 @@ export function TallyCounter() {
               className="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white"
             >
               <Users className="mr-2 h-4 w-4" />
-              Load {students.length} students as counters
+              Load {attActiveCount} of {students.length} present students
             </Button>
           ) : (
             <p className="text-center text-white/50 text-sm mt-2">

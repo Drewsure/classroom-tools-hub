@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import { useStudentRoster } from "@/hooks/use-student-roster";
-import { RosterManager } from "./roster-manager";
+import { useAttendance } from "@/hooks/use-attendance";
+import { ClassSelect } from "./class-select";
 import { Play, RotateCcw, Plus, Trash2, History, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToolSkin } from "@/hooks/use-tool-skin";
@@ -35,11 +36,14 @@ export function SpinnerWheel() {
   const { flash, flashFn } = useFlash();
   const { shakeIntensity, shake } = useScreenShake();
 
-  const { students, setStudents } = useStudentRoster();
+  const { students } = useStudentRoster();
+  const att = useAttendance();
+  // Default name source: the active attendance class (falls back to shared roster)
+  const attClassNames = att.activeClass ? att.activeClass.students.map((s) => s.name) : [];
   const { skinId, setSkinId, skin } = useToolSkin("spinner-wheel");
 
   const [segments, setSegments] = useState<string[]>(
-    students.length > 0 ? students : ["Option 1", "Option 2", "Option 3", "Option 4"],
+    students.length > 0 ? students : attClassNames.length > 0 ? attClassNames : ["Option 1", "Option 2", "Option 3", "Option 4"],
   );
   const [rotation, setRotation] = useState(0);
   const [phase, setPhase] = useState<"idle" | "buildup" | "spinning" | "result">("idle");
@@ -50,17 +54,24 @@ export function SpinnerWheel() {
   // Remove-on-pick mode (default ON — each spin removes the winner so the next spin picks a different option)
   const [removeOnPick, setRemoveOnPick] = useState(true);
   const [pickedSegments, setPickedSegments] = useState<{ text: string; ts: number }[]>([]);
+  // ===== Attendance: absent students excluded from the wheel =====
+  const attPresent = new Set(att.activeStudents());
+  const attInClass = (n: string) => (att.activeClass ? att.activeClass.students.some((s) => s.name === n) : false);
+  const attOk = (n: string) => !attInClass(n) || attPresent.has(n);
+  const pool = segments.filter(attOk);
+  const attExcluded = segments.length - pool.length;
 
   // Sync from shared roster
   useEffect(() => {
     if (students.length > 0) {
       setSegments(students);
+      setPickedSegments([]); // class changed: restart at full class
     }
   }, [students]);
 
   const handleSpin = useCallback(() => {
     if (phase === "buildup" || phase === "spinning") return;
-    if (segments.length < 2) return;
+    if (pool.length < 2) return;
 
     setPhase("buildup");
     setWinner(null);
@@ -86,10 +97,10 @@ export function SpinnerWheel() {
 
       setTimeout(() => {
         if (tickRef.current) clearInterval(tickRef.current);
-        const segmentAngle = 360 / segments.length;
+        const segmentAngle = 360 / pool.length;
         const normalized = ((finalAngle % 360) + 360) % 360;
-        const idx = Math.floor((360 - normalized) / segmentAngle) % segments.length;
-        const winnerName = segments[idx];
+        const idx = Math.floor((360 - normalized) / segmentAngle) % pool.length;
+        const winnerName = pool[idx];
         setWinner(winnerName);
         setPhase("result");
         sound.playReveal();
@@ -100,14 +111,13 @@ export function SpinnerWheel() {
 
         // Remove the winner from the pool if remove-on-pick is ON
         if (removeOnPick) {
-          const remaining = segments.filter((_, i) => i !== idx);
+          const remaining = segments.filter((s) => s !== winnerName);
           setSegments(remaining);
-          setStudents(remaining);
           setPickedSegments((prev) => [{ text: winnerName, ts: Date.now() }, ...prev]);
         }
       }, 4000);
     }, 1500);
-  }, [phase, segments, sound, flashFn, shake, burstConfetti, removeOnPick, setStudents]);
+  }, [phase, pool, sound, flashFn, shake, burstConfetti, removeOnPick]);
 
   const handleReset = useCallback(() => {
     setPhase("idle");
@@ -121,7 +131,6 @@ export function SpinnerWheel() {
     const restored = [...pickedSegments].reverse().map((p) => p.text);
     const merged = [...segments, ...restored];
     setSegments(merged);
-    setStudents(merged);
     setPickedSegments([]);
     sound.playClick();
   };
@@ -131,7 +140,6 @@ export function SpinnerWheel() {
     if (!target) return;
     const merged = [...segments, target.text];
     setSegments(merged);
-    setStudents(merged);
     setPickedSegments((prev) => prev.filter((p) => p.ts !== ts));
     sound.playClick();
   };
@@ -140,7 +148,6 @@ export function SpinnerWheel() {
     if (newSegment.trim()) {
       const updated = [...segments, newSegment.trim()];
       setSegments(updated);
-      setStudents(updated);
       setNewSegment("");
       sound.playClick();
     }
@@ -149,28 +156,30 @@ export function SpinnerWheel() {
   const removeSegment = (idx: number) => {
     const updated = segments.filter((_, i) => i !== idx);
     setSegments(updated);
-    setStudents(updated);
   };
 
   const updateSegment = (idx: number, value: string) => {
     const updated = segments.map((s, i) => (i === idx ? value : s));
     setSegments(updated);
-    setStudents(updated);
   };
 
   const isBusy = phase === "buildup" || phase === "spinning";
 
   return (
     <div className="flex flex-col items-center gap-6 py-2">
-      {/* Shared roster manager */}
-      <div className="w-full max-w-2xl">
-        <RosterManager
-          localStudents={segments}
-          onStudentsChange={(s) => setSegments(s)}
-        />
-      </div>
+      <ClassSelect
+        onPick={(s) => {
+          setSegments(s);
+          setPickedSegments([]);
+        }}
+      />
 
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
+      {attExcluded > 0 && (
+        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-bold" title="Absent students are excluded - change in Attendance">
+          Active: {pool.length}/{segments.length} (attendance)
+        </span>
+      )}
 
       {/* Remove-on-pick toggle + restore controls */}
       <div className="w-full max-w-md flex flex-wrap items-center gap-2 justify-center">
@@ -277,17 +286,17 @@ export function SpinnerWheel() {
                   <div
                     className="w-full h-full rounded-full border-8 border-white shadow-2xl relative overflow-hidden"
                     style={{
-                      background: `conic-gradient(${segments.map((_, i) => {
-                        const start = (i / segments.length) * 360;
-                        const end = ((i + 1) / segments.length) * 360;
+                      background: `conic-gradient(${pool.map((_, i) => {
+                        const start = (i / pool.length) * 360;
+                        const end = ((i + 1) / pool.length) * 360;
                         return `${WHEEL_COLORS[i % WHEEL_COLORS.length]} ${start}deg ${end}deg`;
                       }).join(", ")})`,
                       transform: `rotate(${rotation}deg)`,
                       transition: phase === "spinning" ? "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none",
                     }}
                   >
-                    {segments.map((seg, i) => {
-                      const angle = (i / segments.length) * 360 + (360 / segments.length) / 2;
+                    {pool.map((seg, i) => {
+                      const angle = (i / pool.length) * 360 + (360 / pool.length) / 2;
                       const segColor = WHEEL_COLORS[i % WHEEL_COLORS.length];
                       const textColor = readableTextColor(segColor);
                       return (
@@ -336,7 +345,7 @@ export function SpinnerWheel() {
         {phase === "idle" && (
           <Button
             onClick={handleSpin}
-            disabled={segments.length < 2}
+            disabled={pool.length < 2}
             size="lg"
             className="rounded-full px-8 bg-white text-slate-900 hover:bg-white/90 shadow-lg text-lg"
           >

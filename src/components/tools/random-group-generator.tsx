@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import { useStudentRoster } from "@/hooks/use-student-roster";
+import { useAttendance } from "@/hooks/use-attendance";
+import { ClassSelect } from "./class-select";
 import { useToolSkin } from "@/hooks/use-tool-skin";
-import { RosterManager } from "./roster-manager";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { SkinParticleField, SkinSceneDecorator } from "@/lib/skins";
 import { Users, Shuffle, Plus, Trash2, RotateCcw, UserPlus, History, X } from "lucide-react";
@@ -34,7 +35,10 @@ export function RandomGroupGenerator() {
   const { shakeIntensity, shake } = useScreenShake();
 
   // Shared roster (syncs with Name Picker)
-  const { students, setStudents } = useStudentRoster();
+  const { students } = useStudentRoster();
+  const att = useAttendance();
+  // Default name source: the active attendance class (falls back to shared roster)
+  const attClassNames = att.activeClass ? att.activeClass.students.map((s) => s.name) : [];
   // Tool skin
   const { skinId, setSkinId, skin } = useToolSkin("group-generator");
 
@@ -42,7 +46,7 @@ export function RandomGroupGenerator() {
   const [names, setNames] = useState<string[]>(() =>
     students.length > 0
       ? students
-      : ["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona",
+      : attClassNames.length > 0 ? attClassNames : ["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona",
          "George", "Hannah", "Ian", "Jane", "Kevin", "Lily"],
   );
 
@@ -50,6 +54,7 @@ export function RandomGroupGenerator() {
   useEffect(() => {
     if (students.length > 0) {
       setNames(students);
+      setPickedNames([]); // class changed: restart at full class
     }
   }, [students]);
 
@@ -62,12 +67,18 @@ export function RandomGroupGenerator() {
   const shuffleRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Remove-on-pick mode (default ON — after generating groups, all names get moved to "picked" so the next Generate pulls fresh names only)
-  const [removeOnPick, setRemoveOnPick] = useState(true);
+  const [removeOnPick, setRemoveOnPick] = useState(false); // default OFF per teacher request
   const [pickedNames, setPickedNames] = useState<string[]>([]);
+  // ===== Attendance: absent students excluded from grouping =====
+  const attPresent = new Set(att.activeStudents());
+  const attInClass = (n: string) => (att.activeClass ? att.activeClass.students.some((s) => s.name === n) : false);
+  const attOk = (n: string) => !attInClass(n) || attPresent.has(n);
+  const attPool = names.filter(attOk);
+  const attExcluded = names.length - attPool.length;
 
   const handleGenerate = useCallback(() => {
     // When removeOnPick is ON, only shuffle from the active pool (names not yet picked)
-    const pool = removeOnPick ? names : names;
+    const pool = attPool;
     if (pool.length < numGroups) return;
     setGroups(null);
     setShuffling(true);
@@ -109,11 +120,10 @@ export function RandomGroupGenerator() {
         if (removeOnPick) {
           setPickedNames((prev) => [...pool, ...prev]);
           setNames([]);
-          setStudents([]);
         }
       }
     }, 120);
-  }, [names, numGroups, sound, flashFn, shake, burstConfetti, removeOnPick, setStudents]);
+  }, [attPool, numGroups, sound, flashFn, shake, burstConfetti, removeOnPick]);
 
   const handleReset = useCallback(() => {
     if (shuffleRef.current) clearInterval(shuffleRef.current);
@@ -127,7 +137,6 @@ export function RandomGroupGenerator() {
     if (pickedNames.length === 0) return;
     const merged = [...names, ...pickedNames];
     setNames(merged);
-    setStudents(merged);
     setPickedNames([]);
     sound.playClick();
   };
@@ -137,7 +146,6 @@ export function RandomGroupGenerator() {
     if (!target) return;
     const merged = [...names, target];
     setNames(merged);
-    setStudents(merged);
     setPickedNames((prev) => prev.filter((_, i) => i !== idx));
     sound.playClick();
   };
@@ -146,7 +154,6 @@ export function RandomGroupGenerator() {
     if (newName.trim()) {
       const updated = [...names, newName.trim()];
       setNames(updated);
-      setStudents(updated);
       setNewName("");
       sound.playClick();
     }
@@ -155,7 +162,6 @@ export function RandomGroupGenerator() {
   const removeName = (idx: number) => {
     const updated = names.filter((_, i) => i !== idx);
     setNames(updated);
-    setStudents(updated);
   };
 
   const handleBulkAdd = () => {
@@ -163,7 +169,6 @@ export function RandomGroupGenerator() {
     if (lines.length === 0) return;
     const updated = [...names, ...lines];
     setNames(updated);
-    setStudents(updated);
     setBulkText("");
     setShowBulk(false);
     sound.playClick();
@@ -172,14 +177,18 @@ export function RandomGroupGenerator() {
   return (
     <div className="flex flex-col items-center gap-6 py-2">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
+      {attExcluded > 0 && (
+        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-bold" title="Absent students are excluded - change in Attendance">
+          Active: {attPool.length}/{names.length} (attendance)
+        </span>
+      )}
 
-      {/* Shared roster manager (save/load classes) */}
-      <div className="w-full max-w-2xl">
-        <RosterManager
-          localStudents={names}
-          onStudentsChange={(s) => setNames(s)}
-        />
-      </div>
+      <ClassSelect
+        onPick={(s) => {
+          setNames(s);
+          setPickedNames([]);
+        }}
+      />
 
       {/* Remove-on-pick toggle + restore controls */}
       <div className="w-full max-w-2xl flex flex-wrap items-center gap-3">
@@ -308,11 +317,11 @@ export function RandomGroupGenerator() {
                 Random Group Generator
               </p>
               <p className="text-white/70 mb-4">
-                {names.length} people → {numGroups} groups
+                {attPool.length} people → {numGroups} groups
               </p>
               <Button
                 onClick={handleGenerate}
-                disabled={names.length < numGroups}
+                disabled={attPool.length < numGroups}
                 size="lg"
                 className="rounded-full px-8 bg-white text-purple-700 hover:bg-white/90 shadow-lg text-lg"
               >

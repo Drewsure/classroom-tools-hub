@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import { useStudentRoster } from "@/hooks/use-student-roster";
+import { useAttendance } from "@/hooks/use-attendance";
+import { ClassSelect } from "./class-select";
 import { useToolSkin } from "@/hooks/use-tool-skin";
-import { RosterManager } from "./roster-manager";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { SkinParticleField, SkinSceneDecorator } from "@/lib/skins";
 import { Shuffle, RotateCcw, Plus, Trash2, Copy } from "lucide-react";
@@ -34,27 +35,37 @@ export function StudentOrderShuffler() {
   const { flash, flashFn } = useFlash();
   const { shakeIntensity, shake } = useScreenShake();
 
-  const { students, setStudents } = useStudentRoster();
+  const { students } = useStudentRoster();
+  const att = useAttendance();
+  // Default name source: the active attendance class (falls back to shared roster)
+  const attClassNames = att.activeClass ? att.activeClass.students.map((s) => s.name) : [];
   const { skinId, setSkinId, skin } = useToolSkin("student-shuffler");
 
   const [names, setNames] = useState<string[]>(
-    students.length > 0 ? students : ["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona"],
+    students.length > 0 ? students : attClassNames.length > 0 ? attClassNames : ["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona"],
   );
   const [order, setOrder] = useState<string[] | null>(null);
   const [phase, setPhase] = useState<"idle" | "buildup" | "shuffling" | "result">("idle");
   const [newName, setNewName] = useState("");
   const shuffleRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // ===== Attendance: absent students excluded from shuffle =====
+  const attPresent = new Set(att.activeStudents());
+  const attInClass = (n: string) => (att.activeClass ? att.activeClass.students.some((s) => s.name === n) : false);
+  const attOk = (n: string) => !attInClass(n) || attPresent.has(n);
+  const pool = names.filter(attOk);
+  const attExcluded = names.length - pool.length;
 
   // Sync from shared roster
   useEffect(() => {
     if (students.length > 0) {
       setNames(students);
+      setOrder(null); // class changed: restart at full class
     }
   }, [students]);
 
   const handleShuffle = useCallback(() => {
     if (phase === "buildup" || phase === "shuffling") return;
-    if (names.length < 2) return;
+    if (pool.length < 2) return;
 
     setPhase("buildup");
     setOrder(null);
@@ -68,14 +79,14 @@ export function StudentOrderShuffler() {
       const totalTicks = 25;
       shuffleRef.current = setInterval(() => {
         // Rapid shuffle for animation
-        const shuffled = [...names].sort(() => Math.random() - 0.5);
+        const shuffled = [...pool].sort(() => Math.random() - 0.5);
         setOrder(shuffled);
         sound.playTick(500 + ticks * 15);
         ticks++;
         if (ticks >= totalTicks) {
           if (shuffleRef.current) clearInterval(shuffleRef.current);
           // Final shuffle
-          const finalOrder = [...names].sort(() => Math.random() - 0.5);
+          const finalOrder = [...pool].sort(() => Math.random() - 0.5);
           setOrder(finalOrder);
           setPhase("result");
           sound.playReveal();
@@ -87,7 +98,7 @@ export function StudentOrderShuffler() {
         }
       }, 100);
     }, 1500);
-  }, [phase, names, sound, flashFn, shake, burstConfetti]);
+  }, [phase, pool, sound, flashFn, shake, burstConfetti]);
 
   const handleReset = useCallback(() => {
     if (shuffleRef.current) clearInterval(shuffleRef.current);
@@ -100,7 +111,6 @@ export function StudentOrderShuffler() {
     if (newName.trim()) {
       const updated = [...names, newName.trim()];
       setNames(updated);
-      setStudents(updated);
       setNewName("");
       sound.playClick();
     }
@@ -109,7 +119,6 @@ export function StudentOrderShuffler() {
   const removeName = (idx: number) => {
     const updated = names.filter((_, i) => i !== idx);
     setNames(updated);
-    setStudents(updated);
   };
 
   const handleCopyOrder = () => {
@@ -124,14 +133,18 @@ export function StudentOrderShuffler() {
   return (
     <div className="flex flex-col items-center gap-6 py-2">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
+      {attExcluded > 0 && (
+        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-bold" title="Absent students are excluded - change in Attendance">
+          Active: {pool.length}/{names.length} (attendance)
+        </span>
+      )}
 
-      {/* Shared roster manager */}
-      <div className="w-full max-w-2xl">
-        <RosterManager
-          localStudents={names}
-          onStudentsChange={(s) => setNames(s)}
-        />
-      </div>
+      <ClassSelect
+        onPick={(s) => {
+          setNames(s);
+          setOrder(null);
+        }}
+      />
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn("relative w-full max-w-2xl mx-auto min-h-80 sm:min-h-96 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient)}>
@@ -198,11 +211,11 @@ export function StudentOrderShuffler() {
                   Student Order Shuffler
                 </p>
                 <p className="text-white/70 mb-4">
-                  {names.length} students ready to shuffle
+                  {pool.length} students ready to shuffle
                 </p>
                 <Button
                   onClick={handleShuffle}
-                  disabled={names.length < 2}
+                  disabled={pool.length < 2}
                   size="lg"
                   className="rounded-full px-8 bg-white text-purple-700 hover:bg-white/90 shadow-lg text-lg"
                 >

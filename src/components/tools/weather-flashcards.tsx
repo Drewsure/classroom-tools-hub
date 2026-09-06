@@ -66,12 +66,12 @@ function weatherGif(type: WeatherType): string {
 type Mode = "flashcard" | "selection" | "present";
 type FlashcardPhase = "idle" | "flipping" | "result";
 
-function speakWeather(type: WeatherType, sentence: boolean) {
+function speakWeather(type: WeatherType, sentence: boolean, negated = false) {
   try {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const label = WEATHER_META[type].label;
-    const u = new SpeechSynthesisUtterance(sentence ? `It's ${label} today.` : label);
+    const u = new SpeechSynthesisUtterance(sentence ? (negated ? `It's not ${label} today.` : `It's ${label} today.`) : label);
     u.lang = "en-US";
     u.rate = 0.85;
     u.pitch = 1.1;
@@ -200,7 +200,8 @@ export function WeatherFlashcards() {
   // NOTE: must live after the presentCard declaration (avoids TDZ crash)
   useEffect(() => {
     if (mode === "flashcard" && phase === "result" && current) {
-      speakWeather(current, revealAnswer === "yes");
+      if (revealAnswer === "no") speakWeather(current, true, true);
+      else speakWeather(current, revealAnswer === "yes");
     }
   }, [mode, phase, current, revealAnswer]);
 
@@ -244,7 +245,7 @@ export function WeatherFlashcards() {
       {/* ===== FLASHCARD MODE ===== */}
       {mode === "flashcard" && (
         <ShakeWrapper intensity={shakeIntensity}>
-          <div className={cn("relative rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-5xl min-h-[70vh]" : "w-full max-w-md min-h-[30rem]")}>
+          <div className={cn("relative rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-5xl min-h-[70vh]" : "w-full max-w-2xl min-h-[36rem]")}>
             <SkinParticleField skin={skin} seed={7} />
             <SkinSceneDecorator skin={skin} />
 
@@ -266,7 +267,7 @@ export function WeatherFlashcards() {
             {phase === "result" && current && (
               <div className="relative z-10 flex flex-col items-center gap-4 w-full">
                 {/* Large weather GIF */}
-                <div className={cn("relative rounded-3xl overflow-hidden border-4 shadow-2xl", fullscreen ? "w-56 h-56 sm:w-64 sm:h-64" : "w-48 h-48 sm:w-56 sm:h-56", revealAnswer === "yes" ? "border-emerald-400 animate-[revealPulse_0.6s_ease-out]" : "border-white/80", "bg-gradient-to-br", WEATHER_META[current].color)}>
+                <div className={cn("relative rounded-3xl overflow-hidden border-4 shadow-2xl", fullscreen ? "w-72 h-72 sm:w-96 sm:h-96" : "w-64 h-64 sm:w-80 sm:h-80", revealAnswer === "yes" ? "border-emerald-400 animate-[revealPulse_0.6s_ease-out]" : "border-white/80", "bg-gradient-to-br", WEATHER_META[current].color)}>
                   <img src={weatherGif(current)} alt={WEATHER_META[current].label} className="w-full h-full object-cover" draggable={false} />
                   {revealAnswer === "yes" && <div className="absolute top-2 right-2 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-black shadow-lg animate-[popIn_0.3s_ease-out]">✓ YES!</div>}
                 </div>
@@ -361,7 +362,7 @@ export function WeatherFlashcards() {
 
               {phase === "result" && (
                 <div className="relative z-10 flex flex-col items-center gap-4 w-full">
-                  <div className={cn("relative rounded-3xl overflow-hidden border-4 border-emerald-400 shadow-2xl bg-gradient-to-br animate-[revealPulse_0.5s_ease-out]", WEATHER_META[presentCard].color, fullscreen ? "w-48 h-48 sm:w-56 sm:h-56" : "w-40 h-40 sm:w-48 sm:h-48")}>
+                  <div className={cn("relative rounded-3xl overflow-hidden border-4 border-emerald-400 shadow-2xl bg-gradient-to-br animate-[revealPulse_0.5s_ease-out]", WEATHER_META[presentCard].color, fullscreen ? "w-72 h-72 sm:w-96 sm:h-96" : "w-64 h-64 sm:w-80 sm:h-80")}>
                     <img src={weatherGif(presentCard)} alt={WEATHER_META[presentCard].label} className="w-full h-full object-cover" />
                     <div className="absolute top-2 right-2 bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg"><Check className="h-5 w-5" /></div>
                   </div>
