@@ -168,6 +168,7 @@ export function SpinnerWheel() {
   return (
     <div className="flex flex-col items-center gap-6 py-2">
       <ClassSelect
+        currentNames={segments}
         onPick={(s) => {
           setSegments(s);
           setPickedSegments([]);

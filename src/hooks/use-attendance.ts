@@ -226,6 +226,24 @@ export function useAttendance() {
     notify();
   }, []);
 
+  /** Save a custom name list as a new class (appears in every Class dropdown) */
+  const saveCustomList = useCallback((name: string, students: string[]) => {
+    const trimmed = name.trim() || "Custom list";
+    let id = slugId("custom-" + trimmed);
+    const cs = readClasses();
+    if (cs.some((c) => c.id === id)) id = id + "-" + Date.now();
+    const cls: AttClass = {
+      id,
+      name: trimmed,
+      day: "Custom",
+      time: "",
+      students: students.filter(Boolean).map((n) => ({ name: n, grade: null, card: null })),
+    };
+    writeClasses([...cs, cls]);
+    writeActiveId(cls.id);
+    notify();
+    return cls.id;
+  }, []);
   const selectClass = useCallback((id: string) => {
     writeActiveId(id);
     notify();
@@ -320,7 +338,7 @@ export function useAttendance() {
   return {
     classes, activeClass, today: todayStr(),
     entryFor, activeStudents, setField, markAll, cycleCard,
-    selectClass, importClasses, removeClass,
+    selectClass, saveCustomList, importClasses, removeClass,
     yearDates, yearStats, exportDayCSV, exportYearCSV,
   };
 }

@@ -188,6 +188,7 @@ export function RandomNamePicker() {
       )}
 
       <ClassSelect
+        currentNames={names.map((n) => n.text).filter(Boolean)}
         onPick={(s) => {
           setNames(toEntries(s));
           setPickedNames([]);

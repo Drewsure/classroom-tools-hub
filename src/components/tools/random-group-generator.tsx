@@ -184,6 +184,7 @@ export function RandomGroupGenerator() {
       )}
 
       <ClassSelect
+        currentNames={names}
         onPick={(s) => {
           setNames(s);
           setPickedNames([]);

@@ -140,6 +140,7 @@ export function StudentOrderShuffler() {
       )}
 
       <ClassSelect
+        currentNames={names}
         onPick={(s) => {
           setNames(s);
           setOrder(null);
