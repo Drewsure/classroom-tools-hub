@@ -305,13 +305,6 @@ export function LetterCardGenerator() {
                 <SkinParticleField skin={skin} seed={12} />
                 <SkinSceneDecorator skin={skin} />
 
-                {phase === "buildup" && (
-                  <>
-                    <div className="absolute inset-0 bg-white/10 animate-[buildUpPulse_0.6s_ease-in-out_infinite]" />
-                    <div className="absolute inset-8 rounded-full border-4 border-white/40 animate-[buildUpPulse_0.8s_ease-in-out_infinite]" />
-                  </>
-                )}
-
                 <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
                   {Array.from({ length: 15 }).map((_, i) => (
                     <div key={i} className="absolute rounded-full bg-white/30"
@@ -332,9 +325,7 @@ export function LetterCardGenerator() {
                     <div
                       className={cn(
                         "w-56 h-72 sm:w-72 sm:h-96 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white relative",
-                        phase === "spinning" && "animate-[vibrate_0.08s_linear_infinite]",
-                        phase === "buildup" && "animate-[buildUpPulse_0.5s_ease-in-out_infinite] scale-90",
-                        phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
+                        "animate-[revealPulse_0.6s_ease-out]",
                       )}
                     >
                       {/* Card frame */}
@@ -355,11 +346,11 @@ export function LetterCardGenerator() {
                     </div>
                     <p className={cn(
                       "text-3xl sm:text-4xl font-black text-white drop-shadow-lg",
-                      phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
+                      "animate-[revealPulse_0.6s_ease-out]",
                     )}>
-                      {phase === "result" ? `Letter ${letter}!` : "Flipping..."}
+                      Letter {letter}!
                     </p>
-                    {noRepeat && !allExhausted && phase === "result" && (
+                    {noRepeat && !allExhausted && (
                       <p className="text-sm text-white/70">
                         {getPool().length - usedLetters.length} letters remaining
                       </p>
@@ -367,12 +358,8 @@ export function LetterCardGenerator() {
                   </div>
                 </div>
 
-                {phase === "result" && (
-                  <>
-                    <div className="absolute left-1/2 top-1/2 w-56 h-56 rounded-full border-4 border-white/60 pointer-events-none animate-[glowRingExpand_0.8s_ease-out]" />
-                    <div className="absolute left-1/2 top-1/2 w-56 h-56 rounded-full border-2 border-blue-300/60 pointer-events-none animate-[glowRingExpand_1.2s_ease-out_0.15s]" />
-                  </>
-                )}
+                <div className="absolute left-1/2 top-1/2 w-56 h-56 rounded-full border-4 border-white/60 pointer-events-none animate-[glowRingExpand_0.8s_ease-out]" />
+                <div className="absolute left-1/2 top-1/2 w-56 h-56 rounded-full border-2 border-blue-300/60 pointer-events-none animate-[glowRingExpand_1.2s_ease-out_0.15s]" />
 
                 <ConfettiOverlay pieces={confetti} />
                 <FlashOverlay flash={flash} />
@@ -427,7 +414,6 @@ export function LetterCardGenerator() {
                     className={cn(
                       "w-56 h-72 sm:w-72 sm:h-96 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white relative",
                       phase === "spinning" && "animate-[vibrate_0.08s_linear_infinite]",
-                      phase === "buildup" && "animate-[buildUpPulse_0.5s_ease-in-out_infinite] scale-90",
                       phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
                     )}
                   >
