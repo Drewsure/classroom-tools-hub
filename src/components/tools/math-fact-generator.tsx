@@ -11,6 +11,7 @@ import { Play, RotateCcw, Check, X, Plus, Minus, Calculator, Sparkles } from "lu
 import { cn } from "@/lib/utils";
 
 type Operation = "add" | "subtract" | "multiply" | "divide" | "mixed";
+type BasicOperation = Exclude<Operation, "mixed">;
 
 interface Fact {
   a: number;
@@ -25,6 +26,7 @@ const OP_SYMBOLS: Record<Operation, string> = {
   subtract: "−",
   multiply: "×",
   divide: "÷",
+  mixed: "±",
 };
 
 const OP_LABELS: Record<Operation, string> = {
@@ -32,16 +34,21 @@ const OP_LABELS: Record<Operation, string> = {
   subtract: "Subtraction",
   multiply: "Multiplication",
   divide: "Division",
+  mixed: "Mixed",
 };
 
 function generateFact(op: Operation, maxNum: number): Fact {
-  let actualOp = op;
+  let actualOp: BasicOperation;
   if (op === "mixed") {
-    const ops: Operation[] = ["add", "subtract", "multiply", "divide"];
+    const ops: BasicOperation[] = ["add", "subtract", "multiply", "divide"];
     actualOp = ops[Math.floor(Math.random() * ops.length)];
+  } else {
+    actualOp = op;
   }
 
-  let a: number, b: number, answer: number;
+  let a = 0;
+  let b = 0;
+  let answer = 0;
 
   switch (actualOp) {
     case "add":
