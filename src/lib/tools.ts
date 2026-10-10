@@ -28,7 +28,7 @@ import {
   Dumbbell,
 } from "lucide-react";
 
-export type ToolCategory = "timers" | "pickers" | "games" | "counters" | "math" | "letters" | "weather" | "dashboard" | "sounds" | "audio";
+export type ToolCategory = "favorites" | "timers" | "pickers" | "games" | "counters" | "math" | "letters" | "weather" | "dashboard" | "sounds" | "audio";
 
 export interface ToolDef {
   id: string;
