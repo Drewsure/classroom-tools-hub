@@ -260,7 +260,6 @@ export function PEEnglishHub() {
     sound.playWhoosh();
   };
 
-  // Dice roll
   // Draw a random flashcard
   const drawRandomCard = () => {
     const card = PE_FLASHCARDS[Math.floor(Math.random() * PE_FLASHCARDS.length)];
@@ -703,7 +702,7 @@ export function PEEnglishHub() {
             {(Object.keys(PE_DICE_PRESETS) as Array<keyof typeof PE_DICE_PRESETS>).map(cat => (
               <button
                 key={cat}
-                onClick={() => { setDiceCategory(cat); setDiceResult(""); sound.playClick(); }}
+                onClick={() => { setDiceCategory(cat); setDiceResult(null); sound.playClick(); }}
                 className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-bold border transition-all capitalize",
                   diceCategory === cat
@@ -920,6 +919,42 @@ export function PEEnglishHub() {
               </div>
             )}
 
+            {/* ===== RANDOM CARD POPUP ===== */}
+            {popupType === "random-card" && randomCard && (
+              <div className="w-full max-w-3xl mx-auto">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <h2 className="text-3xl font-black text-white text-center">Random PE Flashcard</h2>
+                  <button
+                    onClick={drawRandomCard}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/30 hover:bg-purple-500/50 text-purple-100 border border-purple-300/40 text-sm font-bold transition-all"
+                  >
+                    <Shuffle className="h-4 w-4" /> Draw Again
+                  </button>
+                </div>
+                <button
+                  onClick={() => { setPopupFlippedCard(popupFlippedCard === randomCard.id ? null : randomCard.id); sound.playClick(); }}
+                  className={cn(
+                    "mx-auto aspect-[3/4] w-full max-w-sm rounded-3xl overflow-hidden border-4 transition-all flex flex-col items-center justify-center p-8 text-center shadow-2xl",
+                    popupFlippedCard === randomCard.id
+                      ? "bg-slate-800 border-white"
+                      : cn("border-white/30 hover:scale-[1.02] hover:border-white/70", randomCard.color)
+                  )}
+                >
+                  {popupFlippedCard === randomCard.id ? (
+                    <div className="text-white">
+                      <p className="text-3xl font-black whitespace-pre-line leading-tight">{randomCard.back}</p>
+                    </div>
+                  ) : (
+                    <div className="text-white">
+                      <p className="text-base font-bold uppercase tracking-wide opacity-75 mb-4">{randomCard.set}</p>
+                      <p className="text-5xl font-black leading-tight">{randomCard.front}</p>
+                      <p className="text-sm text-white/70 mt-6">Tap to flip</p>
+                    </div>
+                  )}
+                </button>
+              </div>
+            )}
+
             {/* ===== DICE POPUP — dynamically rendered, rolling works! ===== */}
             {popupType === "dice" && (
               <div className="w-full max-w-2xl mx-auto">
@@ -928,7 +963,7 @@ export function PEEnglishHub() {
                   {(Object.keys(PE_DICE_PRESETS) as Array<keyof typeof PE_DICE_PRESETS>).map(cat => (
                     <button
                       key={cat}
-                      onClick={() => { setDiceCategory(cat); setDiceResult(""); sound.playClick(); }}
+                      onClick={() => { setDiceCategory(cat); setDiceResult(null); sound.playClick(); }}
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-bold border transition-all capitalize",
                         diceCategory === cat
