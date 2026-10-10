@@ -54,7 +54,6 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
     } else if (names.length > 0) {
       roster.saveAsNew(att.activeClass.name, names);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeClassId]);
 
   const syncToRoster = () => {
