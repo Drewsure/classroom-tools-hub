@@ -148,7 +148,7 @@ export function ShakeWrapper({
   className,
 }: {
   intensity: number;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }) {
   // Always include w-full so the wrapper fills its flex parent.
