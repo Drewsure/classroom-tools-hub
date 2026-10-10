@@ -201,6 +201,10 @@ export function useDramaticSound() {
         type?: OscillatorType;
         volume?: number;
         startAt?: number;
+        sweepTo?: number;
+        attack?: number;
+        release?: number;
+        detune?: number;
         harmonics?: boolean;
       } = {},
     ) => {
