@@ -307,6 +307,7 @@ export function useAttendance() {
 
   const exportDayCSV = useCallback(() => {
     const id = readActiveId();
+    if (!id) return;
     const cls = readClasses().find((c) => c.id === id);
     if (!cls) return;
     const rec = readRecord(todayStr(), id);
