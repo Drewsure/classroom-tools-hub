@@ -83,12 +83,17 @@ export function HourglassTimer() {
 
   const topFill = Math.max(0, 1 - progress);
   const bottomFill = Math.min(1, progress);
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="hourglass" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="hourglass" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex items-center justify-center bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative flex w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={7} />
           {/* Scene decorator */}
@@ -149,7 +154,7 @@ export function HourglassTimer() {
 
           {/* Hourglass */}
           <div className="relative">
-            <svg width="180" height="240" viewBox="0 0 180 240" className="drop-shadow-2xl">
+            <svg width={isSetup ? 330 : 460} height={isSetup ? 440 : 613} viewBox="0 0 180 240" className="drop-shadow-2xl">
               {/* Frame top */}
               <rect x="20" y="10" width="140" height="10" rx="2" fill="#8b4513" />
               <rect x="15" y="5" width="150" height="8" rx="2" fill="#a0522d" />

@@ -93,12 +93,17 @@ export function RocketTimer() {
   const isLaunching = timer.isCompleted;
   const progress = timer.progress * 100;
   const countdown = timer.isRunning && timer.remaining <= 5;
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="rocket" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="rocket" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={4} />
           {/* Scene decorator */}
@@ -108,8 +113,8 @@ export function RocketTimer() {
           <div className="absolute top-6 right-8 w-12 h-12 rounded-full bg-yellow-100 shadow-[0_0_60px_20px_rgba(255,255,200,0.7)]" />
 
           {/* Ground / Launch pad */}
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-slate-700 to-slate-900 border-t-2 border-slate-500" />
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-24 h-2 bg-slate-500 rounded-t-md" />
+          <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-b from-slate-700 to-slate-900 border-t-2 border-slate-500" />
+          <div className="absolute bottom-14 left-1/2 h-5 w-72 -translate-x-1/2 rounded-t-md bg-slate-500 shadow-[0_0_35px_rgba(148,163,184,0.45)]" />
 
           {/* Smoke clouds at base when launching */}
           {smokeClouds.map((id) => (
@@ -127,7 +132,7 @@ export function RocketTimer() {
           {/* Rocket */}
           <div
             className={cn(
-              "absolute bottom-10 left-1/2 -translate-x-1/2 transition-all duration-200 ease-out",
+              "absolute bottom-16 left-1/2 -translate-x-1/2 transition-all duration-200 ease-out",
               blastoff && "animate-[rocketLaunch_3s_ease-out_forwards]",
             )}
             style={{
@@ -139,7 +144,12 @@ export function RocketTimer() {
             <div className="relative">
               {/* Big flame trail */}
               {(timer.isRunning || isLaunching) && (
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-10 h-20">
+                <div
+                  className={cn(
+                    "absolute left-1/2 -translate-x-1/2",
+                    isSetup ? "-bottom-24 h-40 w-24" : "-bottom-48 h-80 w-44",
+                  )}
+                >
                   <div
                     className="absolute inset-0 rounded-full blur-[3px] animate-[flameTrail_0.15s_ease-in-out_infinite]"
                     style={{
@@ -147,7 +157,7 @@ export function RocketTimer() {
                         "linear-gradient(to top, #dc2626 0%, #f97316 30%, #fbbf24 60%, #fef3c7 100%)",
                     }}
                   />
-                  <div className="absolute inset-x-2 top-4 bottom-0 bg-yellow-200 rounded-full blur-[1px] animate-[flameTrail_0.1s_ease-in-out_infinite]" />
+                  <div className="absolute inset-x-7 top-10 bottom-0 bg-yellow-200 rounded-full blur-[2px] animate-[flameTrail_0.1s_ease-in-out_infinite]" />
                   {/* Sparks */}
                   {FLAME_SPARKS.map((spark, i) => (
                     <div
@@ -165,7 +175,7 @@ export function RocketTimer() {
                 </div>
               )}
               {/* Body */}
-              <svg width="56" height="92" viewBox="0 0 48 80" className="relative drop-shadow-2xl">
+              <svg width={isSetup ? 190 : 340} height={isSetup ? 316 : 566} viewBox="0 0 48 80" className="relative drop-shadow-2xl">
                 <path
                   d="M24 4 L36 28 L36 60 L12 60 L12 28 Z"
                   fill="#f1f5f9"

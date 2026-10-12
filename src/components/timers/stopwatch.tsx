@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useStopwatch } from "@/hooks/use-timer";
 import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
@@ -20,7 +20,9 @@ export function Stopwatch() {
   const skin = SKINS.find((s) => s.id === skinId) ?? SKINS[0];
 
   const [justLapped, setJustLapped] = useState(false);
+  const [resetArmed, setResetArmed] = useState(false);
   const sw = useStopwatch();
+  const isSetup = !sw.running && sw.elapsed === 0;
 
   const handleStart = () => {
     sw.start();
@@ -32,6 +34,11 @@ export function Stopwatch() {
     sound.playClick();
   };
   const handleReset = () => {
+    if (!resetArmed && sw.elapsed > 0) {
+      setResetArmed(true);
+      return;
+    }
+    setResetArmed(false);
     sw.reset();
     sound.playClick();
   };
@@ -44,16 +51,25 @@ export function Stopwatch() {
     setTimeout(() => setJustLapped(false), 300);
   };
 
+  useEffect(() => {
+    if (!resetArmed) return;
+    const timeout = window.setTimeout(() => setResetArmed(false), 2600);
+    return () => window.clearTimeout(timeout);
+  }, [resetArmed]);
+
   const formatted = formatStopwatchTime(sw.elapsed);
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="stopwatch" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="stopwatch" />}
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
-            "relative w-full max-w-md mx-auto h-72 sm:h-80 rounded-full flex items-center justify-center border-4 shadow-2xl backdrop-blur-sm bg-gradient-to-br overflow-hidden",
+            "relative mx-auto flex items-center justify-center overflow-hidden rounded-full border-4 bg-gradient-to-br shadow-2xl backdrop-blur-sm",
+            isSetup
+              ? "h-[min(58dvh,40rem)] w-[min(58dvh,40rem)] min-h-[22rem] min-w-[22rem]"
+              : "h-[min(82dvh,62rem)] w-[min(82dvh,62rem)] min-h-[32rem] min-w-[32rem]",
             skin.bgGradient,
             sw.running ? "border-white/40" : "border-white/20",
           )}
@@ -101,7 +117,7 @@ export function Stopwatch() {
               <Button
                 onClick={handleStart}
                 size="lg"
-                className={cn("rounded-full px-8 text-white shadow-lg", skin.accentButton)}
+                className={cn("rounded-full px-10 py-7 text-xl font-black text-white shadow-lg", skin.accentButton)}
               >
                 <Play className="mr-2 h-5 w-5 fill-current" />
                 {sw.elapsed > 0 ? "Resume" : "Start"}
@@ -110,7 +126,7 @@ export function Stopwatch() {
               <Button
                 onClick={handlePause}
                 size="lg"
-                className="rounded-full px-8 text-white shadow-lg bg-amber-500 hover:bg-amber-600"
+                className="rounded-full bg-amber-500 px-10 py-7 text-xl font-black text-white shadow-lg hover:bg-amber-600"
               >
                 <Pause className="mr-2 h-5 w-5 fill-current" />
                 Pause
@@ -124,7 +140,7 @@ export function Stopwatch() {
       </ShakeWrapper>
 
       {/* Lap + Reset buttons — OUTSIDE the container */}
-      <div className="flex items-center justify-center gap-3 flex-wrap">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <Button
           onClick={handleLap}
           disabled={!sw.running}
@@ -142,10 +158,13 @@ export function Stopwatch() {
           onClick={handleReset}
           size="lg"
           variant="outline"
-          className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+          className={cn(
+            "rounded-full border-white/25 px-6 py-5 text-white hover:text-white",
+            resetArmed ? "bg-rose-500/85 hover:bg-rose-500" : "bg-white/10 hover:bg-white/20",
+          )}
         >
           <RotateCcw className="mr-2 h-5 w-5" />
-          Reset
+          {resetArmed ? "Confirm Reset" : "Teacher Reset"}
         </Button>
       </div>
 

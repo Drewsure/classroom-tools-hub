@@ -116,12 +116,17 @@ export function BombTimer() {
   const lowTime = timer.remaining <= 10 && timer.remaining > 0;
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
   const sizzling = timer.isRunning;
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="bomb" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="bomb" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={5} />
           {/* Scene decorator */}
@@ -146,12 +151,12 @@ export function BombTimer() {
                 <div className="absolute -top-14 left-1/2 -translate-x-1/2">
                   <div className="relative">
                     {/* Outer glow */}
-                    <div className="absolute -inset-4 rounded-full bg-yellow-400/60 blur-xl animate-pulse" />
+                    <div className="absolute -inset-8 rounded-full bg-yellow-400/60 blur-2xl animate-pulse" />
                     {/* Core spark */}
                     <div
                       className={cn(
-                        "w-3 h-3 rounded-full bg-yellow-100 shadow-[0_0_30px_12px_rgba(255,220,100,0.95)] animate-pulse",
-                        veryLow && "w-4 h-4",
+                        "w-6 h-6 rounded-full bg-yellow-100 shadow-[0_0_50px_22px_rgba(255,220,100,0.95)] animate-pulse",
+                        veryLow && "w-8 h-8",
                       )}
                     />
                     {/* Spark particles */}
@@ -197,7 +202,7 @@ export function BombTimer() {
               )}
 
               {/* Bomb body */}
-              <svg width="140" height="140" viewBox="0 0 120 120">
+              <svg width={isSetup ? 300 : 460} height={isSetup ? 300 : 460} viewBox="0 0 120 120">
                 <ellipse cx="60" cy="115" rx="44" ry="6" fill="black" opacity="0.5" />
                 <circle cx="60" cy="65" r="48" fill="url(#bombGrad)" />
                 <circle cx="60" cy="65" r="48" fill="none" stroke="#3f3f3f" strokeWidth="2" />

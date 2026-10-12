@@ -80,15 +80,19 @@ export function ClassicTimer() {
   const lowTime = timer.remaining <= 10 && timer.remaining > 0;
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
   const isFinished = timer.isCompleted;
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="classic" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="classic" />}
 
       <ShakeWrapper intensity={shakeIntensity} className="flex justify-center">
         <div
           className={cn(
-            "relative w-80 h-80 sm:w-96 sm:h-96 lg:w-[32rem] lg:h-[32rem] xl:w-[40rem] xl:h-[40rem] rounded-full flex items-center justify-center transition-all duration-300 shrink-0",
+            "relative flex items-center justify-center rounded-full transition-all duration-300 shrink-0",
+            isSetup
+              ? "h-[min(58dvh,40rem)] w-[min(58dvh,40rem)] min-h-[22rem] min-w-[22rem]"
+              : "h-[min(82dvh,62rem)] w-[min(82dvh,62rem)] min-h-[32rem] min-w-[32rem]",
             "border-4 shadow-2xl backdrop-blur-sm bg-gradient-to-br",
             skin.bgGradient,
             lowTime && "border-red-400/80",

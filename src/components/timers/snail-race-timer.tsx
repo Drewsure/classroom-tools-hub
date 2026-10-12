@@ -124,12 +124,17 @@ export function SnailRaceTimer() {
 
   const { display } = formatTime(timer.remaining);
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="snail-race" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="snail-race" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-96 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={8} />
           {/* Scene decorator */}
@@ -195,7 +200,7 @@ export function SnailRaceTimer() {
               <div
                 key={snail.id}
                 className={cn(
-                  "relative h-16 border-b border-white/10",
+                  "relative h-28 border-b border-white/10",
                   winner === i && "bg-emerald-500/20",
                 )}
               >
@@ -270,7 +275,7 @@ export function SnailRaceTimer() {
 
 function Snail({ color, shell }: { color: string; shell: string }) {
   return (
-    <svg width="48" height="32" viewBox="0 0 48 32" className="drop-shadow-lg">
+    <svg width="128" height="86" viewBox="0 0 48 32" className="drop-shadow-lg">
       {/* Body */}
       <ellipse cx="20" cy="24" rx="18" ry="6" fill={color} />
       {/* Head */}

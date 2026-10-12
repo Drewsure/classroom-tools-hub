@@ -48,7 +48,7 @@ export function CircleTimer() {
     timer.isRunning,
     timer.isCompleted,
     () => {
-            flashFn(skin.flashColor);
+      flashFn(skin.flashColor);
       shake(1.5);
       burstConfetti(100, 50, 50);
     },
@@ -82,6 +82,7 @@ export function CircleTimer() {
   const done = timer.isCompleted;
   const lowTime = timer.remaining <= 10 && timer.remaining > 0;
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
+  const isSetup = timer.status === "idle";
 
   const radius = 130;
   const circumference = 2 * Math.PI * radius;
@@ -95,13 +96,14 @@ export function CircleTimer() {
   const glowId = `glow-${skin.id}`;
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="circle" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="circle" />}
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
-            "relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex items-center justify-center bg-gradient-to-b",
+            "relative flex w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+            isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
             skin.bgGradient,
           )}
         >
@@ -146,7 +148,10 @@ export function CircleTimer() {
 
           <svg
             viewBox="0 0 320 320"
-            className="relative drop-shadow-2xl z-10 w-full h-full max-w-[28rem] lg:max-w-[36rem] xl:max-w-[44rem] max-h-[28rem] lg:max-h-[36rem] xl:max-h-[44rem]"
+            className={cn(
+              "relative z-10 h-full w-full drop-shadow-2xl",
+              isSetup ? "max-h-[38rem] max-w-[38rem]" : "max-h-[58rem] max-w-[58rem]",
+            )}
           >
             <defs>
               <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">

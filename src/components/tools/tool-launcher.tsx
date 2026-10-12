@@ -43,12 +43,35 @@ interface ToolLauncherProps {
 }
 
 const WIDE_TOOL_IDS = new Set([
+  "bar",
+  "bomb",
+  "candle",
+  "circle",
+  "classic",
   "activity-hub",
   "audio-player",
   "custom-dashboard",
+  "hourglass",
   "pe-english-hub",
+  "rocket",
+  "snail-race",
   "sound-pad",
+  "stopwatch",
+  "traffic-light",
   "weather-cards",
+]);
+
+const TIMER_TOOL_IDS = new Set([
+  "bar",
+  "bomb",
+  "candle",
+  "circle",
+  "classic",
+  "hourglass",
+  "rocket",
+  "snail-race",
+  "stopwatch",
+  "traffic-light",
 ]);
 
 const MANGA_ICON_BY_TOOL: Record<string, string> = {
@@ -65,6 +88,7 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mangaIcon = MANGA_ICON_BY_TOOL[tool.id];
+  const isTimerTool = TIMER_TOOL_IDS.has(tool.id);
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
@@ -166,13 +190,20 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
             </div>
           </header>
 
-          <main className="flex flex-1 items-center justify-center px-3 py-4 sm:px-5 lg:px-8">
-            <div className={cn("w-full", WIDE_TOOL_IDS.has(tool.id) ? "max-w-7xl" : "max-w-6xl")}>
+          <main className={cn(
+            "flex flex-1 items-center justify-center px-3 py-4 sm:px-5 lg:px-8",
+            isTimerTool && "items-stretch px-2 py-2 sm:px-3 lg:px-4",
+          )}>
+            <div className={cn(
+              "w-full",
+              WIDE_TOOL_IDS.has(tool.id) ? "max-w-7xl" : "max-w-6xl",
+              isTimerTool && "max-w-none",
+            )}>
               <ToolRenderer toolId={tool.id} />
             </div>
           </main>
 
-          <footer className="px-4 py-3 text-center text-xs text-white/45 sm:px-8">
+          <footer className={cn("px-4 py-3 text-center text-xs text-white/45 sm:px-8", isTimerTool && "hidden")}>
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">Esc</kbd> close ·{" "}
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">F</kbd> fullscreen
           </footer>

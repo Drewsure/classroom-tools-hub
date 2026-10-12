@@ -93,14 +93,16 @@ export function TrafficLightTimer() {
   // Time decline progress (0 → 1 as time runs out)
   const progress = timer.progress;
   const remainingPct = Math.max(0, (1 - progress) * 100);
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="traffic-light" />
+    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="traffic-light" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
-            "relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 shadow-2xl bg-gradient-to-b transition-colors duration-500",
+            "relative w-full overflow-hidden rounded-3xl border-2 bg-gradient-to-b shadow-2xl transition-colors duration-500",
+            isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
             skin.bgGradient,
             isRed
               ? "border-red-500/40"
@@ -130,16 +132,16 @@ export function TrafficLightTimer() {
           )}
 
           {/* Main content: two-column layout — traffic light on left, time + progress on right */}
-          <div className="absolute inset-0 flex items-center justify-center gap-4 sm:gap-8 px-4 z-10">
+          <div className="absolute inset-0 z-10 flex items-center justify-center gap-6 px-4 sm:gap-10">
             {/* LEFT: Traffic light housing (horizontal on mobile, vertical on desktop) */}
-            <div className="flex sm:flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-zinc-950/90 rounded-2xl border-4 border-zinc-700 shadow-2xl backdrop-blur-sm shrink-0">
-              <Light color="green" active={isGreen} size="sm" />
-              <Light color="yellow" active={isYellow} size="sm" />
-              <Light color="red" active={isRed} size="sm" />
+            <div className="flex shrink-0 items-center gap-3 rounded-3xl border-4 border-zinc-700 bg-zinc-950/90 p-4 shadow-2xl backdrop-blur-sm sm:flex-col sm:gap-5 sm:p-5">
+              <Light color="green" active={isGreen} size="md" />
+              <Light color="yellow" active={isYellow} size="md" />
+              <Light color="red" active={isRed} size="md" />
             </div>
 
             {/* RIGHT: Time display + visual time decline indicator */}
-            <div className="flex flex-col items-center gap-3 flex-1 max-w-xs">
+            <div className="flex max-w-3xl flex-1 flex-col items-center gap-4">
               {/* Status label */}
               <div
                 className={cn(
@@ -167,7 +169,7 @@ export function TrafficLightTimer() {
               >
                 <div
                   className={cn(
-                    "font-mono font-black tabular-nums drop-shadow-lg text-4xl sm:text-5xl lg:text-7xl xl:text-8xl",
+                    "font-mono font-black tabular-nums drop-shadow-lg text-5xl sm:text-7xl lg:text-8xl xl:text-[9rem]",
                     isRed
                       ? "text-red-300 animate-[dramaticPulse_0.4s_ease-in-out_infinite]"
                       : isYellow
@@ -187,7 +189,7 @@ export function TrafficLightTimer() {
                   <span>Empty</span>
                 </div>
                 {/* Vertical bar container */}
-                <div className="relative h-20 sm:h-24 rounded-xl bg-black/50 border-2 border-white/15 overflow-hidden shadow-inner">
+                <div className="relative h-24 overflow-hidden rounded-xl border-2 border-white/15 bg-black/50 shadow-inner sm:h-32">
                   {/* Fill — shrinks from top to bottom as time runs out */}
                   <div
                     className={cn(
