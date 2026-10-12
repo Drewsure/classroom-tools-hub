@@ -22,6 +22,11 @@ export interface Roster {
   createdAt: number;
 }
 
+export interface RosterImport {
+  name: string;
+  students: string[];
+}
+
 const STORAGE_KEY = "classroom-tools-rosters";
 const ACTIVE_KEY = "classroom-tools-active-roster";
 
@@ -148,7 +153,7 @@ export function useStudentRoster() {
   const saveAsNew = useCallback(
     (name: string, students: string[]) => {
       const newRoster: Roster = {
-        id: `roster-${Date.now()}`,
+        id: `roster-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         name: name.trim() || `Class ${Date.now()}`,
         students: [...students],
         createdAt: Date.now(),
@@ -160,6 +165,42 @@ export function useStudentRoster() {
     },
     [],
   );
+
+  /** Import many class rosters at once, replacing rosters with the same name. */
+  const importRosters = useCallback((items: RosterImport[], mode: "merge" | "replace" = "merge") => {
+    const cleaned = items
+      .map((item) => ({
+        name: item.name.trim(),
+        students: Array.from(new Set(item.students.map((s) => s.trim()).filter(Boolean))),
+      }))
+      .filter((item) => item.name && item.students.length > 0);
+
+    if (cleaned.length === 0) return 0;
+
+    const now = Date.now();
+    let current = mode === "replace" ? [] : readRosters();
+    let firstImportedId: string | null = null;
+
+    cleaned.forEach((item, index) => {
+      const existingIndex = current.findIndex((r) => r.name === item.name);
+      const existing = existingIndex >= 0 ? current[existingIndex] : null;
+      const roster: Roster = {
+        id: existing?.id ?? `roster-${now}-${index}`,
+        name: item.name,
+        students: item.students,
+        createdAt: existing?.createdAt ?? now + index,
+      };
+
+      if (existingIndex >= 0) current[existingIndex] = roster;
+      else current = [...current, roster];
+      if (!firstImportedId) firstImportedId = roster.id;
+    });
+
+    writeRosters(current);
+    writeActiveId(firstImportedId);
+    notifyChange();
+    return cleaned.length;
+  }, []);
 
   /** Switch to a different saved roster */
   const loadRoster = useCallback((id: string) => {
@@ -201,6 +242,7 @@ export function useStudentRoster() {
     allRosters: rosters,
     setStudents,
     saveAsNew,
+    importRosters,
     loadRoster,
     deleteRoster,
     renameActive,
