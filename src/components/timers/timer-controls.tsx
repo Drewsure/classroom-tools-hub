@@ -50,19 +50,19 @@ export function TimerStartButton({
           onClick={onStart}
           size="lg"
           className={cn(
-            "rounded-full px-8 text-white shadow-lg",
+            "rounded-2xl border-2 border-white/60 px-9 py-6 text-lg font-black text-white shadow-xl shadow-emerald-950/25 transition hover:-translate-y-0.5 active:scale-95",
             accentColor,
           )}
         >
           <Play className="mr-2 h-5 w-5 fill-current" />
-          Start
+          Start!
         </Button>
       )}
       {status === "running" && (
         <Button
           onClick={onPause}
           size="lg"
-          className="rounded-full px-8 text-white shadow-lg bg-amber-500 hover:bg-amber-600"
+          className="rounded-2xl border-2 border-white/60 bg-amber-500 px-9 py-6 text-lg font-black text-white shadow-xl shadow-amber-950/25 transition hover:-translate-y-0.5 hover:bg-amber-600 active:scale-95"
         >
           <Pause className="mr-2 h-5 w-5 fill-current" />
           Pause
@@ -73,12 +73,12 @@ export function TimerStartButton({
           onClick={onResume}
           size="lg"
           className={cn(
-            "rounded-full px-8 text-white shadow-lg",
+            "rounded-2xl border-2 border-white/60 px-9 py-6 text-lg font-black text-white shadow-xl shadow-emerald-950/25 transition hover:-translate-y-0.5 active:scale-95",
             accentColor,
           )}
         >
           <Play className="mr-2 h-5 w-5 fill-current" />
-          Resume
+          Resume!
         </Button>
       )}
       {status === "completed" && (
@@ -118,8 +118,8 @@ export function TimerControls({
   return (
     <div className="w-full space-y-5">
       {showPresets && isEditable && (
-        <div>
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+        <div className="rounded-3xl border border-white/12 bg-white/[0.055] p-3">
+          <p className="text-xs font-black text-white/70 uppercase tracking-wider mb-2">
             Quick presets
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
@@ -127,7 +127,7 @@ export function TimerControls({
               <button
                 key={preset.label}
                 onClick={() => onPreset(preset.seconds)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors"
+                className="rounded-xl border border-white/25 bg-white/12 px-3 py-2 text-xs font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white/20 active:scale-95"
               >
                 {preset.label}
               </button>
@@ -137,8 +137,8 @@ export function TimerControls({
       )}
 
       {isEditable && (
-        <div>
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+        <div className="rounded-3xl border border-white/12 bg-white/[0.055] p-3">
+          <p className="text-xs font-black text-white/70 uppercase tracking-wider mb-2">
             Custom time
           </p>
           <div className="flex items-center justify-center gap-2">
@@ -198,7 +198,7 @@ function GuardedResetButton({ onReset }: { onReset: () => void }) {
       size="lg"
       variant="outline"
       className={cn(
-        "rounded-full px-5 text-white shadow-sm transition-all",
+        "rounded-2xl border-2 px-5 text-white shadow-sm transition-all",
         armed
           ? "border-rose-300 bg-rose-500/85 hover:bg-rose-500 hover:text-white"
           : "border-white/25 bg-white/10 hover:bg-white/20 hover:text-white",
@@ -233,7 +233,7 @@ function TimeInput({
           if (isNaN(v)) onChange(0);
           else onChange(Math.max(0, Math.min(max, v)));
         }}
-        className="w-20 h-20 text-center text-3xl font-bold bg-white/10 border-white/25 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="h-20 w-20 rounded-2xl border-white/25 bg-white/12 text-center text-3xl font-black text-white shadow-inner [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <span className="text-xs text-white/60 mt-1.5 font-semibold uppercase tracking-wide">
         {label}

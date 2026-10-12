@@ -140,7 +140,7 @@ export function SoundPad() {
                       key={sound.id}
                       onClick={() => handlePlay(sound.id)}
                       className={cn(
-                        "relative overflow-hidden rounded-2xl p-4 sm:p-6 text-white shadow-lg transition-all duration-150 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/40 bg-gradient-to-br group",
+                        "relative overflow-hidden rounded-[1.4rem] border-2 border-white/35 p-3 text-white shadow-xl shadow-black/20 transition-all duration-150 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/40 bg-gradient-to-br group",
                         "min-h-[110px] sm:min-h-[130px]",
                         sound.color,
                         isActive && "scale-95 ring-4 ring-white/60",
@@ -162,12 +162,12 @@ export function SoundPad() {
 
                       <div className="relative flex flex-col items-center gap-2">
                         <span className={cn(
-                          "text-4xl sm:text-5xl drop-shadow-lg transition-transform",
+                          "grid h-14 w-14 place-items-center rounded-2xl bg-white/90 text-4xl shadow-lg transition-transform sm:h-16 sm:w-16 sm:text-5xl",
                           isActive && "scale-110",
                         )}>
                           {sound.emoji}
                         </span>
-                        <span className="text-xs sm:text-sm font-bold text-center drop-shadow">
+                        <span className="rounded-full bg-black/20 px-2 py-1 text-center text-xs font-black drop-shadow sm:text-sm">
                           {sound.label}
                         </span>
                       </div>

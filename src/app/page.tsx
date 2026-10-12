@@ -237,8 +237,8 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="grid min-h-0 flex-1 gap-2.5 xl:grid-cols-[20rem_minmax(0,1fr)]">
-          <aside className="grid min-h-0 gap-2.5 xl:grid-rows-[auto_minmax(0,1fr)]">
+        <section className="grid min-h-0 flex-1 gap-2.5 lg:grid-cols-[18rem_minmax(0,1fr)] 2xl:grid-cols-[20rem_minmax(0,1fr)]">
+          <aside className="grid min-h-0 gap-2.5 lg:grid-rows-[auto_minmax(0,1fr)]">
             <div className="rounded-[1.4rem] border border-white/80 bg-white/[0.88] p-3 shadow-xl shadow-sky-900/10">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-slate-700">
@@ -249,21 +249,21 @@ export default function Home() {
                   {filteredTools.length}/{TOOLS.length}
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 lg:grid-cols-1 2xl:grid-cols-3">
                 <TeacherDockTile icon={<Users className="h-4 w-4" />} label="Roster" tool={TOOLS.find((tool) => tool.id === "enter-names")} onOpen={setActiveTool} />
                 <TeacherDockTile icon={<Clock3 className="h-4 w-4" />} label="Timer" tool={TOOLS.find((tool) => tool.id === "classic")} onOpen={setActiveTool} />
                 <TeacherDockTile icon={<BookOpenCheck className="h-4 w-4" />} label="Phonics" tool={TOOLS.find((tool) => tool.id === "letter-cards")} onOpen={setActiveTool} />
               </div>
             </div>
 
-            <div className="min-h-0 rounded-[1.4rem] border border-white/80 bg-white/82 p-3 shadow-xl shadow-sky-900/10">
+            <div className="min-h-0 rounded-[1.4rem] border border-white/80 bg-white/[0.82] p-3 shadow-xl shadow-sky-900/10">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-700">
                   Tool Zones
                 </p>
                 <Sparkles className="h-4 w-4 text-amber-500" />
               </div>
-              <div className="grid max-h-[calc(100vh-15.5rem)] grid-cols-2 gap-1.5 overflow-y-auto pr-1 xl:max-h-[calc(100vh-16.5rem)]">
+              <div className="grid max-h-[7.5rem] grid-cols-2 gap-1.5 overflow-y-auto pr-1 lg:max-h-[calc(100vh-22rem)] lg:grid-cols-1 2xl:grid-cols-2">
                   <FilterButton
                     active={activeCategory === "all"}
                     label="All"
@@ -292,7 +292,7 @@ export default function Home() {
             </div>
           </aside>
 
-          <section className="min-h-0 rounded-[1.4rem] border border-white/80 bg-white/82 p-3 shadow-xl shadow-sky-900/10 backdrop-blur-xl xl:h-[calc(100vh-6.75rem)]">
+          <section className="min-h-0 rounded-[1.4rem] border border-white/80 bg-white/[0.82] p-3 shadow-xl shadow-sky-900/10 backdrop-blur-xl lg:h-[calc(100vh-6.75rem)]">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">
@@ -334,10 +334,10 @@ export default function Home() {
             ) : null}
 
             <div className={cn(
-              "grid grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7",
+              "grid grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6",
               !query.trim() && activeCategory === "all"
-                ? "max-h-[calc(100vh-19rem)] xl:max-h-[calc(100vh-19.5rem)]"
-                : "max-h-[calc(100vh-10.5rem)]",
+                ? "max-h-[calc(100vh-19rem)] lg:max-h-[calc(100vh-20.5rem)]"
+                : "max-h-[calc(100vh-10.5rem)] lg:max-h-[calc(100vh-12rem)]",
             )}>
               {filteredTools.map((tool) => (
                 <ToolTile

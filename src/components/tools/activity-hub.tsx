@@ -125,13 +125,13 @@ function PanelShell({
     <section
       aria-label={ariaLabel}
       className={cn(
-        "flex flex-col min-h-[420px] lg:min-h-0 rounded-3xl glass-dark p-3 sm:p-4 shadow-xl border border-white/10 overflow-hidden",
+        "flex flex-col min-h-[420px] lg:min-h-0 rounded-3xl border-2 border-white/15 bg-gradient-to-br from-white/[0.13] via-slate-950/72 to-white/[0.06] p-3 sm:p-4 shadow-xl shadow-black/25 overflow-hidden",
         expanded && "fixed inset-0 z-40 m-0 rounded-none glass-bg p-4 sm:p-8 min-h-0",
       )}
     >
       <div className="flex items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <div className={cn("w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center shrink-0", accent)}>{icon}</div>
+          <div className={cn("w-8 h-8 rounded-xl bg-white/15 border border-white/25 shadow-sm flex items-center justify-center shrink-0", accent)}>{icon}</div>
           <h3 className="text-sm font-black text-white uppercase tracking-wider truncate">{label}</h3>
         </div>
         <button
