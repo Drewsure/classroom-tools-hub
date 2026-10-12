@@ -86,14 +86,19 @@ export function CandleTimer() {
   const isOut = timer.isCompleted;
   const lowTime = timer.remaining <= 10 && timer.remaining > 0;
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
+  const isSetup = timer.status === "idle";
 
-  const candleHeight = Math.max(60, 240 - progress * 180);
+  const candleHeight = Math.max(isSetup ? 110 : 150, (isSetup ? 360 : 560) - progress * (isSetup ? 250 : 410));
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="candle" />
+    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="candle" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={6} />
           {/* Scene decorator */}
@@ -114,8 +119,8 @@ export function CandleTimer() {
                 left: "50%",
                 top: "30%",
                 transform: "translate(-50%, -50%)",
-                width: "260px",
-                height: "260px",
+                width: "420px",
+                height: "420px",
               }}
             />
           )}
@@ -137,10 +142,16 @@ export function CandleTimer() {
           ))}
 
           {/* Time display */}
-          <div className="absolute top-4 left-0 right-0 text-center pointer-events-none z-10">
+          <div
+            className={cn(
+              "absolute pointer-events-none z-10 text-center",
+              isSetup ? "left-0 right-0 top-4" : "right-[6%] top-1/2 -translate-y-1/2",
+            )}
+          >
             <div
               className={cn(
-                "inline-block px-6 py-3 rounded-2xl backdrop-blur-sm border",
+                "inline-block rounded-2xl border px-6 py-3 backdrop-blur-sm",
+                !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(251,146,60,0.35)]",
                 isOut
                   ? "bg-stone-900/60 border-stone-600/50"
                   : veryLow
@@ -153,6 +164,7 @@ export function CandleTimer() {
               <div
                 className={cn(
                   "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
+                  !isSetup && "lg:text-[8rem] xl:text-[10rem]",
                   isOut ? "text-stone-400" : veryLow ? "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]" : lowTime ? "text-orange-300" : "text-amber-100",
                 )}
               >
@@ -172,7 +184,12 @@ export function CandleTimer() {
           )}
 
           {/* Candle */}
-          <div className="absolute left-1/2 bottom-10 -translate-x-1/2 flex flex-col items-center z-10">
+          <div
+            className={cn(
+              "absolute bottom-10 z-10 flex -translate-x-1/2 flex-col items-center transition-all duration-500",
+              isSetup ? "left-1/2" : "left-[34%]",
+            )}
+          >
             {/* Flame */}
             {!isOut && (
               <div className="relative mb-1">
@@ -182,7 +199,8 @@ export function CandleTimer() {
                 {/* Flame shape */}
                 <div
                   className={cn(
-                    "relative w-5 h-9 transition-all",
+                    "relative transition-all",
+                    isSetup ? "h-20 w-10" : "h-28 w-14",
                     veryLow
                       ? "animate-[flicker_0.15s_ease-in-out_infinite]"
                       : lowTime
@@ -225,7 +243,7 @@ export function CandleTimer() {
 
             {/* Candle body */}
             <div
-              className="relative w-16 transition-all duration-500 ease-linear"
+              className={cn("relative transition-all duration-500 ease-linear", isSetup ? "w-28" : "w-40")}
               style={{ height: `${candleHeight}px` }}
             >
               <div

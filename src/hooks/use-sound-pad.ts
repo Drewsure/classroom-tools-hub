@@ -4,16 +4,15 @@ import { useCallback, useRef, useEffect, useState } from "react";
 import { useSoundEnabled } from "@/components/timers/timer-launcher";
 
 /**
- * Classroom Sound Pad Engine — AAA Quality
+ * Classroom Sound Pad Engine
  *
  * FIXES (vs old version):
  *  - Uses Web Audio API + AudioBuffer caching (NOT cloneNode)
  *    → Eliminates the 1+ minute delay when clicking buttons
- *  - All audio files preloaded as decoded AudioBuffers on mount
- *    → Instant playback on click (microsecond latency)
+ *  - Audio files are decoded once and cached for quick replay
  *  - Spoken-word buttons ("Correct!", "Great Job!", "Wow!", etc.)
- *    now use high-quality TTS audio matching their labels
- *  - Synth fallback retained for resilience if files fail to load
+ *    now use TTS audio matching their labels
+ *  - Gentle loading fallback instead of harsh oscillator/noise sounds
  *
  * Audio files are fetched once, decoded once, then played via
  * AudioBufferSourceNode — no re-fetching, no cloneNode, no delays.
@@ -24,14 +23,16 @@ export function useSoundPad() {
 
   // AudioBuffer cache — decoded audio ready to play instantly
   const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
-  const loadingRef = useRef<Set<string>>(new Set());
+  const loadingRef = useRef<Map<string, Promise<AudioBuffer | null>>>(new Map());
   const activeSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
 
   // Shared AudioContext (lazy-initialized on first user gesture)
   const ctxRef = useRef<AudioContext | null>(null);
+  const masterGainRef = useRef<GainNode | null>(null);
+  const compressorRef = useRef<DynamicsCompressorNode | null>(null);
 
-  const [volume, setVolume] = useState(0.7);
-  const volumeRef = useRef(0.7);
+  const [volume, setVolume] = useState(0.5);
+  const volumeRef = useRef(0.5);
   const [lastPlayed, setLastPlayed] = useState<string | null>(null);
   const [loadedCount, setLoadedCount] = useState(0);
 
@@ -54,6 +55,72 @@ export function useSoundPad() {
     return ctxRef.current;
   }, []);
 
+  const getOutput = useCallback(() => {
+    const ctx = getCtx();
+    if (!ctx) return null;
+
+    if (!masterGainRef.current || !compressorRef.current) {
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -18;
+      compressor.knee.value = 24;
+      compressor.ratio.value = 8;
+      compressor.attack.value = 0.005;
+      compressor.release.value = 0.16;
+
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0.82;
+
+      compressor.connect(masterGain);
+      masterGain.connect(ctx.destination);
+
+      compressorRef.current = compressor;
+      masterGainRef.current = masterGain;
+    }
+
+    return { ctx, input: compressorRef.current };
+  }, [getCtx]);
+
+  const loadSound = useCallback(
+    async (id: string) => {
+      const existing = audioBufferCacheRef.current.get(id);
+      if (existing) return existing;
+
+      const soundFile = SOUND_FILES.find((sound) => sound.id === id);
+      if (!soundFile) return null;
+
+      const loading = loadingRef.current.get(id);
+      if (loading) return loading;
+
+      const promise = (async () => {
+        const ctx = getCtx();
+        if (!ctx) return null;
+
+        try {
+          const response = await fetch(`/sounds/${soundFile.file}`);
+          if (!response.ok) {
+            console.warn(`[sound-pad] Failed to fetch ${soundFile.file}: ${response.status}`);
+            return null;
+          }
+
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = await ctx.decodeAudioData(arrayBuffer);
+          audioBufferCacheRef.current.set(id, buffer);
+          setLoadedCount((n) => n + 1);
+          return buffer;
+        } catch (e) {
+          console.warn(`[sound-pad] Failed to load ${id} (${soundFile.file}):`, e);
+          return null;
+        } finally {
+          loadingRef.current.delete(id);
+        }
+      })();
+
+      loadingRef.current.set(id, promise);
+      return promise;
+    },
+    [getCtx],
+  );
+
   // ===== Preload: fetch + decode ALL sounds on mount (background, non-blocking) =====
   useEffect(() => {
     const ctx = getCtx();
@@ -61,140 +128,57 @@ export function useSoundPad() {
 
     let cancelled = false;
 
-    SOUND_FILES.forEach(async ({ id, file }) => {
-      if (loadingRef.current.has(id) || audioBufferCacheRef.current.has(id)) return;
-      loadingRef.current.add(id);
-
-      try {
-        const response = await fetch(`/sounds/${file}`);
-        if (!response.ok) {
-          console.warn(`[sound-pad] Failed to fetch ${file}: ${response.status}`);
-          return;
-        }
-        const arrayBuffer = await response.arrayBuffer();
-
-        // decodeAudioData needs the AudioContext to be running OR will queue
-        const buffer = await ctx.decodeAudioData(arrayBuffer);
-        if (cancelled) return;
-
-        audioBufferCacheRef.current.set(id, buffer);
-        loadingRef.current.delete(id);
-        setLoadedCount((n) => n + 1);
-      } catch (e) {
-        console.warn(`[sound-pad] Failed to load ${id} (${file}):`, e);
-        loadingRef.current.delete(id);
-      }
+    SOUND_FILES.forEach(async ({ id }) => {
+      const buffer = await loadSound(id);
+      if (cancelled || !buffer) return;
     });
 
     return () => {
       cancelled = true;
     };
-  }, [getCtx]);
+  }, [getCtx, loadSound]);
 
   // Cleanup AudioContext on unmount
   useEffect(() => {
     return () => {
-      if (ctxRef.current) {
-        try { void ctxRef.current.close(); } catch { /* ignore */ }
-        ctxRef.current = null;
+      const ctx = ctxRef.current;
+      ctxRef.current = null;
+      masterGainRef.current = null;
+      compressorRef.current = null;
+      if (ctx && ctx.state !== "closed") {
+        void ctx.close().catch(() => undefined);
       }
     };
   }, []);
 
-  // ===== Synthesis fallback (used if audio file not yet loaded or failed) =====
-  const synthTone = useCallback(
-    (freq: number, duration: number, opts: { type?: OscillatorType; vol?: number; sweepTo?: number } = {}) => {
-      if (!soundEnabled) return;
-      const ctx = getCtx();
-      if (!ctx) return;
-      if (ctx.state === "suspended") void ctx.resume();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = opts.type ?? "sine";
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      if (opts.sweepTo) osc.frequency.exponentialRampToValueAtTime(opts.sweepTo, ctx.currentTime + duration);
-      const vol = (opts.vol ?? 0.3) * volumeRef.current;
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + duration);
-    },
-    [getCtx, soundEnabled],
-  );
-
-  const synthNoise = useCallback(
-    (duration: number, vol: number, filterFreq: number) => {
-      if (!soundEnabled) return;
-      const ctx = getCtx();
-      if (!ctx) return;
-      const bufferSize = ctx.sampleRate * duration;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-      const src = ctx.createBufferSource();
-      src.buffer = buffer;
-      const filter = ctx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = filterFreq;
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(vol * volumeRef.current, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-      src.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      src.start();
-    },
-    [getCtx, soundEnabled],
-  );
-
-  // Synthesis fallback sounds (kept the same IDs as before)
-  const synthFallback = useCallback(
-    (id: string) => {
-      switch (id) {
-        case "cheer": synthNoise(1.2, 0.35, 2500); break;
-        case "clap": for (let i = 0; i < 6; i++) setTimeout(() => synthNoise(0.08, 0.3, 1500), i * 100); break;
-        case "ding": synthTone(1318.5, 0.6, { type: "sine", vol: 0.4 }); break;
-        case "fanfare": [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => synthTone(f, 0.3, { type: "sawtooth", vol: 0.2 }), i * 150)); break;
-        case "tada": [659, 784, 988, 1318].forEach((f, i) => setTimeout(() => synthTone(f, 0.1, { type: "triangle", vol: 0.2 }), i * 50)); break;
-        case "wow": synthTone(300, 0.15, { type: "sawtooth", vol: 0.25, sweepTo: 500 }); setTimeout(() => synthTone(500, 0.2, { type: "sawtooth", vol: 0.25, sweepTo: 700 }), 150); break;
-        case "boop": [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => synthTone(f, 0.3, { type: "sawtooth", vol: 0.2 }), i * 150)); break;
-        case "buzzer": synthTone(150, 0.5, { type: "sawtooth", vol: 0.3 }); synthNoise(0.5, 0.15, 800); break;
-        case "spring": synthTone(200, 0.3, { type: "sine", vol: 0.3, sweepTo: 800 }); break;
-        case "drumroll": synthTone(60, 0.15, { type: "sine", vol: 0.4 }); setTimeout(() => synthTone(60, 0.15, { type: "sine", vol: 0.4 }), 300); break;
-        case "laugh": [400, 350, 300].forEach((f, i) => setTimeout(() => synthTone(f, 0.12, { type: "sawtooth", vol: 0.25 }), i * 180)); break;
-        case "cowbell": for (let i = 0; i < 12; i++) setTimeout(() => synthNoise(0.05, 0.2, 400), i * 60); break;
-        case "gong": synthTone(80, 2, { type: "sine", vol: 0.4 }); synthNoise(0.5, 0.2, 2000); break;
-        case "sparkle": [1046, 1318, 1568, 2093].forEach((f, i) => setTimeout(() => synthTone(f, 0.3, { type: "triangle", vol: 0.15 }), i * 60)); break;
-        case "quack": [2000, 2400, 2000, 2200].forEach((f, i) => setTimeout(() => synthTone(f, 0.08, { type: "sine", vol: 0.15 }), i * 80)); break;
-        case "monkey": synthTone(200, 0.1, { type: "sawtooth", vol: 0.3, sweepTo: 150 }); setTimeout(() => synthTone(180, 0.15, { type: "sawtooth", vol: 0.25, sweepTo: 120 }), 120); break;
-        case "whoosh": synthTone(200, 0.4, { type: "sawtooth", vol: 0.2, sweepTo: 800 }); synthNoise(0.4, 0.15, 600); break;
-        case "alarm": for (let i = 0; i < 3; i++) { setTimeout(() => synthTone(880, 0.12, { type: "square", vol: 0.2 }), i * 300); setTimeout(() => synthTone(988, 0.12, { type: "square", vol: 0.2 }), i * 300 + 150); } break;
-        // Classroom Answers synth fallbacks
-        case "true": synthTone(880, 0.15, { type: "sine", vol: 0.3 }); setTimeout(() => synthTone(1108, 0.2, { type: "sine", vol: 0.3 }), 150); break;
-        case "false": synthTone(440, 0.15, { type: "sawtooth", vol: 0.3 }); setTimeout(() => synthTone(330, 0.25, { type: "sawtooth", vol: 0.3 }), 150); break;
-        case "yes": synthTone(659, 0.2, { type: "sine", vol: 0.3 }); break;
-        case "no": synthTone(330, 0.2, { type: "sawtooth", vol: 0.3 }); break;
-        case "maybe": synthTone(523, 0.15, { type: "triangle", vol: 0.25 }); setTimeout(() => synthTone(587, 0.2, { type: "triangle", vol: 0.25 }), 150); break;
-        case "try-again": synthTone(440, 0.1, { type: "square", vol: 0.25 }); setTimeout(() => synthTone(523, 0.1, { type: "square", vol: 0.25 }), 100); setTimeout(() => synthTone(659, 0.2, { type: "square", vol: 0.25 }), 200); break;
-      }
-    },
-    [synthTone, synthNoise],
-  );
+  const playSoftNotice = useCallback(() => {
+    if (!soundEnabled) return;
+    const output = getOutput();
+    if (!output) return;
+    const { ctx, input } = output;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08 * volumeRef.current, ctx.currentTime + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.connect(gain);
+    gain.connect(input);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  }, [getOutput, soundEnabled]);
 
   // ===== Main play function — INSTANT playback from AudioBuffer cache =====
   const play = useCallback(
-    (soundId: string) => {
+    (soundId: string, volumeOverride?: number) => {
       if (!soundEnabled) return;
       setLastPlayed(soundId);
 
-      const ctx = getCtx();
-      if (!ctx) {
-        synthFallback(soundId);
-        return;
-      }
+      const output = getOutput();
+      if (!output) return;
+      const { ctx, input } = output;
 
       // Resume AudioContext if suspended (required on mobile after user gesture)
       if (ctx.state === "suspended") {
@@ -203,21 +187,38 @@ export function useSoundPad() {
 
       const buffer = audioBufferCacheRef.current.get(soundId);
       if (!buffer) {
-        // Still loading or failed — use synth fallback immediately
-        synthFallback(soundId);
+        // Still loading: give a tiny clean cue, then play the real file when ready.
+        playSoftNotice();
+        void loadSound(soundId).then((loadedBuffer) => {
+          if (loadedBuffer) play(soundId, volumeOverride);
+        });
         return;
       }
+
+      activeSourcesRef.current.forEach((src) => {
+        try { src.stop(); } catch { /* already stopped */ }
+      });
+      activeSourcesRef.current.clear();
 
       // Create a new source node for instant playback (no re-fetch needed!)
       const source = ctx.createBufferSource();
       source.buffer = buffer;
 
-      // Volume control via GainNode
+      // Volume control via GainNode, trimmed per sound to avoid classroom blasts.
       const gain = ctx.createGain();
-      gain.gain.value = volumeRef.current;
+      const effectiveVolume = volumeOverride ?? volumeRef.current;
+      const trimmedVolume = effectiveVolume * (SOUND_GAIN[soundId] ?? 0.72);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(trimmedVolume, ctx.currentTime + 0.012);
 
-      source.connect(gain);
-      gain.connect(ctx.destination);
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = SOUND_FILTER[soundId] ?? 8400;
+      filter.Q.value = 0.2;
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(input);
 
       // Track for STOP
       activeSourcesRef.current.add(source);
@@ -230,10 +231,9 @@ export function useSoundPad() {
         source.start();
       } catch (e) {
         console.warn(`[sound-pad] Failed to start ${soundId}:`, e);
-        synthFallback(soundId);
       }
     },
-    [soundEnabled, synthFallback, getCtx],
+    [soundEnabled, getOutput, loadSound, playSoftNotice],
   );
 
   // ===== STOP ALL — immediately stops every active source =====
@@ -245,9 +245,12 @@ export function useSoundPad() {
     activeSourcesRef.current.clear();
 
     // Close and recreate AudioContext to kill any synth fallbacks
-    if (ctxRef.current) {
-      try { void ctxRef.current.close(); } catch { /* ignore */ }
-      ctxRef.current = null;
+    const ctx = ctxRef.current;
+    ctxRef.current = null;
+    masterGainRef.current = null;
+    compressorRef.current = null;
+    if (ctx && ctx.state !== "closed") {
+      void ctx.close().catch(() => undefined);
     }
   }, []);
 
@@ -275,6 +278,45 @@ export interface SoundDef {
   file: string;
 }
 
+const SOUND_GAIN: Record<string, number> = {
+  cheer: 0.5,
+  clap: 0.48,
+  tada: 0.72,
+  laugh: 0.38,
+  ding: 0.72,
+  wow: 0.72,
+  boop: 0.72,
+  buzzer: 0.32,
+  fanfare: 0.68,
+  drumroll: 0.38,
+  cowbell: 0.36,
+  gong: 0.7,
+  sparkle: 0.44,
+  spring: 0.4,
+  quack: 0.5,
+  monkey: 0.5,
+  whoosh: 0.38,
+  alarm: 0.28,
+  true: 0.72,
+  false: 0.72,
+  yes: 0.72,
+  no: 0.72,
+  maybe: 0.72,
+  "try-again": 0.72,
+};
+
+const SOUND_FILTER: Record<string, number> = {
+  buzzer: 4200,
+  alarm: 3800,
+  quack: 5200,
+  monkey: 5200,
+  spring: 5600,
+  cowbell: 6200,
+  laugh: 6800,
+  clap: 7200,
+  cheer: 7600,
+};
+
 export const SOUND_FILES: { id: string; file: string }[] = [
   { id: "cheer", file: "cheer.mp3" },
   { id: "clap", file: "clap.mp3" },
@@ -290,8 +332,8 @@ export const SOUND_FILES: { id: string; file: string }[] = [
   { id: "cowbell", file: "gameshow.mp3" },
   { id: "gong", file: "spoken-times-up.mp3" },       // SPOKEN: "Time's up!"
   { id: "sparkle", file: "sparkle.mp3" },
-  { id: "quack", file: "chirping.mp3" },
-  { id: "monkey", file: "dog.mp3" },
+  { id: "quack", file: "ding.mp3" },
+  { id: "monkey", file: "boop.mp3" },
   { id: "whoosh", file: "whoosh.mp3" },
   { id: "alarm", file: "alarm.mp3" },
   // Classroom Answers (NEW — 4th row)
@@ -323,8 +365,8 @@ export const SOUNDS: SoundDef[] = [
   // Attention & Fun
   { id: "sparkle", label: "Sparkle", emoji: "✨", color: "from-fuchsia-400 to-pink-500", category: "attention", key: "a", file: "sparkle.mp3" },
   { id: "spring", label: "Spring", emoji: "🤪", color: "from-teal-400 to-cyan-500", category: "attention", key: "s", file: "spring.mp3" },
-  { id: "quack", label: "Chirping", emoji: "🐦", color: "from-sky-400 to-blue-500", category: "attention", key: "d", file: "chirping.mp3" },
-  { id: "monkey", label: "Dog", emoji: "🐶", color: "from-amber-500 to-orange-600", category: "attention", key: "f", file: "dog.mp3" },
+  { id: "quack", label: "Chime", emoji: "🔔", color: "from-sky-400 to-blue-500", category: "attention", key: "d", file: "ding.mp3" },
+  { id: "monkey", label: "Boop", emoji: "🔵", color: "from-amber-500 to-orange-600", category: "attention", key: "f", file: "boop.mp3" },
   { id: "whoosh", label: "Whoosh", emoji: "💨", color: "from-sky-400 to-indigo-500", category: "attention", key: "g", file: "whoosh.mp3" },
   { id: "alarm", label: "Alarm", emoji: "🚨", color: "from-red-500 to-orange-500", category: "attention", key: "h", file: "alarm.mp3" },
 

@@ -48,14 +48,14 @@ export function ClassSelect({
   };
 
   return (
-    <div className="w-full max-w-2xl flex items-center gap-2">
-      <span className="text-xs font-bold text-white/60 uppercase tracking-wider shrink-0 flex items-center gap-1">
+    <div className="classroom-control-panel flex w-full max-w-2xl items-center gap-2 rounded-2xl p-2">
+      <span className="classroom-muted-label flex shrink-0 items-center gap-1 text-xs uppercase tracking-wider">
         <Users className="h-3.5 w-3.5" /> Class
       </span>
       <select
         value={activeId}
         onChange={(e) => handleChange(e.target.value)}
-        className="flex-1 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold px-3 py-2"
+        className="classroom-input flex-1 rounded-xl px-3 py-2 text-sm font-black"
         title="Classes come from the Attendance registry"
       >
         <option value="" className="bg-slate-900">- select a class -</option>
@@ -69,7 +69,7 @@ export function ClassSelect({
       {currentNames && currentNames.filter(Boolean).length > 0 && (
         <button
           onClick={saveCurrent}
-          className="shrink-0 px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold hover:bg-emerald-500/35 active:scale-95 transition-all"
+          className="shrink-0 rounded-xl border border-emerald-500 bg-emerald-100 px-3 py-2 text-xs font-black text-emerald-900 transition-all hover:bg-emerald-200 active:scale-95"
           title="Save the current list - it will appear in every Class dropdown"
         >
           <Save className="h-3.5 w-3.5 inline mr-1" />Save list

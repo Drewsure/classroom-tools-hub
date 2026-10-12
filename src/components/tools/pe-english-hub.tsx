@@ -260,6 +260,7 @@ export function PEEnglishHub() {
     sound.playWhoosh();
   };
 
+  // Dice roll
   // Draw a random flashcard
   const drawRandomCard = () => {
     const card = PE_FLASHCARDS[Math.floor(Math.random() * PE_FLASHCARDS.length)];

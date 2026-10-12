@@ -83,12 +83,17 @@ export function HourglassTimer() {
 
   const topFill = Math.max(0, 1 - progress);
   const bottomFill = Math.min(1, progress);
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="hourglass" />
+    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="hourglass" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex items-center justify-center bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative flex w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={7} />
           {/* Scene decorator */}
@@ -113,10 +118,16 @@ export function HourglassTimer() {
           })}
 
           {/* Time display */}
-          <div className="absolute top-4 left-0 right-0 text-center pointer-events-none z-10">
+          <div
+            className={cn(
+              "absolute pointer-events-none z-10 text-center",
+              isSetup ? "left-0 right-0 top-4" : "right-[6%] top-1/2 -translate-y-1/2",
+            )}
+          >
             <div
               className={cn(
-                "inline-block px-6 py-3 rounded-2xl backdrop-blur-sm border",
+                "inline-block rounded-2xl border px-6 py-3 backdrop-blur-sm",
+                !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(250,204,21,0.35)]",
                 done
                   ? "bg-stone-900/60 border-stone-600/50"
                   : veryLow
@@ -129,6 +140,7 @@ export function HourglassTimer() {
               <div
                 className={cn(
                   "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
+                  !isSetup && "lg:text-[8rem] xl:text-[10rem]",
                   done ? "text-stone-400" : veryLow ? "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]" : lowTime ? "text-orange-300" : "text-yellow-100",
                 )}
               >
@@ -148,8 +160,13 @@ export function HourglassTimer() {
           )}
 
           {/* Hourglass */}
-          <div className="relative">
-            <svg width="180" height="240" viewBox="0 0 180 240" className="drop-shadow-2xl">
+          <div
+            className={cn(
+              "relative transition-all duration-500",
+              !isSetup && "absolute left-[34%] top-1/2 -translate-x-1/2 -translate-y-1/2",
+            )}
+          >
+            <svg width={isSetup ? 330 : 460} height={isSetup ? 440 : 613} viewBox="0 0 180 240" className="drop-shadow-2xl">
               {/* Frame top */}
               <rect x="20" y="10" width="140" height="10" rx="2" fill="#8b4513" />
               <rect x="15" y="5" width="150" height="8" rx="2" fill="#a0522d" />

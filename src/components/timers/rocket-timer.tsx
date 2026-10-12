@@ -93,23 +93,42 @@ export function RocketTimer() {
   const isLaunching = timer.isCompleted;
   const progress = timer.progress * 100;
   const countdown = timer.isRunning && timer.remaining <= 5;
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="rocket" />
+    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="rocket" />}
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-b", skin.bgGradient)}>
+        <div className={cn(
+          "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
+          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          skin.bgGradient,
+        )}>
           {/* Themed ambient particles */}
           <SkinParticleField skin={skin} seed={4} />
           {/* Scene decorator */}
           <SkinSceneDecorator skin={skin} />
 
+          {!isSetup && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-35"
+              style={{
+                background:
+                  "repeating-conic-gradient(from -18deg at 35% 58%, rgba(255,255,255,0.32) 0deg 2deg, transparent 2deg 8deg)",
+              }}
+            />
+          )}
+
           {/* Moon */}
           <div className="absolute top-6 right-8 w-12 h-12 rounded-full bg-yellow-100 shadow-[0_0_60px_20px_rgba(255,255,200,0.7)]" />
 
           {/* Ground / Launch pad */}
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-slate-700 to-slate-900 border-t-2 border-slate-500" />
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-24 h-2 bg-slate-500 rounded-t-md" />
+          <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-b from-slate-700 to-slate-900 border-t-2 border-slate-500" />
+          <div className={cn(
+            "absolute bottom-14 h-5 w-72 -translate-x-1/2 rounded-t-md bg-slate-500 shadow-[0_0_35px_rgba(148,163,184,0.45)]",
+            isSetup ? "left-1/2" : "left-[34%]",
+          )} />
 
           {/* Smoke clouds at base when launching */}
           {smokeClouds.map((id) => (
@@ -127,7 +146,8 @@ export function RocketTimer() {
           {/* Rocket */}
           <div
             className={cn(
-              "absolute bottom-10 left-1/2 -translate-x-1/2 transition-all duration-200 ease-out",
+              "absolute bottom-16 -translate-x-1/2 transition-all duration-200 ease-out",
+              isSetup ? "left-1/2" : "left-[34%]",
               blastoff && "animate-[rocketLaunch_3s_ease-out_forwards]",
             )}
             style={{
@@ -139,7 +159,12 @@ export function RocketTimer() {
             <div className="relative">
               {/* Big flame trail */}
               {(timer.isRunning || isLaunching) && (
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-10 h-20">
+                <div
+                  className={cn(
+                    "absolute left-1/2 -translate-x-1/2",
+                    isSetup ? "-bottom-24 h-40 w-24" : "-bottom-48 h-80 w-44",
+                  )}
+                >
                   <div
                     className="absolute inset-0 rounded-full blur-[3px] animate-[flameTrail_0.15s_ease-in-out_infinite]"
                     style={{
@@ -147,7 +172,7 @@ export function RocketTimer() {
                         "linear-gradient(to top, #dc2626 0%, #f97316 30%, #fbbf24 60%, #fef3c7 100%)",
                     }}
                   />
-                  <div className="absolute inset-x-2 top-4 bottom-0 bg-yellow-200 rounded-full blur-[1px] animate-[flameTrail_0.1s_ease-in-out_infinite]" />
+                  <div className="absolute inset-x-7 top-10 bottom-0 bg-yellow-200 rounded-full blur-[2px] animate-[flameTrail_0.1s_ease-in-out_infinite]" />
                   {/* Sparks */}
                   {FLAME_SPARKS.map((spark, i) => (
                     <div
@@ -165,18 +190,20 @@ export function RocketTimer() {
                 </div>
               )}
               {/* Body */}
-              <svg width="56" height="92" viewBox="0 0 48 80" className="relative drop-shadow-2xl">
+              <svg width={isSetup ? 190 : 400} height={isSetup ? 316 : 666} viewBox="0 0 48 80" className="relative drop-shadow-2xl">
                 <path
                   d="M24 4 L36 28 L36 60 L12 60 L12 28 Z"
                   fill="#f1f5f9"
-                  stroke="#94a3b8"
-                  strokeWidth="1.5"
+                  stroke="#0f172a"
+                  strokeWidth="2.4"
+                  strokeLinejoin="round"
                 />
                 <circle cx="24" cy="32" r="6" fill="#0ea5e9" stroke="#0284c7" strokeWidth="2" />
                 <circle cx="22" cy="30" r="2" fill="#7dd3fc" />
-                <path d="M12 50 L4 70 L12 64 Z" fill="#ef4444" />
-                <path d="M36 50 L44 70 L36 64 Z" fill="#ef4444" />
-                <rect x="12" y="58" width="24" height="4" fill="#475569" />
+                <path d="M12 50 L4 70 L12 64 Z" fill="#ef4444" stroke="#0f172a" strokeWidth="1.8" strokeLinejoin="round" />
+                <path d="M36 50 L44 70 L36 64 Z" fill="#ef4444" stroke="#0f172a" strokeWidth="1.8" strokeLinejoin="round" />
+                <rect x="12" y="58" width="24" height="4" fill="#475569" stroke="#0f172a" strokeWidth="1" />
+                <path d="M16 18 C19 13 29 13 32 18" stroke="#f97316" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.8" />
                 <text x="24" y="50" textAnchor="middle" fontSize="8" fill="#475569" fontWeight="bold">🚀</text>
               </svg>
             </div>
@@ -203,11 +230,18 @@ export function RocketTimer() {
 
           {/* Time display */}
           {!countdown && !blastoff && (
-            <div className="absolute top-4 left-0 right-0 text-center pointer-events-none z-10">
-              <div className="inline-block px-6 py-3 rounded-2xl bg-black/50 backdrop-blur-sm border border-white/20">
+            <div className={cn(
+              "pointer-events-none absolute z-10 text-center",
+              isSetup ? "left-0 right-0 top-4" : "right-[8%] top-1/2 -translate-y-1/2",
+            )}>
+              <div className={cn(
+                "inline-block rounded-2xl border border-white/20 bg-black/50 px-6 py-3 backdrop-blur-sm",
+                !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(56,189,248,0.35)]",
+              )}>
                 <div
                   className={cn(
                     "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl text-white tabular-nums drop-shadow-lg",
+                    !isSetup && "lg:text-[8rem] xl:text-[10rem]",
                     countdown && "animate-[dramaticPulse_0.5s_ease-in-out_infinite] text-red-300",
                   )}
                 >

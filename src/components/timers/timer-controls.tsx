@@ -1,11 +1,12 @@
 "use client";
 
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { PRESET_TIMES } from "@/lib/timers";
 import type { TimerStatus } from "@/hooks/use-timer";
-import { Pause, Play, RotateCcw } from "lucide-react";
+import { ChevronDown, ChevronUp, Pause, Play, RotateCcw } from "lucide-react";
 
 interface TimerControlsProps {
   status: TimerStatus;
@@ -42,26 +43,32 @@ export function TimerStartButton({
   onResume: () => void;
   accentColor?: string;
 }) {
+  const startKeyProps = getKeyboardActivationProps(onStart);
+  const pauseKeyProps = getKeyboardActivationProps(onPause);
+  const resumeKeyProps = getKeyboardActivationProps(onResume);
+
   return (
-    <div className="relative z-10 mt-2">
+    <div className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2">
       {status === "idle" && (
         <Button
-          onClick={onStart}
+          ref={getNativeActivationRef(onStart)}
+          {...startKeyProps}
           size="lg"
           className={cn(
-            "rounded-full px-8 text-white shadow-lg",
+            "rounded-2xl border-2 border-white/60 px-10 py-7 text-xl font-black text-white shadow-xl shadow-emerald-950/25 transition hover:-translate-y-0.5 active:scale-95",
             accentColor,
           )}
         >
           <Play className="mr-2 h-5 w-5 fill-current" />
-          Start
+          Start!
         </Button>
       )}
       {status === "running" && (
         <Button
-          onClick={onPause}
+          ref={getNativeActivationRef(onPause)}
+          {...pauseKeyProps}
           size="lg"
-          className="rounded-full px-8 text-white shadow-lg bg-amber-500 hover:bg-amber-600"
+          className="rounded-2xl border-2 border-white/60 bg-amber-500 px-10 py-7 text-xl font-black text-white shadow-xl shadow-amber-950/25 transition hover:-translate-y-0.5 hover:bg-amber-600 active:scale-95"
         >
           <Pause className="mr-2 h-5 w-5 fill-current" />
           Pause
@@ -69,15 +76,16 @@ export function TimerStartButton({
       )}
       {status === "paused" && (
         <Button
-          onClick={onResume}
+          ref={getNativeActivationRef(onResume)}
+          {...resumeKeyProps}
           size="lg"
           className={cn(
-            "rounded-full px-8 text-white shadow-lg",
+            "rounded-2xl border-2 border-white/60 px-10 py-7 text-xl font-black text-white shadow-xl shadow-emerald-950/25 transition hover:-translate-y-0.5 active:scale-95",
             accentColor,
           )}
         >
           <Play className="mr-2 h-5 w-5 fill-current" />
-          Resume
+          Resume!
         </Button>
       )}
       {status === "completed" && (
@@ -87,6 +95,35 @@ export function TimerStartButton({
       )}
     </div>
   );
+}
+
+function getNativeActivationRef(action: () => void) {
+  return (node: HTMLButtonElement | null) => {
+    if (!node) return;
+
+    const activate = (event: Event) => {
+      event.preventDefault();
+      const now = Date.now();
+      const lastActivation = Number(node.dataset.lastActivation ?? 0);
+      if (now - lastActivation < 250) return;
+
+      node.dataset.lastActivation = String(now);
+      action();
+    };
+
+    node.onclick = activate;
+    node.onpointerdown = activate;
+  };
+}
+
+function getKeyboardActivationProps(action: () => void) {
+  return {
+    onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      action();
+    },
+  };
 }
 
 /* ============================================================
@@ -115,10 +152,10 @@ export function TimerControls({
   const showReset = status !== "idle";
 
   return (
-    <div className="w-full space-y-5">
+    <div className="grid w-full max-w-7xl grid-cols-1 gap-2 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
       {showPresets && isEditable && (
-        <div>
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+        <div className="rounded-2xl border border-white/18 bg-slate-950/55 p-2.5 shadow-xl backdrop-blur-md">
+          <p className="mb-2 text-[0.65rem] font-black uppercase tracking-wider text-white/70">
             Quick presets
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
@@ -126,7 +163,7 @@ export function TimerControls({
               <button
                 key={preset.label}
                 onClick={() => onPreset(preset.seconds)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors"
+                className="rounded-xl border border-white/25 bg-white/12 px-3 py-1.5 text-xs font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white/20 active:scale-95"
               >
                 {preset.label}
               </button>
@@ -136,8 +173,8 @@ export function TimerControls({
       )}
 
       {isEditable && (
-        <div>
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+        <div className="rounded-2xl border border-white/18 bg-slate-950/55 p-2.5 shadow-xl backdrop-blur-md lg:col-start-2">
+          <p className="mb-2 text-center text-[0.65rem] font-black uppercase tracking-wider text-white/70">
             Custom time
           </p>
           <div className="flex items-center justify-center gap-2">
@@ -146,6 +183,7 @@ export function TimerControls({
               value={hours}
               onChange={onHoursChange}
               max={23}
+              step={1}
             />
             <Colon />
             <TimeInput
@@ -153,6 +191,7 @@ export function TimerControls({
               value={minutes}
               onChange={onMinutesChange}
               max={59}
+              step={1}
             />
             <Colon />
             <TimeInput
@@ -160,26 +199,53 @@ export function TimerControls({
               value={seconds}
               onChange={onSecondsChange}
               max={59}
+              step={5}
             />
           </div>
         </div>
       )}
 
-      {/* Reset button — OUTSIDE the container (students won't accidentally hit it) */}
+      {/* Reset button — guarded and outside the main action area */}
       {showReset && (
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <Button
-            onClick={onReset}
-            size="lg"
-            variant="outline"
-            className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
-          >
-            <RotateCcw className="mr-2 h-5 w-5" />
-            Reset
-          </Button>
+        <div className="fixed bottom-4 right-4 z-[90] flex items-center justify-center gap-3 lg:col-span-3">
+          <GuardedResetButton onReset={onReset} />
         </div>
       )}
     </div>
+  );
+}
+
+function GuardedResetButton({ onReset }: { onReset: () => void }) {
+  const [armed, setArmed] = useState(false);
+
+  useEffect(() => {
+    if (!armed) return;
+    const timeout = window.setTimeout(() => setArmed(false), 2600);
+    return () => window.clearTimeout(timeout);
+  }, [armed]);
+
+  return (
+    <Button
+      onClick={() => {
+        if (!armed) {
+          setArmed(true);
+          return;
+        }
+        setArmed(false);
+        onReset();
+      }}
+      size="lg"
+      variant="outline"
+      className={cn(
+        "rounded-2xl border-2 px-5 py-5 text-white shadow-2xl transition-all backdrop-blur-md",
+        armed
+          ? "border-rose-200 bg-rose-600 hover:bg-rose-500 hover:text-white"
+          : "border-amber-200 bg-slate-950/90 hover:bg-slate-900 hover:text-white",
+      )}
+    >
+      <RotateCcw className="mr-2 h-5 w-5" />
+      {armed ? "Confirm Reset" : "Teacher Reset"}
+    </Button>
   );
 }
 
@@ -188,14 +254,26 @@ function TimeInput({
   value,
   onChange,
   max,
+  step,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   max: number;
+  step: number;
 }) {
+  const update = (nextValue: number) => onChange(Math.max(0, Math.min(max, nextValue)));
+
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center gap-1">
+      <button
+        type="button"
+        onClick={() => update(value + step)}
+        aria-label={`Increase ${label}`}
+        className="grid h-8 w-16 place-items-center rounded-xl border border-white/20 bg-white/15 text-white shadow-sm transition hover:bg-white/25 active:scale-95"
+      >
+        <ChevronUp className="h-5 w-5" />
+      </button>
       <Input
         type="number"
         min={0}
@@ -204,11 +282,19 @@ function TimeInput({
         onChange={(e) => {
           const v = parseInt(e.target.value, 10);
           if (isNaN(v)) onChange(0);
-          else onChange(Math.max(0, Math.min(max, v)));
+          else update(v);
         }}
-        className="w-20 h-20 text-center text-3xl font-bold bg-white/10 border-white/25 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="h-14 w-16 rounded-2xl border-white/25 bg-white/12 text-center text-2xl font-black text-white shadow-inner [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
-      <span className="text-xs text-white/60 mt-1.5 font-semibold uppercase tracking-wide">
+      <button
+        type="button"
+        onClick={() => update(value - step)}
+        aria-label={`Decrease ${label}`}
+        className="grid h-8 w-16 place-items-center rounded-xl border border-white/20 bg-white/15 text-white shadow-sm transition hover:bg-white/25 active:scale-95"
+      >
+        <ChevronDown className="h-5 w-5" />
+      </button>
+      <span className="mt-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60">
         {label}
       </span>
     </div>
@@ -217,6 +303,6 @@ function TimeInput({
 
 function Colon() {
   return (
-    <span className="text-4xl font-bold text-white/80 pb-6">:</span>
+    <span className="pb-5 text-3xl font-bold text-white/80">:</span>
   );
 }

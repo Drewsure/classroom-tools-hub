@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   TOOLS,
@@ -11,312 +12,582 @@ import {
 } from "@/lib/tools";
 import { ToolLauncher } from "@/components/tools/tool-launcher";
 import { useFavorites } from "@/hooks/use-favorites";
-import { Star } from "lucide-react";
 import { AttendanceButton } from "@/components/tools/attendance-dialog";
+import {
+  BookOpenCheck,
+  Clock3,
+  Grid2X2,
+  LayoutDashboard,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Users,
+} from "lucide-react";
+
+type FilterKey = "all" | "favorites" | ToolCategory;
+
+const CATEGORY_ORDER: ToolCategory[] = [
+  "dashboard",
+  "timers",
+  "pickers",
+  "games",
+  "counters",
+  "math",
+  "letters",
+  "weather",
+  "sounds",
+  "audio",
+];
+
+const DAILY_TOOL_IDS = [
+  "activity-hub",
+  "custom-dashboard",
+  "classic",
+  "name-picker",
+  "weather-cards",
+  "sound-pad",
+  "letter-cards",
+];
+
+const CATEGORY_ACCENTS: Record<ToolCategory, string> = {
+  dashboard: "#38bdf8",
+  timers: "#f97316",
+  pickers: "#a855f7",
+  games: "#fb7185",
+  counters: "#22c55e",
+  math: "#f59e0b",
+  letters: "#60a5fa",
+  weather: "#38bdf8",
+  sounds: "#d946ef",
+  audio: "#8b5cf6",
+  favorites: "#facc15",
+};
+
+const PATHWAY_STYLES: Record<
+  string,
+  {
+    kicker: string;
+    image?: string;
+    hue: string;
+    bg: string;
+  }
+> = {
+  "activity-hub": {
+    kicker: "Daily warm-up",
+    image: "/images/manga-icons/activity-hub.png",
+    hue: "#22d3ee",
+    bg: "from-cyan-300 via-sky-400 to-indigo-500",
+  },
+  "custom-dashboard": {
+    kicker: "Teacher board",
+    image: "/images/manga-icons/dashboard.png",
+    hue: "#a78bfa",
+    bg: "from-violet-300 via-fuchsia-400 to-rose-400",
+  },
+  classic: {
+    kicker: "Class timer",
+    image: "/images/manga-icons/timer.png",
+    hue: "#fb923c",
+    bg: "from-orange-300 via-amber-300 to-yellow-300",
+  },
+  "name-picker": {
+    kicker: "Student turn",
+    image: "/images/manga-icons/name-picker.png",
+    hue: "#c084fc",
+    bg: "from-purple-300 via-violet-400 to-indigo-500",
+  },
+  "weather-cards": {
+    kicker: "ESL picture talk",
+    image: "/images/manga-icons/weather.png",
+    hue: "#38bdf8",
+    bg: "from-sky-200 via-cyan-300 to-blue-400",
+  },
+  "sound-pad": {
+    kicker: "Class reactions",
+    image: "/images/manga-icons/sound-pad.png",
+    hue: "#e879f9",
+    bg: "from-fuchsia-300 via-pink-400 to-rose-400",
+  },
+  "letter-cards": {
+    kicker: "Phonics cards",
+    image: "/images/manga-icons/letter-cards.png",
+    hue: "#60a5fa",
+    bg: "from-blue-300 via-sky-300 to-emerald-300",
+  },
+};
+
+const MANGA_ICON_BY_TOOL: Record<string, string> = {
+  "activity-hub": "/images/manga-icons/activity-hub.png",
+  "custom-dashboard": "/images/manga-icons/dashboard.png",
+  classic: "/images/manga-icons/timer.png",
+  "name-picker": "/images/manga-icons/name-picker.png",
+  "weather-cards": "/images/manga-icons/weather.png",
+  "sound-pad": "/images/manga-icons/sound-pad.png",
+  "letter-cards": "/images/manga-icons/letter-cards.png",
+};
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<ToolDef | null>(null);
-  const [activeCategory, setActiveCategory] = useState<ToolCategory | "all" | "favorites">("all");
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const [activeCategory, setActiveCategory] = useState<FilterKey>("all");
+  const [query, setQuery] = useState("");
+  const { isFavorite, toggleFavorite, favorites } = useFavorites();
 
   useEffect(() => {
-    if (activeTool) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    const openToolFromHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (!hash) return;
+
+      const foundTool = TOOLS.find((tool) => tool.id === hash);
+      if (foundTool) setActiveTool(foundTool);
+    };
+
+    openToolFromHash();
+    window.addEventListener("hashchange", openToolFromHash);
+    return () => window.removeEventListener("hashchange", openToolFromHash);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = activeTool ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [activeTool]);
 
-  const categories = (Object.keys(CATEGORY_INFO) as ToolCategory[]).filter(
-    (c) => c !== "favorites",
+  const favoriteTools = useMemo(
+    () => TOOLS.filter((tool) => favorites.includes(tool.id)),
+    [favorites],
   );
-  const filteredTools =
-    activeCategory === "all"
-      ? TOOLS
-      : activeCategory === "favorites"
-        ? TOOLS.filter((t) => favorites.includes(t.id))
-        : getToolsByCategory(activeCategory);
 
-  const favoriteTools = TOOLS.filter((t) => favorites.includes(t.id));
+  const dailyTools = useMemo(
+    () =>
+      DAILY_TOOL_IDS.map((id) => TOOLS.find((tool) => tool.id === id)).filter(
+        (tool): tool is ToolDef => Boolean(tool),
+      ),
+    [],
+  );
+
+  const filteredTools = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    const tools =
+      activeCategory === "all"
+        ? TOOLS
+        : activeCategory === "favorites"
+          ? favoriteTools
+          : getToolsByCategory(activeCategory);
+
+    if (!normalizedQuery) return tools;
+
+    return tools.filter((tool) =>
+      [tool.name, tool.description, tool.category]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery),
+    );
+  }, [activeCategory, favoriteTools, query]);
+
+  const openDashboard = () => {
+    setActiveTool(TOOLS.find((tool) => tool.id === "custom-dashboard") ?? null);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col glass-bg">
-      {/* Glassmorphism header */}
-      <header className="glass-header px-3 py-2 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto">
-          <h1 className="text-base font-black tracking-tight shrink-0 glass-hero-text">
-            🎓 Tools Hub
-          </h1>
-          <span className="text-xs text-white/50 shrink-0 hidden sm:inline">
-            {TOOLS.length} tools
-          </span>
-          {/* Category filter — compact pills, inline */}
-          <AttendanceButton />
-          <div className="flex gap-1 shrink-0">
-            <button
-              onClick={() => setActiveCategory("all")}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all whitespace-nowrap",
-                activeCategory === "all"
-                  ? "glass-button-active text-white"
-                  : "glass-button text-white hover:bg-white/15",
-              )}
-            >
-              All ({TOOLS.length})
-            </button>
-            <button
-              onClick={() => setActiveCategory("favorites")}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all whitespace-nowrap",
-                activeCategory === "favorites"
-                  ? "bg-yellow-400 text-slate-900 border-yellow-400"
-                  : "glass-button text-white hover:bg-white/15",
-              )}
-            >
-              ★ ({favorites.length})
-            </button>
-            {categories.map((cat) => {
-              const info = CATEGORY_INFO[cat];
-              const count = getToolsByCategory(cat).length;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all whitespace-nowrap flex items-center gap-0.5",
-                    activeCategory === cat
-                      ? "glass-button-active text-white"
-                      : "glass-button text-white hover:bg-white/15",
-                  )}
-                >
-                  <span>{info.emoji}</span>
-                  <span className="hidden lg:inline">{info.label}</span>
-                  <span className="opacity-50">({count})</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </header>
+    <main className="relative h-screen overflow-hidden bg-[#f7fbff] text-slate-950">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(125,211,252,0.42),rgba(254,240,138,0.5)_44%,rgba(251,207,232,0.42))]" />
+      <div className="absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.95),transparent_34%),radial-gradient(circle_at_78%_10%,rgba(34,197,94,0.24),transparent_24%)]" />
+      <div className="relative z-10 mx-auto flex h-screen w-full max-w-[96rem] flex-col gap-2.5 px-3 py-3 sm:px-4">
+        <header className="rounded-[1.4rem] border border-white/80 bg-white/[0.86] p-3 shadow-xl shadow-sky-900/10 backdrop-blur-xl">
+          <div className="grid gap-3 lg:grid-cols-[auto_minmax(18rem,1fr)_auto] lg:items-center">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-slate-950 text-cyan-200 shadow-lg shadow-sky-900/20">
+                <LayoutDashboard className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">
+                  Elementary ESL Japan
+                </p>
+                <h1 className="truncate text-xl font-black tracking-tight sm:text-2xl">
+                  Classroom Tools Adventure Board
+                </h1>
+              </div>
+            </div>
 
-      {/* Main content — bento layout */}
-      <main className="flex-1 px-4 py-2 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Favorites row — compact strip */}
-          {activeCategory === "all" && favoriteTools.length > 0 && (
-            <section className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                <h2 className="text-sm font-bold text-white/80 uppercase tracking-wider">
-                  Favorites
+            <div className="relative min-w-0">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-700" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search tools..."
+                className="h-11 w-full rounded-2xl border border-sky-200 bg-sky-50/90 pl-10 pr-3 text-sm font-black text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-200"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-1.5 shadow-sm">
+                <AttendanceButton />
+              </div>
+              <button
+                type="button"
+                onClick={openDashboard}
+                className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-950 px-3 text-xs font-black text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-sky-900"
+              >
+                <Grid2X2 className="h-4 w-4" />
+                Dashboard
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section className="grid min-h-0 flex-1 gap-2.5 lg:grid-cols-[18rem_minmax(0,1fr)] 2xl:grid-cols-[20rem_minmax(0,1fr)]">
+          <aside className="grid min-h-0 gap-2.5 lg:grid-rows-[auto_minmax(0,1fr)]">
+            <div className="rounded-[1.4rem] border border-white/80 bg-white/[0.88] p-3 shadow-xl shadow-sky-900/10">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-slate-700">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                  Teacher Dock
+                </p>
+                <span className="rounded-full bg-slate-950 px-2 py-1 text-[10px] font-black text-white">
+                  {filteredTools.length}/{TOOLS.length}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 lg:grid-cols-1 2xl:grid-cols-3">
+                <TeacherDockTile icon={<Users className="h-4 w-4" />} label="Roster" tool={TOOLS.find((tool) => tool.id === "enter-names")} onOpen={setActiveTool} />
+                <TeacherDockTile icon={<Clock3 className="h-4 w-4" />} label="Timer" tool={TOOLS.find((tool) => tool.id === "classic")} onOpen={setActiveTool} />
+                <TeacherDockTile icon={<BookOpenCheck className="h-4 w-4" />} label="Phonics" tool={TOOLS.find((tool) => tool.id === "letter-cards")} onOpen={setActiveTool} />
+              </div>
+            </div>
+
+            <div className="min-h-0 rounded-[1.4rem] border border-white/80 bg-white/[0.82] p-3 shadow-xl shadow-sky-900/10">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-700">
+                  Tool Zones
+                </p>
+                <Sparkles className="h-4 w-4 text-amber-500" />
+              </div>
+              <div className="grid max-h-[7.5rem] grid-cols-2 gap-1.5 overflow-y-auto pr-1 lg:max-h-[calc(100vh-22rem)] lg:grid-cols-1 2xl:grid-cols-2">
+                  <FilterButton
+                    active={activeCategory === "all"}
+                    label="All"
+                    count={TOOLS.length}
+                    onClick={() => setActiveCategory("all")}
+                  />
+                  <FilterButton
+                    active={activeCategory === "favorites"}
+                    label="Stars"
+                    count={favoriteTools.length}
+                    onClick={() => setActiveCategory("favorites")}
+                    favorite
+                  />
+                  {CATEGORY_ORDER.map((category) => (
+                    <FilterButton
+                      key={category}
+                      active={activeCategory === category}
+                      label={CATEGORY_INFO[category].label}
+                      count={getToolsByCategory(category).length}
+                      emoji={CATEGORY_INFO[category].emoji}
+                      accent={CATEGORY_ACCENTS[category]}
+                      onClick={() => setActiveCategory(category)}
+                    />
+                  ))}
+              </div>
+            </div>
+          </aside>
+
+          <section className="min-h-0 rounded-[1.4rem] border border-white/80 bg-white/[0.82] p-3 shadow-xl shadow-sky-900/10 backdrop-blur-xl lg:h-[calc(100vh-6.75rem)]">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">
+                  {activeCategory === "all"
+                    ? "All Tools"
+                    : activeCategory === "favorites"
+                      ? "Favorites"
+                      : CATEGORY_INFO[activeCategory].label}
+                </p>
+                <h2 className="text-lg font-black leading-tight">
+                  {query.trim()
+                    ? `${filteredTools.length} search result${
+                        filteredTools.length === 1 ? "" : "s"
+                      }`
+                    : "Choose a classroom pathway"}
                 </h2>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
-                {favoriteTools.map((tool) => (
-                  <MiniToolCard
-                    key={tool.id}
-                    tool={tool}
-                    onClick={() => setActiveTool(tool)}
-                    isFavorite={true}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* All tools — bento grid with side-by-side categories */}
-          {activeCategory === "all" ? (
-            <div className="space-y-2">
-              {/* Render categories, grouping single-tool categories side by side */}
-              {(() => {
-                // Define which categories to pair side-by-side
-                const pairs: [ToolCategory, ToolCategory][] = [
-                  ["math", "letters"],
-                  ["dashboard", "sounds"],
-                ];
-                const paired = new Set<string>(pairs.flat());
-
-                // Render a single category section
-                const renderSection = (cat: ToolCategory) => {
-                  const info = CATEGORY_INFO[cat];
-                  const tools = getToolsByCategory(cat);
-                  if (tools.length === 0) return null;
-                  return (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-lg">{info.emoji}</span>
-                        <h2 className="text-sm font-bold text-white/80 uppercase tracking-wider">
-                          {info.label}
-                        </h2>
-                        <span className="text-xs text-white/40 hidden sm:inline">
-                          {info.description}
-                        </span>
-                      </div>
-                      <div className={cn(
-                        "grid gap-2",
-                        tools.length === 10
-                          ? "grid-cols-5"
-                          : tools.length <= 2
-                            ? "grid-cols-2"
-                            : tools.length <= 4
-                              ? "grid-cols-4"
-                              : "grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10"
-                      )}>
-                        {tools.map((tool) => (
-                          <MiniToolCard
-                            key={tool.id}
-                            tool={tool}
-                            onClick={() => setActiveTool(tool)}
-                            isFavorite={isFavorite(tool.id)}
-                            onToggleFavorite={toggleFavorite}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                };
-
-                return categories.map((cat) => {
-                  if (paired.has(cat)) {
-                    // Find the pair this category belongs to
-                    const pair = pairs.find(([a, b]) => a === cat || b === cat);
-                    if (pair && cat === pair[0]) {
-                      // Render both side by side (only on the first of the pair)
-                      return (
-                        <div key={cat} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {renderSection(pair[0])}
-                          {renderSection(pair[1])}
-                        </div>
-                      );
-                    }
-                    // Skip the second of the pair (already rendered)
-                    return null;
-                  }
-                  // Render standalone categories normally
-                  return <section key={cat}>{renderSection(cat)}</section>;
-                });
-              })()}
+              {query.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-black text-slate-700 shadow-sm transition hover:bg-sky-50"
+                >
+                  Clear
+                </button>
+              ) : null}
             </div>
-          ) : activeCategory === "favorites" ? (
-            favoriteTools.length > 0 ? (
-              <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
-                {favoriteTools.map((tool) => (
-                  <MiniToolCard
+
+            {!query.trim() && activeCategory === "all" ? (
+              <div className="mb-2 flex gap-2 overflow-x-auto pb-1 pr-1">
+                {dailyTools.map((tool) => (
+                  <PathwayCard
                     key={tool.id}
                     tool={tool}
-                    onClick={() => setActiveTool(tool)}
-                    isFavorite={true}
-                    onToggleFavorite={toggleFavorite}
+                    onOpen={() => setActiveTool(tool)}
                   />
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-16">
-                <Star className="h-12 w-12 text-white/20 mx-auto mb-3" />
-                <p className="text-white/50 text-base font-semibold mb-1">
-                  No favorites yet!
-                </p>
-                <p className="text-white/30 text-xs">
-                  Click the ★ on any tool card to add it here
-                </p>
-              </div>
-            )
-          ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
+            ) : null}
+
+            <div className={cn(
+              "grid grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6",
+              !query.trim() && activeCategory === "all"
+                ? "max-h-[calc(100vh-19rem)] lg:max-h-[calc(100vh-20.5rem)]"
+                : "max-h-[calc(100vh-10.5rem)] lg:max-h-[calc(100vh-12rem)]",
+            )}>
               {filteredTools.map((tool) => (
-                <MiniToolCard
+                <ToolTile
                   key={tool.id}
                   tool={tool}
-                  onClick={() => setActiveTool(tool)}
-                  isFavorite={isFavorite(tool.id)}
-                  onToggleFavorite={toggleFavorite}
+                  favorite={isFavorite(tool.id)}
+                  onOpen={() => setActiveTool(tool)}
+                  onToggleFavorite={() => toggleFavorite(tool.id)}
                 />
               ))}
             </div>
-          )}
-        </div>
-      </main>
 
-      <footer className="mt-auto px-4 py-2 text-center text-xs text-white/30">
-        Click ★ to favorite · Sound on for best experience
-      </footer>
+            {filteredTools.length === 0 ? (
+              <div className="mt-10 rounded-xl border border-dashed border-white/20 bg-white/[0.04] p-6 text-center text-sm text-slate-300">
+                No tools matched that search.
+              </div>
+            ) : null}
+          </section>
+        </section>
+      </div>
 
-      {activeTool && (
+      {activeTool ? (
         <ToolLauncher
           tool={activeTool}
-          onClose={() => setActiveTool(null)}
+          onClose={() => {
+            setActiveTool(null);
+            if (window.location.hash) {
+              history.replaceState(null, "", window.location.pathname);
+            }
+          }}
         />
-      )}
-    </div>
+      ) : null}
+    </main>
   );
 }
 
-/* Compact bento-style tool card */
-function MiniToolCard({
+function QuickLaunchButton({
   tool,
+  onOpen,
+}: {
+  tool: ToolDef;
+  onOpen: () => void;
+}) {
+  const Icon = tool.icon;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group flex min-h-14 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] p-2 text-left transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.12]"
+    >
+      <span
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+        style={{ backgroundColor: `${tool.accent}28` }}
+      >
+        <Icon className="h-4 w-4" style={{ color: tool.accent }} />
+      </span>
+      <span className="min-w-0 text-xs font-black leading-tight text-white">
+        {tool.name}
+      </span>
+    </button>
+  );
+}
+
+function TeacherDockTile({
+  icon,
+  label,
+  tool,
+  onOpen,
+}: {
+  icon: ReactNode;
+  label: string;
+  tool?: ToolDef;
+  onOpen: (tool: ToolDef) => void;
+}) {
+  if (!tool) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(tool)}
+      className="flex h-16 flex-col items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50"
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function PathwayCard({
+  tool,
+  onOpen,
+}: {
+  tool: ToolDef;
+  onOpen: () => void;
+}) {
+  const style = PATHWAY_STYLES[tool.id] ?? {
+    kicker: CATEGORY_INFO[tool.category].label,
+    hue: tool.accent,
+    bg: tool.gradient,
+  };
+  const Icon = tool.icon;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={cn(
+        "group relative min-h-[6.25rem] min-w-[7.7rem] flex-1 overflow-hidden rounded-[1.25rem] bg-gradient-to-br p-2.5 text-left text-white shadow-lg shadow-slate-900/14 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300",
+        style.bg,
+      )}
+    >
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.18),rgba(15,23,42,0.02)_45%,rgba(15,23,42,0.28))]" />
+      {style.image ? (
+        <img
+          src={style.image}
+          alt=""
+          className="absolute bottom-0 right-0 h-16 w-16 object-contain opacity-95 drop-shadow-xl transition group-hover:scale-105"
+        />
+      ) : (
+        <span className="absolute bottom-1 right-2 text-5xl opacity-80 drop-shadow-xl transition group-hover:scale-105">
+          {tool.emoji}
+        </span>
+      )}
+      <div className="relative z-10 flex h-full flex-col justify-between">
+        <span className="w-fit rounded-full bg-white/[0.84] px-2 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-900">
+          {style.kicker}
+        </span>
+        <div className="max-w-[6rem]">
+          <div
+            className="mb-1 grid h-8 w-8 place-items-center rounded-xl bg-white/90 text-slate-950"
+            style={{ color: style.hue }}
+          >
+            <Icon className="h-4 w-4" />
+          </div>
+          <h3 className="text-xs font-black leading-tight drop-shadow">
+            {tool.name}
+          </h3>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function FilterButton({
+  active,
+  label,
+  count,
   onClick,
-  isFavorite,
+  emoji,
+  accent,
+  favorite = false,
+}: {
+  active: boolean;
+  label: string;
+  count: number;
+  onClick: () => void;
+  emoji?: string;
+  accent?: string;
+  favorite?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex h-10 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-2 text-xs font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-50",
+        active &&
+          "border-cyan-200 bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-950/20",
+        favorite && active && "border-amber-200 bg-amber-300",
+      )}
+      style={active && accent && !favorite ? { borderColor: accent } : undefined}
+    >
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span>{favorite ? "★" : emoji}</span>
+        <span className="truncate">{label}</span>
+      </span>
+      <span className="shrink-0 opacity-70">{count}</span>
+    </button>
+  );
+}
+
+function ToolTile({
+  tool,
+  favorite,
+  onOpen,
   onToggleFavorite,
 }: {
   tool: ToolDef;
-  onClick: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
+  favorite: boolean;
+  onOpen: () => void;
+  onToggleFavorite: () => void;
 }) {
   const Icon = tool.icon;
+  const mangaIcon = MANGA_ICON_BY_TOOL[tool.id];
+
   return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-xl transition-all duration-200 hover:scale-105 focus-within:ring-2 focus-within:ring-emerald-400/40 bg-gradient-to-br cursor-pointer tool-card-glow",
-        tool.gradient,
-        "min-h-[76px] flex flex-col",
-      )}
-      style={{ ['--tool-accent' as string]: tool.accent }}
-      onClick={onClick}
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+      className="group relative flex min-h-[4.35rem] cursor-pointer flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm outline-none transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 focus-visible:ring-2 focus-visible:ring-sky-400"
     >
-      {/* Favorite star */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleFavorite(tool.id);
-        }}
-        className={cn(
-          "absolute top-1 right-1 z-20 w-5 h-5 rounded-full flex items-center justify-center transition-all",
-          isFavorite
-            ? "bg-yellow-400/90 text-slate-900"
-            : "bg-black/20 text-white/50 hover:bg-black/40 hover:text-white opacity-0 group-hover:opacity-100",
-        )}
-        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-      >
-        <Star className={cn("h-2.5 w-2.5", isFavorite && "fill-current")} />
-      </button>
+      <div
+        className="absolute inset-x-0 top-0 h-0.5 opacity-90"
+        style={{ backgroundColor: tool.accent }}
+      />
 
-      {/* Background emoji */}
-      <div className="absolute -right-2 -top-2 text-4xl opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-        {tool.emoji}
-      </div>
-
-      {/* Content */}
-      <div className="relative p-2 text-white flex-1 flex flex-col justify-between">
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-6 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
-            <Icon className="h-3 w-3 text-white" />
+      <div className="flex items-start justify-between gap-2">
+        {mangaIcon ? (
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-50">
+            <img src={mangaIcon} alt="" className="h-9 w-9 object-contain" />
           </div>
-          <span className="text-base">{tool.emoji}</span>
-        </div>
-        <div className="mt-1">
-          <h3 className="text-[11px] font-bold leading-tight drop-shadow">
-            {tool.name}
-          </h3>
-          <p className="text-[9px] text-white/70 leading-tight mt-0.5 line-clamp-1">
-            {tool.description}
-          </p>
-        </div>
+        ) : (
+          <div
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg"
+            style={{ backgroundColor: `${tool.accent}24` }}
+          >
+            <Icon className="h-4 w-4" style={{ color: tool.accent }} />
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite();
+          }}
+          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+          className={cn(
+            "grid h-6 w-6 shrink-0 place-items-center rounded-md border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-white",
+            favorite && "border-amber-200/70 bg-amber-300 text-slate-950",
+          )}
+        >
+          <Star className={cn("h-3 w-3", favorite && "fill-current")} />
+        </button>
       </div>
-    </div>
+
+      <div>
+        <h3 className="line-clamp-1 text-xs font-black leading-tight text-slate-950">
+          {tool.name}
+        </h3>
+        <p className="mt-0.5 line-clamp-1 text-[10px] font-semibold leading-tight text-slate-500">
+          {CATEGORY_INFO[tool.category].label}
+        </p>
+      </div>
+    </article>
   );
 }

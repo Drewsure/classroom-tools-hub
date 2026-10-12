@@ -21,7 +21,6 @@ import {
   RotateCcw,
   Check,
   X,
-  Cloud,
   Grid3x3,
   Layers,
   Maximize2,
@@ -38,7 +37,7 @@ import { cn } from "@/lib/utils";
    2. Selection Panel — grid of 8, mark ✓ correct or ✗ wrong
    3. Present Selected — large format presentation of selected cards
 
-   AAAA presentation quality with themed particles, large GIFs,
+   AAA presentation quality with themed particles, large GIFs,
    dramatic effects, and fullscreen mode.
    ============================================================ */
 
@@ -216,24 +215,25 @@ export function WeatherFlashcards() {
       {!fullscreen && <UniversalSkinPicker current={skinId} onChange={setSkinId} />}
 
       {/* Title */}
-      <div className="w-full max-w-3xl text-center px-6 py-3 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-700 border border-white/10 shadow-lg">
-        <h2 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2">
-          <Cloud className="h-5 w-5" /> How&apos;s the Weather?
+      <div className="w-full max-w-7xl text-center px-6 py-3 rounded-3xl bg-gradient-to-r from-sky-300 via-cyan-400 to-indigo-500 border border-white/30 shadow-lg">
+        <h2 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-3 drop-shadow">
+          <img src="/images/manga-icons/weather.png" alt="" className="h-14 w-14 rounded-2xl bg-white/90 object-contain shadow-lg" />
+          How&apos;s the Weather?
         </h2>
         <p className="text-xs text-white/70 mt-1">Flashcard + selection + presentation mode</p>
       </div>
 
       {/* Mode toggle + fullscreen */}
       {!fullscreen && (
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Mode:</span>
-          <button onClick={() => { setMode("flashcard"); handleResetFlashcard(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border transition-all", mode === "flashcard" ? "bg-white text-slate-900 border-white scale-105 shadow-lg" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+        <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-white/60 bg-white/90 p-2 shadow-xl shadow-slate-950/15 backdrop-blur-md">
+          <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Mode:</span>
+          <button onClick={() => { setMode("flashcard"); handleResetFlashcard(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-black border transition-all", mode === "flashcard" ? "bg-cyan-600 text-white border-cyan-700 scale-105 shadow-lg" : "bg-white text-slate-800 border-slate-300 hover:bg-cyan-50 hover:border-cyan-500")}>
             <Layers className="h-4 w-4" /> Flashcard
           </button>
-          <button onClick={() => { setMode("selection"); sound.playClick(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border transition-all", mode === "selection" ? "bg-white text-slate-900 border-white scale-105 shadow-lg" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+          <button onClick={() => { setMode("selection"); sound.playClick(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-black border transition-all", mode === "selection" ? "bg-cyan-600 text-white border-cyan-700 scale-105 shadow-lg" : "bg-white text-slate-800 border-slate-300 hover:bg-cyan-50 hover:border-cyan-500")}>
             <Grid3x3 className="h-4 w-4" /> Selection
           </button>
-          <button onClick={toggleFullscreen} className="px-4 py-2 rounded-full text-sm font-bold border bg-white/10 text-white border-white/25 hover:bg-white/20" title="Fullscreen">
+          <button onClick={toggleFullscreen} className="px-4 py-2 rounded-full text-sm font-black border bg-white text-slate-800 border-slate-300 hover:bg-slate-100" title="Fullscreen">
             <Maximize2 className="h-4 w-4" />
           </button>
         </div>
@@ -245,7 +245,7 @@ export function WeatherFlashcards() {
       {/* ===== FLASHCARD MODE ===== */}
       {mode === "flashcard" && (
         <ShakeWrapper intensity={shakeIntensity}>
-          <div className={cn("relative rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-5xl min-h-[70vh]" : "w-full max-w-2xl min-h-[36rem]")}>
+          <div className={cn("relative rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-7xl min-h-[calc(100vh-9rem)]" : "w-full max-w-7xl min-h-[min(78vh,52rem)]")}>
             <SkinParticleField skin={skin} seed={7} />
             <SkinSceneDecorator skin={skin} />
 
@@ -267,8 +267,8 @@ export function WeatherFlashcards() {
             {phase === "result" && current && (
               <div className="relative z-10 flex flex-col items-center gap-4 w-full">
                 {/* Large weather GIF */}
-                <div className={cn("relative rounded-3xl overflow-hidden border-4 shadow-2xl", fullscreen ? "w-72 h-72 sm:w-96 sm:h-96" : "w-64 h-64 sm:w-80 sm:h-80", revealAnswer === "yes" ? "border-emerald-400 animate-[revealPulse_0.6s_ease-out]" : "border-white/80", "bg-gradient-to-br", WEATHER_META[current].color)}>
-                  <img src={weatherGif(current)} alt={WEATHER_META[current].label} className="w-full h-full object-cover" draggable={false} />
+                <div className={cn("relative rounded-3xl overflow-hidden border-4 shadow-2xl", fullscreen ? "h-[min(70vh,48rem)] w-[min(92vw,48rem)]" : "h-[min(62vh,40rem)] w-[min(92vw,40rem)]", revealAnswer === "yes" ? "border-emerald-400 animate-[revealPulse_0.6s_ease-out]" : "border-white/80", "bg-gradient-to-br", WEATHER_META[current].color)}>
+                  <img src={weatherGif(current)} alt={WEATHER_META[current].label} className="h-full w-full bg-black/15 object-contain" draggable={false} />
                   {revealAnswer === "yes" && <div className="absolute top-2 right-2 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-black shadow-lg animate-[popIn_0.3s_ease-out]">✓ YES!</div>}
                 </div>
 
@@ -306,9 +306,9 @@ export function WeatherFlashcards() {
 
       {/* ===== SELECTION PANEL MODE ===== */}
       {mode === "selection" && (
-        <div className="w-full max-w-3xl flex flex-col items-center gap-4">
+        <div className="w-full max-w-7xl flex flex-col items-center gap-4">
           {/* Summary bar */}
-          <div className="w-full flex items-center justify-between gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 flex-wrap">
+          <div className="w-full flex items-center justify-between gap-3 px-4 py-2 rounded-2xl bg-white/90 border border-white/70 flex-wrap shadow-xl shadow-slate-950/15 backdrop-blur-md">
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1.5 font-bold text-emerald-300"><Check className="h-4 w-4" /> Correct: {correctCount}</span>
               <span className="flex items-center gap-1.5 font-bold text-rose-300"><X className="h-4 w-4" /> Wrong: {wrongCount}</span>
@@ -320,26 +320,26 @@ export function WeatherFlashcards() {
                 </Button>
               )}
               {(correctCount > 0 || wrongCount > 0) && (
-                <Button onClick={clearMarks} size="sm" variant="outline" className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Clear</Button>
+                <Button onClick={clearMarks} size="sm" variant="outline" className="rounded-full bg-white text-slate-800 border-slate-300 hover:bg-slate-100 hover:text-slate-950"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Clear</Button>
               )}
             </div>
           </div>
 
           {/* Grid of 8 weather GIFs */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full">
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {WEATHER_TYPES.map((type) => {
               const mark = marks[type];
               return (
-                <div key={type} className={cn("relative rounded-2xl overflow-hidden border-2 shadow-lg bg-white/5 transition-all", mark === "correct" ? "border-emerald-400/80 ring-2 ring-emerald-400/40 scale-105" : mark === "wrong" ? "border-rose-400/80 ring-2 ring-rose-400/40 opacity-70" : "border-white/15")}>
-                  <div className="relative aspect-square bg-black/20">
-                    <img src={weatherGif(type)} alt={WEATHER_META[type].label} className="w-full h-full object-cover" draggable={false} />
-                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">{WEATHER_META[type].emoji} {WEATHER_META[type].label}</div>
+                <div key={type} className={cn("relative rounded-2xl overflow-hidden border-2 shadow-lg bg-white/90 transition-all", mark === "correct" ? "border-emerald-500 ring-2 ring-emerald-300/60 scale-[1.02]" : mark === "wrong" ? "border-rose-500 ring-2 ring-rose-300/60 opacity-90" : "border-white/80")}>
+                  <div className="relative aspect-[4/3] min-h-[15rem] bg-black/20 sm:aspect-square">
+                    <img src={weatherGif(type)} alt={WEATHER_META[type].label} className="h-full w-full object-contain" draggable={false} />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-white/90 text-slate-950 text-[10px] font-black uppercase tracking-wider backdrop-blur-sm shadow">{WEATHER_META[type].emoji} {WEATHER_META[type].label}</div>
                     {mark === "correct" && <div className="absolute top-2 right-2 bg-emerald-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg"><Check className="h-4 w-4" /></div>}
                     {mark === "wrong" && <div className="absolute top-2 right-2 bg-rose-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg"><X className="h-4 w-4" /></div>}
                   </div>
-                  <div className="grid grid-cols-2 gap-1 p-1.5 bg-black/30">
-                    <button onClick={() => toggleMark(type, "correct")} className={cn("py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center", mark === "correct" ? "bg-emerald-500 text-white shadow" : "bg-white/10 text-white/70 hover:bg-emerald-500/40 hover:text-white")}><Check className="h-4 w-4" /></button>
-                    <button onClick={() => toggleMark(type, "wrong")} className={cn("py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center", mark === "wrong" ? "bg-rose-500 text-white shadow" : "bg-white/10 text-white/70 hover:bg-rose-500/40 hover:text-white")}><X className="h-4 w-4" /></button>
+                  <div className="grid grid-cols-2 gap-1 p-1.5 bg-white/80">
+                    <button onClick={() => toggleMark(type, "correct")} className={cn("py-2 rounded-lg text-sm font-black transition-all flex items-center justify-center", mark === "correct" ? "bg-emerald-400 text-slate-950 shadow" : "bg-white text-slate-800 border border-slate-200 hover:bg-emerald-500 hover:text-white")}><Check className="h-4 w-4" /></button>
+                    <button onClick={() => toggleMark(type, "wrong")} className={cn("py-2 rounded-lg text-sm font-black transition-all flex items-center justify-center", mark === "wrong" ? "bg-rose-400 text-slate-950 shadow" : "bg-white text-slate-800 border border-slate-200 hover:bg-rose-500 hover:text-white")}><X className="h-4 w-4" /></button>
                   </div>
                 </div>
               );
@@ -354,7 +354,7 @@ export function WeatherFlashcards() {
       {mode === "present" && presentCard && (
         <>
           <ShakeWrapper intensity={shakeIntensity}>
-            <div className={cn("relative rounded-3xl overflow-hidden border-2 border-emerald-400/30 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-5xl min-h-[70vh]" : "w-full max-w-2xl min-h-[32rem]")}>
+            <div className={cn("relative rounded-3xl overflow-hidden border-2 border-emerald-400/30 shadow-2xl flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-7xl min-h-[calc(100vh-9rem)]" : "w-full max-w-7xl min-h-[min(78vh,52rem)]")}>
               <SkinParticleField skin={skin} seed={9} />
               <SkinSceneDecorator skin={skin} />
 
@@ -362,8 +362,8 @@ export function WeatherFlashcards() {
 
               {phase === "result" && (
                 <div className="relative z-10 flex flex-col items-center gap-4 w-full">
-                  <div className={cn("relative rounded-3xl overflow-hidden border-4 border-emerald-400 shadow-2xl bg-gradient-to-br animate-[revealPulse_0.5s_ease-out]", WEATHER_META[presentCard].color, fullscreen ? "w-72 h-72 sm:w-96 sm:h-96" : "w-64 h-64 sm:w-80 sm:h-80")}>
-                    <img src={weatherGif(presentCard)} alt={WEATHER_META[presentCard].label} className="w-full h-full object-cover" />
+                  <div className={cn("relative rounded-3xl overflow-hidden border-4 border-emerald-400 shadow-2xl bg-gradient-to-br animate-[revealPulse_0.5s_ease-out]", WEATHER_META[presentCard].color, fullscreen ? "h-[min(70vh,48rem)] w-[min(92vw,48rem)]" : "h-[min(62vh,40rem)] w-[min(92vw,40rem)]")}>
+                    <img src={weatherGif(presentCard)} alt={WEATHER_META[presentCard].label} className="h-full w-full bg-black/15 object-contain" />
                     <div className="absolute top-2 right-2 bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg"><Check className="h-5 w-5" /></div>
                   </div>
                   <p className="text-xl sm:text-2xl font-black text-emerald-300 text-center">Yes, it is. It&apos;s {WEATHER_META[presentCard].label} today.</p>

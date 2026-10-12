@@ -48,7 +48,7 @@ export function BarTimer() {
     timer.isRunning,
     timer.isCompleted,
     () => {
-            flashFn(skin.flashColor);
+      flashFn(skin.flashColor);
       shake(2);
       burstConfetti(100, 50, 50);
       setTimeout(() => burstConfetti(60, 30, 40), 300);
@@ -84,15 +84,17 @@ export function BarTimer() {
   const lowTime = timer.remaining <= 10 && timer.remaining > 0;
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
   const remainingPct = Math.max(0, (1 - progress) * 100);
+  const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
-      <SkinPicker current={skinId} onChange={setSkinId} timerKey="bar" />
+    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="bar" />}
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
-            "relative w-full h-80 sm:h-96 lg:h-[36rem] xl:h-[44rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center px-6 sm:px-10 bg-gradient-to-b",
+            "relative flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b px-6 shadow-2xl sm:px-10",
+            isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
             skin.bgGradient,
           )}
         >
@@ -142,7 +144,7 @@ export function BarTimer() {
           </div>
 
           {/* Bar container */}
-          <div className="w-full max-w-xl z-10">
+          <div className="z-10 w-full max-w-5xl">
             <div className="flex justify-between text-xs font-bold text-white/80 mb-2 uppercase tracking-wider">
               <span>Start</span>
               <span
@@ -154,7 +156,7 @@ export function BarTimer() {
               </span>
               <span>End</span>
             </div>
-            <div className="relative h-14 rounded-full bg-black/40 border-2 border-white/10 overflow-hidden shadow-inner">
+            <div className="relative h-24 overflow-hidden rounded-full border-2 border-white/10 bg-black/40 shadow-inner sm:h-32">
               {/* Progress fill */}
               <div
                 className={cn(

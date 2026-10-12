@@ -293,8 +293,41 @@ export function useDramaticSound() {
     playNoise(1.5, 0.12, 600);
   }, [playTone, playNoise]);
 
+  const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
+
+  const playSample = useCallback(async (file: string, volume = 0.55) => {
+    if (!soundEnabled) return;
+    const ctx = getCtx();
+    if (!ctx) return;
+    if (ctx.state === "suspended") {
+      try { await ctx.resume(); } catch { /* ignore */ }
+    }
+
+    try {
+      let buffer = audioBufferCacheRef.current.get(file);
+      if (!buffer) {
+        const response = await fetch(`/sounds/${file}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const arrayBuffer = await response.arrayBuffer();
+        buffer = await ctx.decodeAudioData(arrayBuffer);
+        audioBufferCacheRef.current.set(file, buffer);
+      }
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(volume, ctx.currentTime);
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start();
+    } catch {
+      // Sample playback is decorative; keep timer flow resilient.
+    }
+  }, [soundEnabled, getCtx]);
+
   // Sound: rocket blastoff (big cinematic)
   const playBlastoff = useCallback(() => {
+    void playSample("whoosh.mp3", 0.68);
     // Deep rumble (sub-bass)
     playTone(50, 2, { type: "sawtooth", volume: 0.35, sweepTo: 25, attack: 0.05 });
     // Mid rumble
@@ -306,20 +339,17 @@ export function useDramaticSound() {
       playChord(1600, 0.4, { type: "triangle", volume: 0.25 });
       playChord(2400, 0.3, { type: "sine", volume: 0.15 });
     }, 200);
-  }, [playTone, playNoise, playChord]);
+  }, [playTone, playNoise, playChord, playSample]);
 
   // Sound: explosion (cinematic boom with debris)
   const playExplosion = useCallback(() => {
-    // Sub-bass thump (deep boom)
-    playTone(60, 1, { type: "sawtooth", volume: 0.5, sweepTo: 25, attack: 0.005 });
-    // Mid crash
-    playTone(120, 0.6, { type: "triangle", volume: 0.3, sweepTo: 40 });
-    // Noise crash (wide band)
-    playNoise(1, 0.5, 300);
-    // High debris rattle
-    setTimeout(() => playNoise(0.3, 0.2, 3000, "highpass"), 100);
-    // Triumphant resolution
-    setTimeout(() => playAlarm(), 500);
+    // Deep blast with a short debris tail. Keep this synthetic so it sounds like a boom, not a buzzer.
+    playTone(42, 1.35, { type: "sawtooth", volume: 0.62, sweepTo: 22, attack: 0.002 });
+    playTone(86, 0.75, { type: "triangle", volume: 0.36, sweepTo: 34, attack: 0.004 });
+    playNoise(1.2, 0.62, 260);
+    setTimeout(() => playNoise(0.36, 0.22, 3200, "highpass"), 90);
+    setTimeout(() => playNoise(0.28, 0.16, 900, "bandpass"), 260);
+    setTimeout(() => playAlarm(), 620);
   }, [playTone, playNoise, playAlarm]);
 
   // Sound: dramatic countdown beep (warm bell-like)
@@ -484,8 +514,6 @@ export function useDramaticSound() {
   // Sound: spoken countdown number (plays TTS-generated MP3 via Web Audio API)
   // Numbers 1-10 are pre-generated as /sounds/countdown-N.mp3
   // Routes through the AudioContext (not HTMLAudioElement) for reliable mobile playback
-  const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
-
   const playSpokenNumber = useCallback(async (n: number) => {
     if (!soundEnabled) return;
     if (n < 1 || n > 10) return;
@@ -539,6 +567,7 @@ export function useDramaticSound() {
 
   // Candle timer: gentle puff-out + soft chime
   const playCandlePuff = useCallback(() => {
+    void playSample("ding.mp3", 0.48);
     // Quick air puff (filtered noise, short)
     playNoise(0.3, 0.3, 800, "lowpass");
     // Soft descending chime (smoke dissipating)
@@ -546,10 +575,11 @@ export function useDramaticSound() {
       playChord(880, 0.4, { type: "sine", volume: 0.2, release: 0.3 });
       playChord(660, 0.5, { type: "sine", volume: 0.15, release: 0.4 });
     }, 200);
-  }, [playNoise, playChord]);
+  }, [playNoise, playChord, playSample]);
 
   // Hourglass timer: sand-finish rustle + deep bell
   const playHourglassFinish = useCallback(() => {
+    void playSample("ding.mp3", 0.56);
     // Sand rustle (high-pass filtered noise)
     playNoise(0.8, 0.25, 4000, "highpass");
     // Deep bell toll
@@ -557,10 +587,11 @@ export function useDramaticSound() {
       playChord(220, 1.2, { type: "triangle", volume: 0.3, release: 0.8 });
       playChord(330, 1.0, { type: "sine", volume: 0.2, release: 0.7 });
     }, 300);
-  }, [playNoise, playChord]);
+  }, [playNoise, playChord, playSample]);
 
   // Circle/Radial timer: bright celestial chime (ascending harmonics)
   const playCircleChime = useCallback(() => {
+    void playSample("sparkle.mp3", 0.52);
     const ctx = getCtx();
     if (!ctx) return;
     // Ascending C major arpeggio with sparkle
@@ -575,10 +606,11 @@ export function useDramaticSound() {
     });
     // Final shimmer
     setTimeout(() => playChord(2093, 0.8, { type: "sine", volume: 0.15, release: 0.6 }), 400);
-  }, [getCtx, playChord]);
+  }, [getCtx, playChord, playSample]);
 
   // Snail race timer: playful finish melody (descending then ascending)
   const playSnailFinish = useCallback(() => {
+    void playSample("cheer.mp3", 0.7);
     const ctx = getCtx();
     if (!ctx) return;
     // Playful descending-then-ascending melody
@@ -592,10 +624,11 @@ export function useDramaticSound() {
     });
     // Final happy chord
     setTimeout(() => playChord(523, 0.6, { type: "triangle", volume: 0.25, release: 0.4 }), 800);
-  }, [getCtx, playChord]);
+  }, [getCtx, playChord, playSample]);
 
   // Traffic light timer: urgent honking horns + siren
   const playTrafficAlarm = useCallback(() => {
+    void playSample("buzzer.mp3", 0.62);
     // Two honks
     playChord(220, 0.15, { type: "sawtooth", volume: 0.3, attack: 0.01 });
     setTimeout(() => playChord(220, 0.15, { type: "sawtooth", volume: 0.3, attack: 0.01 }), 250);
@@ -604,10 +637,11 @@ export function useDramaticSound() {
       playTone(440, 0.5, { type: "triangle", volume: 0.2, sweepTo: 880 });
       setTimeout(() => playTone(880, 0.5, { type: "triangle", volume: 0.2, sweepTo: 440 }), 500);
     }, 600);
-  }, [playChord, playTone]);
+  }, [playChord, playTone, playSample]);
 
   // Bar/Progress timer: completion fanfare with bass
   const playBarFinish = useCallback(() => {
+    void playSample("gameshow.mp3", 0.45);
     const ctx = getCtx();
     if (!ctx) return;
     // Bass thump
@@ -623,7 +657,7 @@ export function useDramaticSound() {
         });
       });
     });
-  }, [getCtx, playTone, playChord]);
+  }, [getCtx, playTone, playChord, playSample]);
 
   // Dispatcher: play the themed alarm for a given timer type
   const playThemedAlarm = useCallback((timerType: string) => {
@@ -671,7 +705,11 @@ export function useDramaticSound() {
 
   useEffect(() => {
     return () => {
-      if (ctxRef.current) void ctxRef.current.close();
+      const ctx = ctxRef.current;
+      ctxRef.current = null;
+      if (ctx && ctx.state !== "closed") {
+        void ctx.close().catch(() => undefined);
+      }
     };
   }, []);
 
@@ -700,6 +738,7 @@ export function useDramaticSound() {
     playDramaticBuildUp,
     playSpokenNumber,
     playThemedAlarm,
+    playSample,
     playCandlePuff,
     playHourglassFinish,
     playCircleChime,

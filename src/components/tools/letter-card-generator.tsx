@@ -133,16 +133,19 @@ export function LetterCardGenerator() {
   return (
     <div className="flex flex-col items-center gap-6 py-2">
       {/* Title area */}
-      <div className="w-full max-w-md text-center px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 border border-white/10 shadow-lg">
-        <h2 className="text-2xl font-black text-white">🔤 Letter Card Generator</h2>
+      <div className="w-full max-w-md text-center px-6 py-4 rounded-3xl bg-gradient-to-r from-sky-300 via-blue-500 to-violet-600 border border-white/20 shadow-lg">
+        <h2 className="text-2xl font-black text-white flex items-center justify-center gap-3 drop-shadow">
+          <img src="/images/manga-icons/letter-cards.png" alt="" className="h-16 w-16 rounded-2xl bg-white/90 object-contain shadow-lg" />
+          Letter Card Generator
+        </h2>
         <p className="text-sm text-white/70 mt-1">Letter generators and practice</p>
       </div>
 
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Case mode selector */}
-      <div className="flex items-center gap-2 flex-wrap justify-center">
-        <span className="text-sm font-bold text-white/80 uppercase tracking-wider">Case:</span>
+      <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-white/60 bg-white/90 p-2 shadow-xl shadow-slate-950/15 backdrop-blur-md">
+        <span className="text-sm font-black text-slate-700 uppercase tracking-wider">Case:</span>
         {([
           { id: "upper" as const, label: "ABC", icon: "Uppercase" },
           { id: "lower" as const, label: "abc", icon: "Lowercase" },
@@ -155,8 +158,8 @@ export function LetterCardGenerator() {
             className={cn(
               "px-4 py-2 rounded-full text-sm font-bold border transition-all",
               caseMode === c.id
-                ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                ? "bg-cyan-600 text-white border-cyan-700 scale-105 shadow-lg"
+                : "bg-white text-slate-800 border-slate-300 hover:bg-cyan-50 hover:border-cyan-500",
             )}
             title={c.icon}
           >
@@ -166,14 +169,14 @@ export function LetterCardGenerator() {
       </div>
 
       {/* Options toggles */}
-      <div className="flex items-center gap-2 flex-wrap justify-center">
+      <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-white/60 bg-white/90 p-2 shadow-xl shadow-slate-950/15 backdrop-blur-md">
         <button
           onClick={() => { setVowelOnly(!vowelOnly); setUsedLetters([]); sound.playClick(); }}
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             vowelOnly
-              ? "bg-orange-500/30 text-orange-200 border-orange-400/50"
-              : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+              ? "bg-orange-400 text-slate-950 border-orange-500"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-orange-50 hover:border-orange-400",
           )}
         >
           {vowelOnly && <Check className="h-4 w-4" />}
@@ -185,8 +188,8 @@ export function LetterCardGenerator() {
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             customMode
-              ? "bg-blue-500/30 text-blue-200 border-blue-400/50"
-              : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+              ? "bg-sky-500 text-white border-sky-700"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-sky-50 hover:border-sky-400",
           )}
         >
           {customMode && <Check className="h-4 w-4" />}
@@ -198,8 +201,8 @@ export function LetterCardGenerator() {
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             noRepeat
-              ? "bg-emerald-500/30 text-emerald-200 border-emerald-400/50"
-              : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+              ? "bg-emerald-400 text-slate-950 border-emerald-500"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-emerald-50 hover:border-emerald-400",
           )}
         >
           {noRepeat && <Check className="h-4 w-4" />}
@@ -211,8 +214,8 @@ export function LetterCardGenerator() {
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             showPhonicCard
-              ? "bg-purple-500/30 text-purple-200 border-purple-400/50"
-              : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+              ? "bg-violet-500 text-white border-violet-700"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-violet-50 hover:border-violet-400",
           )}
         >
           {showPhonicCard && <Check className="h-4 w-4" />}
@@ -223,8 +226,8 @@ export function LetterCardGenerator() {
 
       {/* Custom letter grid */}
       {customMode && (
-        <div className="w-full max-w-md p-4 rounded-2xl bg-black/30 border border-white/10">
-          <p className="text-xs text-white/60 mb-3 font-semibold uppercase tracking-wider">
+        <div className="w-full max-w-md p-4 rounded-2xl bg-white/95 border border-white/70 shadow-xl shadow-slate-950/15 backdrop-blur-md">
+          <p className="text-xs text-slate-700 mb-3 font-black uppercase tracking-wider">
             Select letters to include ({selectedLetters.size}/26)
           </p>
           <div className="grid grid-cols-7 sm:grid-cols-9 gap-1.5">
@@ -235,8 +238,8 @@ export function LetterCardGenerator() {
                 className={cn(
                   "w-9 h-9 rounded-lg text-sm font-bold border-2 transition-all",
                   selectedLetters.has(l)
-                    ? "bg-blue-500 text-white border-blue-400 scale-105"
-                    : "bg-white/5 text-white/30 border-white/10",
+                    ? "bg-sky-400 text-slate-950 border-white scale-105"
+                    : "bg-white text-slate-800 border-slate-300 hover:bg-sky-50",
                 )}
               >
                 {l}
@@ -248,7 +251,7 @@ export function LetterCardGenerator() {
               onClick={() => { setSelectedLetters(new Set(ALPHABET_UPPER)); sound.playClick(); }}
               size="sm"
               variant="outline"
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white"
+              className="bg-cyan-600 text-white border-cyan-700 hover:bg-cyan-700 hover:text-white"
             >
               Select All
             </Button>
@@ -256,7 +259,7 @@ export function LetterCardGenerator() {
               onClick={() => { setSelectedLetters(new Set()); sound.playClick(); }}
               size="sm"
               variant="outline"
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white"
+              className="bg-white text-slate-800 border-slate-300 hover:bg-slate-100 hover:text-slate-950"
             >
               Clear All
             </Button>
