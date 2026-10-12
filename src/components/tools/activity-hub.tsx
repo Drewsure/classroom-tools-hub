@@ -83,7 +83,7 @@ export function ActivityHub() {
   }, [expanded]);
 
   return (
-    <div className="flex flex-col gap-2 w-full max-w-6xl mx-auto h-[calc(100dvh-12.75rem)] overflow-y-auto lg:overflow-hidden">
+    <div className="flex flex-col gap-2 w-full max-w-7xl mx-auto h-[calc(100dvh-10.5rem)] overflow-y-auto lg:overflow-hidden">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2 rounded-3xl bg-gradient-to-r from-cyan-400/28 via-slate-900/86 to-violet-500/24 border border-cyan-200/20 shadow-xl">
         <h2 className="text-lg font-black text-white flex items-center gap-3">
@@ -125,25 +125,25 @@ function PanelShell({
     <section
       aria-label={ariaLabel}
       className={cn(
-        "flex flex-col min-h-[420px] lg:min-h-0 rounded-3xl border-2 border-white/15 bg-gradient-to-br from-white/[0.13] via-slate-950/72 to-white/[0.06] p-3 sm:p-4 shadow-xl shadow-black/25 overflow-hidden",
-        expanded && "fixed inset-0 z-40 m-0 rounded-none glass-bg p-4 sm:p-8 min-h-0",
+        "flex flex-col min-h-[420px] lg:min-h-0 rounded-3xl border-2 border-white/20 bg-gradient-to-br from-white/[0.16] via-slate-900/74 to-cyan-950/28 p-3 sm:p-4 shadow-xl shadow-black/25 overflow-hidden",
+        expanded && "fixed inset-3 z-[60] m-0 min-h-0 rounded-[2rem] border-cyan-200/40 bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.25),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(216,180,254,0.2),transparent_30%),rgba(15,23,42,0.96)] p-4 shadow-2xl shadow-black/45 sm:inset-5 sm:p-6",
       )}
     >
-      <div className="flex items-center justify-between gap-2 shrink-0">
+      <div className={cn("flex items-center justify-between gap-2 shrink-0", expanded && "rounded-2xl border border-white/15 bg-white/10 px-3 py-2")}>
         <div className="flex items-center gap-2 min-w-0">
-          <div className={cn("w-8 h-8 rounded-xl bg-white/15 border border-white/25 shadow-sm flex items-center justify-center shrink-0", accent)}>{icon}</div>
-          <h3 className="text-sm font-black text-white uppercase tracking-wider truncate">{label}</h3>
+          <div className={cn("w-8 h-8 rounded-xl bg-white/15 border border-white/25 shadow-sm flex items-center justify-center shrink-0", expanded && "h-12 w-12 rounded-2xl", accent)}>{icon}</div>
+          <h3 className={cn("text-sm font-black text-white uppercase tracking-wider truncate", expanded && "text-xl")}>{label}</h3>
         </div>
         <button
           onClick={onToggleExpand}
-          className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center justify-center shrink-0"
+          className={cn("w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center justify-center shrink-0", expanded && "h-11 w-11 rounded-2xl bg-white text-slate-900 hover:bg-cyan-100 hover:text-slate-950")}
           title={expanded ? "Minimize (Esc)" : "Expand"}
           aria-label={expanded ? "Minimize panel" : "Expand panel"}
         >
           {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </button>
       </div>
-      <div className="flex-1 min-h-0 flex flex-col gap-2 mt-2">{children}</div>
+      <div className={cn("flex-1 min-h-0 flex flex-col gap-2 mt-2", expanded && "mt-4")}>{children}</div>
     </section>
   );
 }

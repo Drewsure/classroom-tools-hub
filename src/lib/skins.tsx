@@ -728,18 +728,18 @@ export function SkinPicker({
   const isSaved = savedSkin === current;
 
   return (
-    <div className="w-full mb-2">
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">
+    <div className="mb-2 w-full rounded-2xl border border-white/60 bg-white/90 p-2 shadow-xl shadow-slate-950/15 backdrop-blur-md">
+      <div className="mb-2 flex items-center justify-center gap-2">
+        <p className="text-xs font-black uppercase tracking-wider text-slate-700">
           Theme
         </p>
         {timerKey && (
           <button
             onClick={handleSave}
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border transition-all ${
+            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-black transition-all ${
               isSaved
-                ? "bg-pink-500/30 text-pink-200 border-pink-400/50"
-                : "bg-white/10 text-white/70 border-white/25 hover:bg-white/20"
+                ? "border-pink-300 bg-pink-100 text-pink-800"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
             }`}
             title={
               isSaved
@@ -754,15 +754,15 @@ export function SkinPicker({
           </button>
         )}
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-2 justify-center flex-wrap max-h-24 overflow-y-hidden">
+      <div className="flex max-h-28 flex-wrap justify-center gap-2 overflow-y-auto pb-1">
         {SKINS.map((skin) => (
           <button
             key={skin.id}
             onClick={() => onChange(skin.id)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-all relative ${
+            className={`relative shrink-0 rounded-full border px-3 py-1.5 text-xs font-black shadow-sm transition-all ${
               current === skin.id
-                ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                ? "scale-105 border-cyan-700 bg-cyan-600 text-white shadow-lg shadow-cyan-900/20"
+                : "border-slate-300 bg-white text-slate-800 hover:border-cyan-500 hover:bg-cyan-50"
             }`}
             title={skin.name}
           >

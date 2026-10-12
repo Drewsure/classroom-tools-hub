@@ -239,14 +239,14 @@ export function CustomDashboard() {
   const catalogByCategory = WIDGET_CATALOG.reduce((acc, def) => { if (!acc[def.category]) acc[def.category] = []; acc[def.category].push(def); return acc; }, {} as Record<string, WidgetDef[]>);
 
   return (
-    <div className="flex flex-col items-center gap-4 py-2 w-full">
+    <div className="flex w-full flex-col items-center gap-3 py-1">
       {/* Top bar */}
-      <div className="w-full max-w-5xl flex items-center justify-between gap-3 px-4 py-3 rounded-2xl glass-dark flex-wrap">
+      <div className="w-full max-w-7xl flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-white/60 bg-white/90 shadow-xl shadow-slate-950/15 backdrop-blur-md flex-wrap">
         <div className="flex items-center gap-3">
           <span className="text-2xl">📊</span>
           <div>
-            <h2 className="text-lg font-bold text-white">Custom Dashboard</h2>
-            <p className="text-xs text-white/50">{widgets.length} widgets · Drag to rearrange</p>
+            <h2 className="text-lg font-black text-slate-950">Custom Dashboard</h2>
+            <p className="text-xs font-semibold text-slate-600">{widgets.length} widgets · Drag to rearrange</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -258,10 +258,10 @@ export function CustomDashboard() {
 
       {/* Add widget menu */}
       {showAddMenu && (
-        <div className="w-full max-w-5xl p-4 rounded-2xl glass max-h-[400px] overflow-y-auto">
+        <div className="w-full max-w-7xl rounded-3xl border border-white/60 bg-white/95 p-4 shadow-2xl shadow-slate-950/20 backdrop-blur-md max-h-[min(66dvh,560px)] overflow-y-auto">
           {Object.entries(catalogByCategory).map(([category, defs]) => (
             <div key={category} className="mb-3">
-              <p className="text-xs text-white/60 mb-1.5 font-semibold uppercase tracking-wider">{category}:</p>
+              <p className="text-xs text-slate-700 mb-1.5 font-black uppercase tracking-wider">{category}:</p>
               <div className="flex flex-wrap gap-1.5">
                 {defs.map((def) => (
                   <button key={def.type} onClick={() => addWidget(def)} className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white border border-white/15 hover:scale-105 transition-all", def.color)}>
@@ -271,7 +271,7 @@ export function CustomDashboard() {
               </div>
             </div>
           ))}
-          <p className="text-xs text-white/60 mb-1.5 font-semibold uppercase tracking-wider">Individual Sounds:</p>
+          <p className="text-xs text-slate-700 mb-1.5 font-black uppercase tracking-wider">Individual Sounds:</p>
           <div className="flex flex-wrap gap-1.5">
             {SOUNDS.map((s) => (
               <button key={s.id} onClick={() => addSoundWidget(s)} className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-br border border-white/15 hover:scale-105 transition-all", s.color)}>
@@ -284,31 +284,31 @@ export function CustomDashboard() {
 
       {/* Save dialog */}
       {showSaveDialog && (
-        <div className="w-full max-w-md p-4 rounded-2xl glass">
-          <p className="text-xs text-white/60 mb-2 font-semibold uppercase tracking-wider">Save dashboard as:</p>
+        <div className="w-full max-w-2xl p-4 rounded-3xl border border-white/60 bg-white/95 shadow-2xl shadow-slate-950/20 backdrop-blur-md">
+          <p className="text-xs text-slate-700 mb-2 font-black uppercase tracking-wider">Save dashboard as:</p>
           <div className="flex gap-2">
-            <Input value={saveName} onChange={(e) => setSaveName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSave()} placeholder='e.g. "Math Class"' className="bg-white/10 border-white/20 text-white placeholder:text-white/40" autoFocus />
+            <Input value={saveName} onChange={(e) => setSaveName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSave()} placeholder='e.g. "Math Class"' className="bg-white border-slate-300 text-slate-950 placeholder:text-slate-400" autoFocus />
             <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white shrink-0"><Save className="h-4 w-4" /></Button>
-            <Button onClick={() => setShowSaveDialog(false)} size="sm" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white shrink-0">Cancel</Button>
+            <Button onClick={() => setShowSaveDialog(false)} size="sm" variant="outline" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-100 hover:text-slate-950 shrink-0">Cancel</Button>
           </div>
         </div>
       )}
 
       {/* Load dialog */}
       {showLoadDialog && (
-        <div className="w-full max-w-md p-4 rounded-2xl glass">
-          <p className="text-xs text-white/60 mb-3 font-semibold uppercase tracking-wider">{Object.keys(savedDashboards).length > 0 ? "Select a saved dashboard:" : "No saved dashboards yet!"}</p>
+        <div className="w-full max-w-3xl p-4 rounded-3xl border border-white/60 bg-white/95 shadow-2xl shadow-slate-950/20 backdrop-blur-md">
+          <p className="text-xs text-slate-700 mb-3 font-black uppercase tracking-wider">{Object.keys(savedDashboards).length > 0 ? "Select a saved dashboard:" : "No saved dashboards yet!"}</p>
           {Object.keys(savedDashboards).length > 0 && (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {Object.entries(savedDashboards).map(([name, dw]) => (
-                <div key={name} className="flex items-center justify-between gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10">
-                  <div><span className="font-bold text-white text-sm">{name}</span><span className="text-xs text-white/50 ml-2">{dw.length} widgets</span></div>
+                <div key={name} className="flex items-center justify-between gap-2 p-3 rounded-xl bg-white border border-slate-200 hover:bg-cyan-50">
+                  <div><span className="font-bold text-slate-950 text-sm">{name}</span><span className="text-xs text-slate-500 ml-2">{dw.length} widgets</span></div>
                   <div className="flex gap-1"><Button onClick={() => handleLoad(name)} size="sm" className="bg-white text-slate-900 hover:bg-white/90 h-7 text-xs">Load</Button><button onClick={() => handleDelete(name)} className="p-1.5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded"><Trash2 className="h-3.5 w-3.5" /></button></div>
                 </div>
               ))}
             </div>
           )}
-          <Button onClick={() => setShowLoadDialog(false)} size="sm" variant="outline" className="mt-3 bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white">Close</Button>
+          <Button onClick={() => setShowLoadDialog(false)} size="sm" variant="outline" className="mt-3 bg-white text-slate-800 border-slate-300 hover:bg-slate-100 hover:text-slate-950">Close</Button>
         </div>
       )}
 
@@ -322,7 +322,7 @@ export function CustomDashboard() {
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={widgets.map((w) => String(w.id))} strategy={rectSortingStrategy}>
-            <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {widgets.map((widget) => (
                 <SortableWidgetCard
                   key={widget.id}

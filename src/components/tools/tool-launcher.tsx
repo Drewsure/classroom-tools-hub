@@ -74,6 +74,11 @@ const TIMER_TOOL_IDS = new Set([
   "traffic-light",
 ]);
 
+const PROJECTOR_TOOL_IDS = new Set([
+  "activity-hub",
+  "custom-dashboard",
+]);
+
 const MANGA_ICON_BY_TOOL: Record<string, string> = {
   "activity-hub": "/images/manga-icons/activity-hub.png",
   "custom-dashboard": "/images/manga-icons/dashboard.png",
@@ -89,6 +94,7 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mangaIcon = MANGA_ICON_BY_TOOL[tool.id];
   const isTimerTool = TIMER_TOOL_IDS.has(tool.id);
+  const isProjectorTool = PROJECTOR_TOOL_IDS.has(tool.id);
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
@@ -126,7 +132,7 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
     <SoundEnabledContext.Provider value={soundEnabled}>
       <div className="fixed inset-0 z-50 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(251,113,133,0.16),transparent_30%),#060416] backdrop-blur-2xl">
         <div className="flex min-h-screen flex-col">
-          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/88 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/90 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
             <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-1 items-center gap-3 text-white">
                 <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white text-3xl shadow-lg shadow-black/30 ring-2 ring-white/25 sm:h-16 sm:w-16 sm:text-4xl">
@@ -193,17 +199,19 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
           <main className={cn(
             "flex flex-1 items-center justify-center px-3 py-4 sm:px-5 lg:px-8",
             isTimerTool && "items-stretch px-2 py-2 sm:px-3 lg:px-4",
+            isProjectorTool && "items-stretch px-2 py-2 sm:px-3 lg:px-4",
           )}>
             <div className={cn(
               "w-full",
               WIDE_TOOL_IDS.has(tool.id) ? "max-w-7xl" : "max-w-6xl",
               isTimerTool && "max-w-none",
+              isProjectorTool && "max-w-none",
             )}>
               <ToolRenderer toolId={tool.id} />
             </div>
           </main>
 
-          <footer className={cn("px-4 py-3 text-center text-xs text-white/45 sm:px-8", isTimerTool && "hidden")}>
+          <footer className={cn("px-4 py-3 text-center text-xs text-white/45 sm:px-8", (isTimerTool || isProjectorTool) && "hidden")}>
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">Esc</kbd> close ·{" "}
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">F</kbd> fullscreen
           </footer>

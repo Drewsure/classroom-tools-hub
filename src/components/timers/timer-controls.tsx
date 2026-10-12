@@ -240,7 +240,7 @@ function GuardedResetButton({ onReset }: { onReset: () => void }) {
         "rounded-2xl border-2 px-5 py-5 text-white shadow-2xl transition-all backdrop-blur-md",
         armed
           ? "border-rose-200 bg-rose-600 hover:bg-rose-500 hover:text-white"
-          : "border-amber-200 bg-slate-950/88 hover:bg-slate-900 hover:text-white",
+          : "border-amber-200 bg-slate-950/90 hover:bg-slate-900 hover:text-white",
       )}
     >
       <RotateCcw className="mr-2 h-5 w-5" />

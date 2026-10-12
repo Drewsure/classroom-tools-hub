@@ -144,8 +144,8 @@ export function LetterCardGenerator() {
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Case mode selector */}
-      <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-slate-700 bg-slate-950/85 p-2 shadow-xl backdrop-blur-md">
-        <span className="text-sm font-black text-cyan-100 uppercase tracking-wider">Case:</span>
+      <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-white/60 bg-white/90 p-2 shadow-xl shadow-slate-950/15 backdrop-blur-md">
+        <span className="text-sm font-black text-slate-700 uppercase tracking-wider">Case:</span>
         {([
           { id: "upper" as const, label: "ABC", icon: "Uppercase" },
           { id: "lower" as const, label: "abc", icon: "Lowercase" },
@@ -158,8 +158,8 @@ export function LetterCardGenerator() {
             className={cn(
               "px-4 py-2 rounded-full text-sm font-bold border transition-all",
               caseMode === c.id
-                ? "bg-white text-slate-950 border-white scale-105 shadow-lg"
-                : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700",
+                ? "bg-cyan-600 text-white border-cyan-700 scale-105 shadow-lg"
+                : "bg-white text-slate-800 border-slate-300 hover:bg-cyan-50 hover:border-cyan-500",
             )}
             title={c.icon}
           >
@@ -169,14 +169,14 @@ export function LetterCardGenerator() {
       </div>
 
       {/* Options toggles */}
-      <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-slate-700 bg-slate-950/85 p-2 shadow-xl backdrop-blur-md">
+      <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-white/60 bg-white/90 p-2 shadow-xl shadow-slate-950/15 backdrop-blur-md">
         <button
           onClick={() => { setVowelOnly(!vowelOnly); setUsedLetters([]); sound.playClick(); }}
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             vowelOnly
-              ? "bg-orange-400 text-slate-950 border-orange-200"
-              : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700",
+              ? "bg-orange-400 text-slate-950 border-orange-500"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-orange-50 hover:border-orange-400",
           )}
         >
           {vowelOnly && <Check className="h-4 w-4" />}
@@ -188,8 +188,8 @@ export function LetterCardGenerator() {
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             customMode
-              ? "bg-sky-400 text-slate-950 border-sky-200"
-              : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700",
+              ? "bg-sky-500 text-white border-sky-700"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-sky-50 hover:border-sky-400",
           )}
         >
           {customMode && <Check className="h-4 w-4" />}
@@ -201,8 +201,8 @@ export function LetterCardGenerator() {
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             noRepeat
-              ? "bg-emerald-400 text-slate-950 border-emerald-200"
-              : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700",
+              ? "bg-emerald-400 text-slate-950 border-emerald-500"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-emerald-50 hover:border-emerald-400",
           )}
         >
           {noRepeat && <Check className="h-4 w-4" />}
@@ -214,8 +214,8 @@ export function LetterCardGenerator() {
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
             showPhonicCard
-              ? "bg-violet-300 text-slate-950 border-violet-100"
-              : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700",
+              ? "bg-violet-500 text-white border-violet-700"
+              : "bg-white text-slate-800 border-slate-300 hover:bg-violet-50 hover:border-violet-400",
           )}
         >
           {showPhonicCard && <Check className="h-4 w-4" />}
@@ -226,8 +226,8 @@ export function LetterCardGenerator() {
 
       {/* Custom letter grid */}
       {customMode && (
-        <div className="w-full max-w-md p-4 rounded-2xl bg-slate-950/90 border border-slate-600 shadow-xl">
-          <p className="text-xs text-cyan-100 mb-3 font-black uppercase tracking-wider">
+        <div className="w-full max-w-md p-4 rounded-2xl bg-white/95 border border-white/70 shadow-xl shadow-slate-950/15 backdrop-blur-md">
+          <p className="text-xs text-slate-700 mb-3 font-black uppercase tracking-wider">
             Select letters to include ({selectedLetters.size}/26)
           </p>
           <div className="grid grid-cols-7 sm:grid-cols-9 gap-1.5">
@@ -239,7 +239,7 @@ export function LetterCardGenerator() {
                   "w-9 h-9 rounded-lg text-sm font-bold border-2 transition-all",
                   selectedLetters.has(l)
                     ? "bg-sky-400 text-slate-950 border-white scale-105"
-                    : "bg-slate-800 text-white border-slate-500",
+                    : "bg-white text-slate-800 border-slate-300 hover:bg-sky-50",
                 )}
               >
                 {l}
@@ -251,7 +251,7 @@ export function LetterCardGenerator() {
               onClick={() => { setSelectedLetters(new Set(ALPHABET_UPPER)); sound.playClick(); }}
               size="sm"
               variant="outline"
-              className="bg-white text-slate-950 border-white hover:bg-cyan-100 hover:text-slate-950"
+              className="bg-cyan-600 text-white border-cyan-700 hover:bg-cyan-700 hover:text-white"
             >
               Select All
             </Button>
@@ -259,7 +259,7 @@ export function LetterCardGenerator() {
               onClick={() => { setSelectedLetters(new Set()); sound.playClick(); }}
               size="sm"
               variant="outline"
-              className="bg-slate-800 text-white border-slate-500 hover:bg-slate-700 hover:text-white"
+              className="bg-white text-slate-800 border-slate-300 hover:bg-slate-100 hover:text-slate-950"
             >
               Clear All
             </Button>
