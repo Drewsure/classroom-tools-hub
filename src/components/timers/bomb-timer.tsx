@@ -132,10 +132,22 @@ export function BombTimer() {
           {/* Scene decorator */}
           <SkinSceneDecorator skin={skin} />
 
+          {!isSetup && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-30"
+              style={{
+                background:
+                  "repeating-conic-gradient(from 12deg at 34% 58%, rgba(251,191,36,0.42) 0deg 2deg, transparent 2deg 9deg)",
+              }}
+            />
+          )}
+
           {/* Bomb */}
           <div
             className={cn(
-              "absolute left-1/2 bottom-12 -translate-x-1/2 transition-all",
+              "absolute bottom-12 -translate-x-1/2 transition-all",
+              isSetup ? "left-1/2" : "left-[34%]",
               veryLow && !exploded && "animate-[screenShake_0.3s_ease-in-out_infinite]",
               exploded && "scale-0 transition-transform duration-200",
             )}
@@ -202,11 +214,11 @@ export function BombTimer() {
               )}
 
               {/* Bomb body */}
-              <svg width={isSetup ? 300 : 460} height={isSetup ? 300 : 460} viewBox="0 0 120 120">
+              <svg width={isSetup ? 300 : 520} height={isSetup ? 300 : 520} viewBox="0 0 120 120">
                 <ellipse cx="60" cy="115" rx="44" ry="6" fill="black" opacity="0.5" />
                 <circle cx="60" cy="65" r="48" fill="url(#bombGrad)" />
-                <circle cx="60" cy="65" r="48" fill="none" stroke="#3f3f3f" strokeWidth="2" />
-                <rect x="50" y="12" width="20" height="10" rx="2" fill="#3f3f3f" />
+                <circle cx="60" cy="65" r="48" fill="none" stroke="#0f172a" strokeWidth="4" />
+                <rect x="50" y="12" width="20" height="10" rx="2" fill="#3f3f3f" stroke="#0f172a" strokeWidth="2" />
                 <ellipse cx="45" cy="50" rx="14" ry="10" fill="white" opacity="0.18" />
                 <ellipse cx="48" cy="48" rx="6" ry="4" fill="white" opacity="0.3" />
                 <defs>
@@ -283,10 +295,14 @@ export function BombTimer() {
 
           {/* Time display */}
           {!exploded && !showCountdown && (
-            <div className="absolute top-4 left-0 right-0 text-center pointer-events-none z-10">
+            <div className={cn(
+              "pointer-events-none absolute z-10 text-center",
+              isSetup ? "left-0 right-0 top-4" : "right-[8%] top-1/2 -translate-y-1/2",
+            )}>
               <div
                 className={cn(
-                  "inline-block px-6 py-3 rounded-2xl backdrop-blur-sm border",
+                  "inline-block rounded-2xl border px-6 py-3 backdrop-blur-sm",
+                  !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(248,113,113,0.35)]",
                   veryLow
                     ? "bg-red-900/70 border-red-400/60 animate-[strobeUrgent_0.3s_ease-in-out_infinite]"
                     : lowTime
@@ -297,6 +313,7 @@ export function BombTimer() {
                 <div
                   className={cn(
                     "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
+                    !isSetup && "lg:text-[8rem] xl:text-[10rem]",
                     veryLow ? "text-red-300 animate-[dramaticPulse_0.4s_ease-in-out_infinite]" : lowTime ? "text-red-300" : "text-white",
                   )}
                 >

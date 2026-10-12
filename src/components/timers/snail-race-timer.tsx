@@ -25,6 +25,19 @@ const SNAILS = [
   { id: 3, name: "Dash", color: "#ec4899", shell: "#9f1239" },
 ];
 
+interface RacePersonality {
+  pace: number;
+  wobble: number;
+  lateKick: number;
+}
+
+const createRacePersonalities = () =>
+  SNAILS.map(() => ({
+    pace: 0.75 + Math.random() * 0.6,
+    wobble: 0.25 + Math.random() * 0.55,
+    lateKick: Math.random() * 0.9,
+  }));
+
 export function SnailRaceTimer() {
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
   const { flash, flashFn } = useFlash();
@@ -38,6 +51,7 @@ export function SnailRaceTimer() {
   const [positions, setPositions] = useState<number[]>([0, 0, 0, 0]);
   const [winner, setWinner] = useState<number | null>(null);
   const positionsRef = useRef(positions);
+  const racePersonalitiesRef = useRef<RacePersonality[]>(createRacePersonalities());
 
   const totalInput = hours * 3600 + minutes * 60 + seconds;
 
@@ -47,16 +61,14 @@ export function SnailRaceTimer() {
 
   const announceWinner = () => {
     const current = positionsRef.current;
-    let maxIdx = 0;
-    let maxVal = -1;
-    current.forEach((p, i) => {
-      if (p > maxVal) {
-        maxVal = p;
-        maxIdx = i;
-      }
+    const scores = current.map((position, index) => {
+      const personality = racePersonalitiesRef.current[index];
+      const underdogBonus = position < 0.9 && Math.random() < 0.22 ? 0.28 : 0;
+      return position + personality.lateKick * 0.18 + Math.random() * 0.42 + underdogBonus;
     });
-    setPositions([1, 1, 1, 1]);
-    setWinner(maxIdx);
+    const winnerIndex = scores.reduce((best, score, index) => score > scores[best] ? index : best, 0);
+    setPositions((prev) => prev.map((position, index) => index === winnerIndex ? 1 : Math.min(0.96, Math.max(position, 0.78 + Math.random() * 0.16))));
+    setWinner(winnerIndex);
     flashFn(skin.flashColor);
     shake(2);
     // Multi-burst confetti
@@ -85,8 +97,10 @@ export function SnailRaceTimer() {
         const targetMax = 1 - remainingFraction * 0.9;
         return prev.map((p, i) => {
           if (p >= 0.97) return p;
-          const nudge = Math.random() * 0.012 + 0.003;
-          const target = targetMax + (Math.random() - 0.5) * 0.08;
+          const personality = racePersonalitiesRef.current[i];
+          const finalStretch = remainingFraction < 0.22 ? personality.lateKick * 0.018 : 0;
+          const nudge = (Math.random() * 0.011 + 0.003) * personality.pace + finalStretch;
+          const target = targetMax + (Math.random() - 0.5) * 0.12 * personality.wobble;
           const next = Math.min(target, p + nudge);
           return Math.max(p, next);
         });
@@ -99,6 +113,7 @@ export function SnailRaceTimer() {
 
   const handleStart = () => {
     if (totalInput <= 0) return;
+    racePersonalitiesRef.current = createRacePersonalities();
     setPositions([0, 0, 0, 0]);
     setWinner(null);
     timer.start(totalInput);
@@ -111,6 +126,7 @@ export function SnailRaceTimer() {
     setHours(h);
     setMinutes(m);
     setSeconds(sec);
+    racePersonalitiesRef.current = createRacePersonalities();
     setPositions([0, 0, 0, 0]);
     setWinner(null);
     timer.setTime(s);
@@ -118,6 +134,7 @@ export function SnailRaceTimer() {
 
   const handleReset = () => {
     timer.reset(totalInput);
+    racePersonalitiesRef.current = createRacePersonalities();
     setPositions([0, 0, 0, 0]);
     setWinner(null);
   };
@@ -276,23 +293,27 @@ export function SnailRaceTimer() {
 function Snail({ color, shell }: { color: string; shell: string }) {
   return (
     <svg width="128" height="86" viewBox="0 0 48 32" className="drop-shadow-lg">
+      <path d="M4 28 H0 M8 22 H2 M9 17 H4" stroke="white" strokeOpacity="0.55" strokeWidth="1.2" strokeLinecap="round" />
       {/* Body */}
-      <ellipse cx="20" cy="24" rx="18" ry="6" fill={color} />
+      <ellipse cx="20" cy="24" rx="18" ry="6" fill={color} stroke="#111827" strokeWidth="1.2" />
       {/* Head */}
-      <circle cx="36" cy="20" r="7" fill={color} />
+      <circle cx="36" cy="20" r="7" fill={color} stroke="#111827" strokeWidth="1.2" />
       {/* Eye stalks */}
-      <line x1="38" y1="14" x2="40" y2="6" stroke={color} strokeWidth="2" />
-      <line x1="42" y1="14" x2="44" y2="8" stroke={color} strokeWidth="2" />
-      <circle cx="40" cy="6" r="2" fill={color} />
-      <circle cx="44" cy="8" r="2" fill={color} />
-      <circle cx="40" cy="6" r="1" fill="black" />
-      <circle cx="44" cy="8" r="1" fill="black" />
+      <line x1="38" y1="14" x2="40" y2="6" stroke="#111827" strokeWidth="2.4" strokeLinecap="round" />
+      <line x1="42" y1="14" x2="44" y2="8" stroke="#111827" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="40" cy="6" r="3" fill="white" stroke="#111827" strokeWidth="1" />
+      <circle cx="44" cy="8" r="3" fill="white" stroke="#111827" strokeWidth="1" />
+      <circle cx="40.6" cy="6.2" r="1.35" fill="black" />
+      <circle cx="44.6" cy="8.2" r="1.35" fill="black" />
+      <circle cx="39.8" cy="5.5" r="0.45" fill="white" />
+      <circle cx="43.8" cy="7.5" r="0.45" fill="white" />
       {/* Smile */}
-      <path d="M33 22 Q36 24 39 22" stroke="black" strokeWidth="0.8" fill="none" />
+      <path d="M33 22 Q36 24 39 22" stroke="#111827" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+      <circle cx="32" cy="20" r="1" fill="#fb7185" opacity="0.7" />
       {/* Shell with spiral */}
-      <circle cx="18" cy="16" r="11" fill={shell} />
-      <circle cx="18" cy="16" r="8" fill="none" stroke={color} strokeWidth="1.5" />
-      <circle cx="18" cy="16" r="5" fill="none" stroke={color} strokeWidth="1.2" />
+      <circle cx="18" cy="16" r="11" fill={shell} stroke="#111827" strokeWidth="1.3" />
+      <circle cx="18" cy="16" r="8" fill="none" stroke="white" strokeOpacity="0.65" strokeWidth="1.5" />
+      <circle cx="18" cy="16" r="5" fill="none" stroke="white" strokeOpacity="0.65" strokeWidth="1.2" />
       <circle cx="18" cy="16" r="2" fill={color} />
       {/* Shell highlight */}
       <ellipse cx="14" cy="13" rx="3" ry="2" fill="white" opacity="0.3" />
