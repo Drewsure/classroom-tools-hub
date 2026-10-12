@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAttendance } from "@/hooks/use-attendance";
 import { useStudentRoster } from "@/hooks/use-student-roster";
 import { Users, Save } from "lucide-react";
@@ -19,6 +20,22 @@ export function ClassSelect({
   const att = useAttendance();
   const roster = useStudentRoster();
   const activeId = att.activeClass?.id ?? "";
+
+  useEffect(() => {
+    const cls = att.activeClass;
+    if (!cls) return;
+    const names = cls.students.map((s) => s.name);
+    const match = roster.allRosters.find((r) => r.name === cls.name);
+    if (match) {
+      const sameNames =
+        match.students.length === names.length &&
+        match.students.every((student, index) => student === names[index]);
+      if (roster.activeRoster?.id !== match.id) roster.loadRoster(match.id);
+      if (!sameNames) roster.setStudents(names);
+    } else {
+      roster.saveAsNew(cls.name, names);
+    }
+  }, [activeId]);
 
   const handleChange = (value: string) => {
     if (value === "__new__") {

@@ -88,6 +88,18 @@ function recordFor(classId: string): AttRecord {
   return readRecord(todayStr(), classId) ?? { date: todayStr(), classId, students: {} };
 }
 
+function ensureTodayRecord(cls: AttClass) {
+  const rec = recordFor(cls.id);
+  let changed = false;
+  for (const student of cls.students) {
+    if (!rec.students[student.name]) {
+      rec.students[student.name] = defaultEntry();
+      changed = true;
+    }
+  }
+  if (changed) writeRecord(rec);
+}
+
 /** Parse one student line: "Eito (Nenchou) B card" / "Momoko G card" / "Honoka" */
 export function parseStudentLine(line: string): AttStudent {
   let s = line.trim().replace(/\s+/g, " ");
@@ -242,11 +254,14 @@ export function useAttendance() {
     };
     writeClasses([...cs, cls]);
     writeActiveId(cls.id);
+    ensureTodayRecord(cls);
     notify();
     return cls.id;
   }, []);
   const selectClass = useCallback((id: string) => {
+    const cls = readClasses().find((c) => c.id === id);
     writeActiveId(id);
+    if (cls) ensureTodayRecord(cls);
     notify();
   }, []);
 
@@ -259,8 +274,10 @@ export function useAttendance() {
       const i = cs.findIndex((x) => x.id === c.id);
       if (i >= 0) cs[i] = c;
       else cs.push(c);
+      ensureTodayRecord(c);
     }
     writeClasses(cs);
+    writeActiveId(parsed[0].id);
     notify();
     return parsed.length;
   }, []);

@@ -8,12 +8,13 @@ import { useStudentRoster } from "@/hooks/use-student-roster";
 import { useDramaticSound } from "@/hooks/use-effects";
 import { RosterManager } from "./roster-manager";
 import { MINISTAR_WEEKLY_SCHEDULE_TEXT } from "@/lib/ministar-weekly-schedule";
-import { parseSchedule } from "@/hooks/use-attendance";
+import { parseSchedule, useAttendance } from "@/hooks/use-attendance";
 import { BookOpenCheck, Download, Plus, Trash2, UserPlus, Users } from "lucide-react";
 
 export function EnterNames() {
   const sound = useDramaticSound();
   const { students, setStudents, importRosters } = useStudentRoster();
+  const attendance = useAttendance();
 
   const [newName, setNewName] = useState("");
   const [bulkText, setBulkText] = useState("");
@@ -80,16 +81,18 @@ export function EnterNames() {
 
   const loadMinistarRosters = () => {
     const classes = parseSchedule(MINISTAR_WEEKLY_SCHEDULE_TEXT);
+    const attendanceCount = attendance.importMinistarClasses("merge");
     const count = importRosters(
       classes.map((cls) => ({
-        name: [cls.day, cls.time, cls.name].filter(Boolean).join(" - "),
+        name: cls.name,
         students: cls.students.map((student) => student.name),
       })),
       "merge",
     );
     const firstClass = classes[0]?.students.map((student) => student.name) ?? [];
     if (firstClass.length > 0) setLocalOverrides(firstClass);
-    setRosterToast(count > 0 ? `Loaded ${count} Ministar classes` : "No Ministar classes found");
+    const loaded = Math.max(count, attendanceCount);
+    setRosterToast(loaded > 0 ? `Loaded ${loaded} Ministar classes with attendance checklists` : "No Ministar classes found");
     sound.playClick();
   };
 
