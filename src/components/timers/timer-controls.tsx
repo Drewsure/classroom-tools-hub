@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -165,21 +166,47 @@ export function TimerControls({
         </div>
       )}
 
-      {/* Reset button — OUTSIDE the container (students won't accidentally hit it) */}
+      {/* Reset button — guarded and outside the main action area */}
       {showReset && (
         <div className="flex items-center justify-center gap-3 flex-wrap">
-          <Button
-            onClick={onReset}
-            size="lg"
-            variant="outline"
-            className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
-          >
-            <RotateCcw className="mr-2 h-5 w-5" />
-            Reset
-          </Button>
+          <GuardedResetButton onReset={onReset} />
         </div>
       )}
     </div>
+  );
+}
+
+function GuardedResetButton({ onReset }: { onReset: () => void }) {
+  const [armed, setArmed] = useState(false);
+
+  useEffect(() => {
+    if (!armed) return;
+    const timeout = window.setTimeout(() => setArmed(false), 2600);
+    return () => window.clearTimeout(timeout);
+  }, [armed]);
+
+  return (
+    <Button
+      onClick={() => {
+        if (!armed) {
+          setArmed(true);
+          return;
+        }
+        setArmed(false);
+        onReset();
+      }}
+      size="lg"
+      variant="outline"
+      className={cn(
+        "rounded-full px-5 text-white shadow-sm transition-all",
+        armed
+          ? "border-rose-300 bg-rose-500/85 hover:bg-rose-500 hover:text-white"
+          : "border-white/25 bg-white/10 hover:bg-white/20 hover:text-white",
+      )}
+    >
+      <RotateCcw className="mr-2 h-5 w-5" />
+      {armed ? "Confirm Reset" : "Teacher Reset"}
+    </Button>
   );
 }
 

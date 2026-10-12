@@ -278,10 +278,10 @@ export function AttendanceButton() {
   return (
     <>
       <button onClick={() => setOpen(true)} title="Attendance しゅっせき"
-        className="shrink-0 flex items-center gap-1.5 h-8 px-3 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold hover:bg-emerald-500/35 hover:scale-105 active:scale-95 transition-all">
-        <ClipboardList className="h-3.5 w-3.5" />
+        className="shrink-0 flex h-10 items-center gap-2 rounded-xl border border-emerald-300 bg-white px-3 text-xs font-black text-emerald-800 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-100 active:scale-95">
+        <ClipboardList className="h-4 w-4" />
         <span className="hidden sm:inline">Attendance</span>
-        <span className={cn("tabular-nums", total > 0 && active < total ? "text-amber-300" : "text-emerald-300")}>
+        <span className={cn("rounded-full px-2 py-0.5 tabular-nums", total > 0 && active < total ? "bg-amber-200 text-amber-900" : "bg-emerald-200 text-emerald-900")}>
           {active}/{total}
         </span>
       </button>
