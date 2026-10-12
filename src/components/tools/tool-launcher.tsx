@@ -42,6 +42,15 @@ interface ToolLauncherProps {
   onClose: () => void;
 }
 
+const WIDE_TOOL_IDS = new Set([
+  "activity-hub",
+  "audio-player",
+  "custom-dashboard",
+  "pe-english-hub",
+  "sound-pad",
+  "weather-cards",
+]);
+
 export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -80,74 +89,80 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
 
   return (
     <SoundEnabledContext.Provider value={soundEnabled}>
-    <div className="fixed inset-0 z-50 glass-bg overflow-y-auto">
-      <div className="min-h-screen flex flex-col">
-        <header className="glass-header flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 gap-2">
-          <div className="flex items-center gap-3 text-white min-w-0">
-            <span className="text-3xl sm:text-4xl drop-shadow-lg shrink-0">
-              {tool.emoji}
-            </span>
-            <div className="min-w-0">
-              <h1 className="text-lg sm:text-2xl font-bold drop-shadow truncate">
-                {tool.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-white/70 truncate">
-                {tool.description}
-              </p>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/96 backdrop-blur-2xl">
+        <div className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/82 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
+            <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3 text-white">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-3xl drop-shadow-lg ring-1 ring-white/10 sm:h-14 sm:w-14 sm:text-4xl">
+                  {tool.emoji}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">
+                    Active Tool
+                  </p>
+                  <h1 className="truncate text-lg font-black drop-shadow sm:text-2xl">
+                    {tool.name}
+                  </h1>
+                  <p className="truncate text-xs font-medium text-white/70 sm:text-sm">
+                    {tool.description}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <AttendanceButton />
+                <Button
+                  onClick={() => setSoundEnabled((s) => !s)}
+                  variant="outline"
+                  size="icon"
+                  className={cn(
+                    "h-11 w-11 rounded-2xl border-white/20",
+                    soundEnabled
+                      ? "bg-emerald-500/30 text-emerald-200 hover:bg-emerald-500/40"
+                      : "bg-white/10 text-white/60 hover:bg-white/20",
+                  )}
+                  aria-label={soundEnabled ? "Mute sound" : "Unmute sound"}
+                  title="Toggle sound"
+                >
+                  {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+                </Button>
+                <Button
+                  onClick={toggleFullscreen}
+                  variant="outline"
+                  size="icon"
+                  className="h-11 w-11 rounded-2xl border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                  aria-label="Toggle fullscreen"
+                  title="Fullscreen (F)"
+                >
+                  {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                </Button>
+                <Button
+                  onClick={onClose}
+                  variant="outline"
+                  size="icon"
+                  className="h-11 w-11 rounded-2xl border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                  aria-label="Close tool"
+                  title="Close (Esc)"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
-          </div>
-          <AttendanceButton />
-            <div className="flex items-center gap-2 shrink-0">
-            <Button
-              onClick={() => setSoundEnabled((s) => !s)}
-              variant="outline"
-              size="icon"
-              className={cn(
-                "rounded-full border-white/25 h-11 w-11",
-                soundEnabled
-                  ? "bg-emerald-500/30 text-emerald-200 hover:bg-emerald-500/40"
-                  : "bg-white/10 text-white/60 hover:bg-white/20",
-              )}
-              aria-label={soundEnabled ? "Mute sound" : "Unmute sound"}
-              title="Toggle sound (M)"
-            >
-              {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
-            </Button>
-            <Button
-              onClick={toggleFullscreen}
-              variant="outline"
-              size="icon"
-              className="rounded-full bg-white/10 border-white/25 text-white hover:bg-white/20 hover:text-white h-11 w-11"
-              aria-label="Toggle fullscreen"
-              title="Fullscreen (F)"
-            >
-              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
-            </Button>
-            <Button
-              onClick={onClose}
-              variant="outline"
-              size="icon"
-              className="rounded-full bg-white/10 border-white/25 text-white hover:bg-white/20 hover:text-white h-11 w-11"
-              aria-label="Close tool"
-              title="Close (Esc)"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </header>
+          </header>
 
-        <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-          <div className={cn("w-full", tool.id === "sound-pad" ? "max-w-6xl" : "max-w-6xl")}>
-            <ToolRenderer toolId={tool.id} />
-          </div>
-        </main>
+          <main className="flex flex-1 items-center justify-center px-3 py-4 sm:px-5 lg:px-8">
+            <div className={cn("w-full", WIDE_TOOL_IDS.has(tool.id) ? "max-w-7xl" : "max-w-6xl")}>
+              <ToolRenderer toolId={tool.id} />
+            </div>
+          </main>
 
-        <footer className="px-4 sm:px-8 py-4 text-center text-xs text-white/50">
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">Esc</kbd> close ·{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">F</kbd> fullscreen
-        </footer>
+          <footer className="px-4 py-3 text-center text-xs text-white/45 sm:px-8">
+            <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">Esc</kbd> close ·{" "}
+            <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">F</kbd> fullscreen
+          </footer>
+        </div>
       </div>
-    </div>
     </SoundEnabledContext.Provider>
   );
 }

@@ -424,9 +424,9 @@ HTML = r"""
     <ol class="path-steps">
       <li>Scroll up in the chat to find my earlier message</li>
       <li>Look for the <strong>blue underlined link</strong>:</li>
-      <li><code>Download classroom-tools-hub-latest.zip</code></li>
-      <li>Click it — file downloads directly (no tar)</li>
-      <li>Works only while the dev server is running</li>
+      <li><code>classroom-tools-hub-backup-yyyyMMdd-HHmmss.zip</code></li>
+      <li>Use the PowerShell backup command to create a fresh copy</li>
+      <li>Store it in your OneDrive backup folder before major edits</li>
     </ol>
   </div>
 
@@ -466,8 +466,8 @@ CUSTOM-DICE-QUICK-SELECT.md</code>
     <div class="tar-arrow">→</div>
     <div class="tar-step">
       <div class="tar-step-num">STEP 5</div>
-      <div class="tar-step-text">Copy the ZIP out + extract</div>
-      <code>Expand-Archive classroom-tools-hub.zip</code>
+      <div class="tar-step-text">Copy the backup out + extract</div>
+      <code>Expand-Archive classroom-tools-hub-backup-*.zip</code>
     </div>
   </div>
 </div>

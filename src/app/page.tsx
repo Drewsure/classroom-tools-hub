@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   TOOLS,
@@ -11,312 +11,411 @@ import {
 } from "@/lib/tools";
 import { ToolLauncher } from "@/components/tools/tool-launcher";
 import { useFavorites } from "@/hooks/use-favorites";
-import { Star } from "lucide-react";
 import { AttendanceButton } from "@/components/tools/attendance-dialog";
+import {
+  Grid2X2,
+  LayoutDashboard,
+  Search,
+  Sparkles,
+  Star,
+} from "lucide-react";
+
+type FilterKey = "all" | "favorites" | ToolCategory;
+
+const CATEGORY_ORDER: ToolCategory[] = [
+  "dashboard",
+  "timers",
+  "pickers",
+  "games",
+  "counters",
+  "math",
+  "letters",
+  "weather",
+  "sounds",
+  "audio",
+];
+
+const DAILY_TOOL_IDS = [
+  "custom-dashboard",
+  "enter-names",
+  "classic",
+  "name-picker",
+  "weather-cards",
+  "sound-pad",
+];
+
+const CATEGORY_ACCENTS: Record<ToolCategory, string> = {
+  dashboard: "#38bdf8",
+  timers: "#f97316",
+  pickers: "#a855f7",
+  games: "#fb7185",
+  counters: "#22c55e",
+  math: "#f59e0b",
+  letters: "#60a5fa",
+  weather: "#38bdf8",
+  sounds: "#d946ef",
+  audio: "#8b5cf6",
+  favorites: "#facc15",
+};
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<ToolDef | null>(null);
-  const [activeCategory, setActiveCategory] = useState<ToolCategory | "all" | "favorites">("all");
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const [activeCategory, setActiveCategory] = useState<FilterKey>("all");
+  const [query, setQuery] = useState("");
+  const { isFavorite, toggleFavorite, favorites } = useFavorites();
 
   useEffect(() => {
-    if (activeTool) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    const openToolFromHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (!hash) return;
+
+      const foundTool = TOOLS.find((tool) => tool.id === hash);
+      if (foundTool) setActiveTool(foundTool);
+    };
+
+    openToolFromHash();
+    window.addEventListener("hashchange", openToolFromHash);
+    return () => window.removeEventListener("hashchange", openToolFromHash);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = activeTool ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [activeTool]);
 
-  const categories = (Object.keys(CATEGORY_INFO) as ToolCategory[]).filter(
-    (c) => c !== "favorites",
+  const favoriteTools = useMemo(
+    () => TOOLS.filter((tool) => favorites.includes(tool.id)),
+    [favorites],
   );
-  const filteredTools =
-    activeCategory === "all"
-      ? TOOLS
-      : activeCategory === "favorites"
-        ? TOOLS.filter((t) => favorites.includes(t.id))
-        : getToolsByCategory(activeCategory);
 
-  const favoriteTools = TOOLS.filter((t) => favorites.includes(t.id));
+  const dailyTools = useMemo(
+    () =>
+      DAILY_TOOL_IDS.map((id) => TOOLS.find((tool) => tool.id === id)).filter(
+        (tool): tool is ToolDef => Boolean(tool),
+      ),
+    [],
+  );
+
+  const filteredTools = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    const tools =
+      activeCategory === "all"
+        ? TOOLS
+        : activeCategory === "favorites"
+          ? favoriteTools
+          : getToolsByCategory(activeCategory);
+
+    if (!normalizedQuery) return tools;
+
+    return tools.filter((tool) =>
+      [tool.name, tool.description, tool.category]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery),
+    );
+  }, [activeCategory, favoriteTools, query]);
+
+  const openDashboard = () => {
+    setActiveTool(TOOLS.find((tool) => tool.id === "custom-dashboard") ?? null);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col glass-bg">
-      {/* Glassmorphism header */}
-      <header className="glass-header px-3 py-2 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto">
-          <h1 className="text-base font-black tracking-tight shrink-0 glass-hero-text">
-            🎓 Tools Hub
-          </h1>
-          <span className="text-xs text-white/50 shrink-0 hidden sm:inline">
-            {TOOLS.length} tools
-          </span>
-          {/* Category filter — compact pills, inline */}
-          <AttendanceButton />
-          <div className="flex gap-1 shrink-0">
-            <button
-              onClick={() => setActiveCategory("all")}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all whitespace-nowrap",
-                activeCategory === "all"
-                  ? "glass-button-active text-white"
-                  : "glass-button text-white hover:bg-white/15",
-              )}
-            >
-              All ({TOOLS.length})
-            </button>
-            <button
-              onClick={() => setActiveCategory("favorites")}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all whitespace-nowrap",
-                activeCategory === "favorites"
-                  ? "bg-yellow-400 text-slate-900 border-yellow-400"
-                  : "glass-button text-white hover:bg-white/15",
-              )}
-            >
-              ★ ({favorites.length})
-            </button>
-            {categories.map((cat) => {
-              const info = CATEGORY_INFO[cat];
-              const count = getToolsByCategory(cat).length;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all whitespace-nowrap flex items-center gap-0.5",
-                    activeCategory === cat
-                      ? "glass-button-active text-white"
-                      : "glass-button text-white hover:bg-white/15",
-                  )}
-                >
-                  <span>{info.emoji}</span>
-                  <span className="hidden lg:inline">{info.label}</span>
-                  <span className="opacity-50">({count})</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </header>
+    <main className="relative h-screen overflow-hidden bg-slate-950 text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(250,204,21,0.13),transparent_28%)]" />
+      <div className="relative z-10 mx-auto flex h-screen w-full max-w-[92rem] flex-col gap-3 px-3 py-3 sm:px-4">
+        <header className="rounded-2xl border border-white/15 bg-slate-950/82 p-3 shadow-xl shadow-black/25 backdrop-blur-2xl">
+          <div className="grid gap-3 lg:grid-cols-[auto_minmax(18rem,1fr)_auto] lg:items-center">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-cyan-300 text-slate-950">
+                <LayoutDashboard className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-200">
+                  Classroom Tools Hub
+                </p>
+                <h1 className="truncate text-xl font-black tracking-tight">
+                  One-Screen Teacher Console
+                </h1>
+              </div>
+            </div>
 
-      {/* Main content — bento layout */}
-      <main className="flex-1 px-4 py-2 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Favorites row — compact strip */}
-          {activeCategory === "all" && favoriteTools.length > 0 && (
-            <section className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                <h2 className="text-sm font-bold text-white/80 uppercase tracking-wider">
-                  Favorites
+            <div className="relative min-w-0">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search tools..."
+                className="h-10 w-full rounded-xl border border-white/15 bg-white/10 pl-10 pr-3 text-sm font-semibold text-white outline-none transition focus:border-cyan-300 focus:bg-white/15"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+              <AttendanceButton />
+              <button
+                type="button"
+                onClick={openDashboard}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-black text-slate-950 shadow-lg shadow-black/20 transition hover:bg-cyan-100"
+              >
+                <Grid2X2 className="h-4 w-4" />
+                Dashboard
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section className="grid gap-3 xl:grid-cols-[18rem_minmax(0,1fr)]">
+          <aside className="rounded-2xl border border-white/12 bg-white/[0.065] p-3 backdrop-blur-xl xl:h-[calc(100vh-6.75rem)]">
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="rounded-xl border border-white/10 bg-slate-900/65 p-3">
+                <p className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-cyan-200">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Daily
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {dailyTools.map((tool) => (
+                    <QuickLaunchButton
+                      key={tool.id}
+                      tool={tool}
+                      onOpen={() => setActiveTool(tool)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-slate-900/65 p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-200">
+                    Filters
+                  </p>
+                  <span className="text-xs font-bold text-slate-400">
+                    {filteredTools.length}/{TOOLS.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <FilterButton
+                    active={activeCategory === "all"}
+                    label="All"
+                    count={TOOLS.length}
+                    onClick={() => setActiveCategory("all")}
+                  />
+                  <FilterButton
+                    active={activeCategory === "favorites"}
+                    label="Stars"
+                    count={favoriteTools.length}
+                    onClick={() => setActiveCategory("favorites")}
+                    favorite
+                  />
+                  {CATEGORY_ORDER.map((category) => (
+                    <FilterButton
+                      key={category}
+                      active={activeCategory === category}
+                      label={CATEGORY_INFO[category].label}
+                      count={getToolsByCategory(category).length}
+                      emoji={CATEGORY_INFO[category].emoji}
+                      accent={CATEGORY_ACCENTS[category]}
+                      onClick={() => setActiveCategory(category)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <section className="min-h-0 rounded-2xl border border-white/12 bg-white/[0.055] p-3 shadow-xl shadow-black/20 backdrop-blur-xl xl:h-[calc(100vh-6.75rem)]">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
+                  {activeCategory === "all"
+                    ? "All Tools"
+                    : activeCategory === "favorites"
+                      ? "Favorites"
+                      : CATEGORY_INFO[activeCategory].label}
+                </p>
+                <h2 className="text-lg font-black leading-tight">
+                  {query.trim()
+                    ? `${filteredTools.length} search result${
+                        filteredTools.length === 1 ? "" : "s"
+                      }`
+                    : "Tap once. Teach fast."}
                 </h2>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
-                {favoriteTools.map((tool) => (
-                  <MiniToolCard
-                    key={tool.id}
-                    tool={tool}
-                    onClick={() => setActiveTool(tool)}
-                    isFavorite={true}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* All tools — bento grid with side-by-side categories */}
-          {activeCategory === "all" ? (
-            <div className="space-y-2">
-              {/* Render categories, grouping single-tool categories side by side */}
-              {(() => {
-                // Define which categories to pair side-by-side
-                const pairs: [ToolCategory, ToolCategory][] = [
-                  ["math", "letters"],
-                  ["dashboard", "sounds"],
-                ];
-                const paired = new Set<string>(pairs.flat());
-
-                // Render a single category section
-                const renderSection = (cat: ToolCategory) => {
-                  const info = CATEGORY_INFO[cat];
-                  const tools = getToolsByCategory(cat);
-                  if (tools.length === 0) return null;
-                  return (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-lg">{info.emoji}</span>
-                        <h2 className="text-sm font-bold text-white/80 uppercase tracking-wider">
-                          {info.label}
-                        </h2>
-                        <span className="text-xs text-white/40 hidden sm:inline">
-                          {info.description}
-                        </span>
-                      </div>
-                      <div className={cn(
-                        "grid gap-2",
-                        tools.length === 10
-                          ? "grid-cols-5"
-                          : tools.length <= 2
-                            ? "grid-cols-2"
-                            : tools.length <= 4
-                              ? "grid-cols-4"
-                              : "grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10"
-                      )}>
-                        {tools.map((tool) => (
-                          <MiniToolCard
-                            key={tool.id}
-                            tool={tool}
-                            onClick={() => setActiveTool(tool)}
-                            isFavorite={isFavorite(tool.id)}
-                            onToggleFavorite={toggleFavorite}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                };
-
-                return categories.map((cat) => {
-                  if (paired.has(cat)) {
-                    // Find the pair this category belongs to
-                    const pair = pairs.find(([a, b]) => a === cat || b === cat);
-                    if (pair && cat === pair[0]) {
-                      // Render both side by side (only on the first of the pair)
-                      return (
-                        <div key={cat} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {renderSection(pair[0])}
-                          {renderSection(pair[1])}
-                        </div>
-                      );
-                    }
-                    // Skip the second of the pair (already rendered)
-                    return null;
-                  }
-                  // Render standalone categories normally
-                  return <section key={cat}>{renderSection(cat)}</section>;
-                });
-              })()}
+              {query.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-bold text-slate-200 transition hover:bg-white/10"
+                >
+                  Clear
+                </button>
+              ) : null}
             </div>
-          ) : activeCategory === "favorites" ? (
-            favoriteTools.length > 0 ? (
-              <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
-                {favoriteTools.map((tool) => (
-                  <MiniToolCard
-                    key={tool.id}
-                    tool={tool}
-                    onClick={() => setActiveTool(tool)}
-                    isFavorite={true}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <Star className="h-12 w-12 text-white/20 mx-auto mb-3" />
-                <p className="text-white/50 text-base font-semibold mb-1">
-                  No favorites yet!
-                </p>
-                <p className="text-white/30 text-xs">
-                  Click the ★ on any tool card to add it here
-                </p>
-              </div>
-            )
-          ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
+
+            <div className="grid max-h-[calc(100vh-10.5rem)] grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {filteredTools.map((tool) => (
-                <MiniToolCard
+                <ToolTile
                   key={tool.id}
                   tool={tool}
-                  onClick={() => setActiveTool(tool)}
-                  isFavorite={isFavorite(tool.id)}
-                  onToggleFavorite={toggleFavorite}
+                  favorite={isFavorite(tool.id)}
+                  onOpen={() => setActiveTool(tool)}
+                  onToggleFavorite={() => toggleFavorite(tool.id)}
                 />
               ))}
             </div>
-          )}
-        </div>
-      </main>
 
-      <footer className="mt-auto px-4 py-2 text-center text-xs text-white/30">
-        Click ★ to favorite · Sound on for best experience
-      </footer>
+            {filteredTools.length === 0 ? (
+              <div className="mt-10 rounded-xl border border-dashed border-white/20 bg-white/[0.04] p-6 text-center text-sm text-slate-300">
+                No tools matched that search.
+              </div>
+            ) : null}
+          </section>
+        </section>
+      </div>
 
-      {activeTool && (
+      {activeTool ? (
         <ToolLauncher
           tool={activeTool}
-          onClose={() => setActiveTool(null)}
+          onClose={() => {
+            setActiveTool(null);
+            if (window.location.hash) {
+              history.replaceState(null, "", window.location.pathname);
+            }
+          }}
         />
-      )}
-    </div>
+      ) : null}
+    </main>
   );
 }
 
-/* Compact bento-style tool card */
-function MiniToolCard({
+function QuickLaunchButton({
   tool,
+  onOpen,
+}: {
+  tool: ToolDef;
+  onOpen: () => void;
+}) {
+  const Icon = tool.icon;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group flex min-h-14 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] p-2 text-left transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.12]"
+    >
+      <span
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+        style={{ backgroundColor: `${tool.accent}28` }}
+      >
+        <Icon className="h-4 w-4" style={{ color: tool.accent }} />
+      </span>
+      <span className="min-w-0 text-xs font-black leading-tight text-white">
+        {tool.name}
+      </span>
+    </button>
+  );
+}
+
+function FilterButton({
+  active,
+  label,
+  count,
   onClick,
-  isFavorite,
+  emoji,
+  accent,
+  favorite = false,
+}: {
+  active: boolean;
+  label: string;
+  count: number;
+  onClick: () => void;
+  emoji?: string;
+  accent?: string;
+  favorite?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex h-9 items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.055] px-2 text-xs font-black text-slate-200 transition hover:bg-white/10",
+        active &&
+          "border-cyan-200 bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-950/20",
+        favorite && active && "border-amber-200 bg-amber-300",
+      )}
+      style={active && accent && !favorite ? { borderColor: accent } : undefined}
+    >
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span>{favorite ? "★" : emoji}</span>
+        <span className="truncate">{label}</span>
+      </span>
+      <span className="shrink-0 opacity-70">{count}</span>
+    </button>
+  );
+}
+
+function ToolTile({
+  tool,
+  favorite,
+  onOpen,
   onToggleFavorite,
 }: {
   tool: ToolDef;
-  onClick: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
+  favorite: boolean;
+  onOpen: () => void;
+  onToggleFavorite: () => void;
 }) {
   const Icon = tool.icon;
+
   return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-xl transition-all duration-200 hover:scale-105 focus-within:ring-2 focus-within:ring-emerald-400/40 bg-gradient-to-br cursor-pointer tool-card-glow",
-        tool.gradient,
-        "min-h-[76px] flex flex-col",
-      )}
-      style={{ ['--tool-accent' as string]: tool.accent }}
-      onClick={onClick}
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+      className="group relative flex min-h-[4.15rem] cursor-pointer flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-slate-900/72 p-1.5 outline-none transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-slate-800/85 focus-visible:ring-2 focus-visible:ring-cyan-300"
     >
-      {/* Favorite star */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleFavorite(tool.id);
-        }}
-        className={cn(
-          "absolute top-1 right-1 z-20 w-5 h-5 rounded-full flex items-center justify-center transition-all",
-          isFavorite
-            ? "bg-yellow-400/90 text-slate-900"
-            : "bg-black/20 text-white/50 hover:bg-black/40 hover:text-white opacity-0 group-hover:opacity-100",
-        )}
-        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-      >
-        <Star className={cn("h-2.5 w-2.5", isFavorite && "fill-current")} />
-      </button>
+      <div
+        className="absolute inset-x-0 top-0 h-0.5 opacity-90"
+        style={{ backgroundColor: tool.accent }}
+      />
 
-      {/* Background emoji */}
-      <div className="absolute -right-2 -top-2 text-4xl opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-        {tool.emoji}
+      <div className="flex items-start justify-between gap-2">
+        <div
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg"
+          style={{ backgroundColor: `${tool.accent}24` }}
+        >
+          <Icon className="h-4 w-4" style={{ color: tool.accent }} />
+        </div>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite();
+          }}
+          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+          className={cn(
+            "grid h-6 w-6 shrink-0 place-items-center rounded-md border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10",
+            favorite && "border-amber-200/70 bg-amber-300 text-slate-950",
+          )}
+        >
+          <Star className={cn("h-3 w-3", favorite && "fill-current")} />
+        </button>
       </div>
 
-      {/* Content */}
-      <div className="relative p-2 text-white flex-1 flex flex-col justify-between">
-        <div className="flex items-center gap-1">
-          <div className="w-6 h-6 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
-            <Icon className="h-3 w-3 text-white" />
-          </div>
-          <span className="text-base">{tool.emoji}</span>
-        </div>
-        <div className="mt-1">
-          <h3 className="text-[11px] font-bold leading-tight drop-shadow">
-            {tool.name}
-          </h3>
-          <p className="text-[9px] text-white/70 leading-tight mt-0.5 line-clamp-1">
-            {tool.description}
-          </p>
-        </div>
+      <div>
+        <h3 className="line-clamp-1 text-xs font-black leading-tight text-white">
+          {tool.name}
+        </h3>
+        <p className="mt-0.5 line-clamp-1 text-[10px] font-semibold leading-tight text-slate-400">
+          {CATEGORY_INFO[tool.category].label}
+        </p>
       </div>
-    </div>
+    </article>
   );
 }

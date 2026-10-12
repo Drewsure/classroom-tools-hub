@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useDramaticSound } from "@/hooks/use-effects";
 import { useTimer, useStopwatch } from "@/hooks/use-timer";
 import { formatTime, formatStopwatchTime } from "@/lib/timers";
-import { SOUNDS } from "@/hooks/use-sound-pad";
+import { SOUNDS, useSoundPad } from "@/hooks/use-sound-pad";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
   useSensor, useSensors, DragEndEvent,
@@ -206,7 +206,7 @@ export function CustomDashboard() {
   };
 
   const addSoundWidget = (s: typeof SOUNDS[0]) => {
-    setWidgets((prev) => [...prev, { id: nextWidgetId(), type: "soundButton" as WidgetType, title: s.label, soundId: s.id, soundVolume: 0.7 }]);
+    setWidgets((prev) => [...prev, { id: nextWidgetId(), type: "soundButton" as WidgetType, title: s.label, soundId: s.id, soundVolume: 0.5 }]);
     setShowAddMenu(false);
     sound.playClick();
   };
@@ -430,10 +430,10 @@ function EmbeddedTool({ children }: { children: React.ReactNode }) {
 
 /* ===== Sound Button Widget ===== */
 function SoundButtonWidget({ widget, onUpdate }: { widget: Widget; onUpdate: (u: Partial<Widget>) => void; }) {
-  const sound = useDramaticSound();
+  const soundPad = useSoundPad();
   const [playing, setPlaying] = useState(false);
   const sd = SOUNDS.find((s) => s.id === widget.soundId) ?? SOUNDS[0];
-  const vol = widget.soundVolume ?? 0.7;
-  const play = () => { setPlaying(true); const a = new Audio(`/sounds/${sd.file}`); a.volume = vol; a.play().catch(() => sound.playClick()); a.addEventListener("ended", () => setPlaying(false)); setTimeout(() => setPlaying(false), 1500); };
+  const vol = widget.soundVolume ?? 0.5;
+  const play = () => { setPlaying(true); soundPad.play(sd.id, vol); setTimeout(() => setPlaying(false), 900); };
   return <div className="flex flex-col items-center gap-2"><select value={widget.soundId ?? SOUNDS[0].id} onChange={(e) => onUpdate({ soundId: e.target.value })} className="bg-white/10 border border-white/20 text-white text-xs rounded px-2 py-1 w-full">{SOUNDS.map((s) => <option key={s.id} value={s.id} className="bg-slate-800">{s.emoji} {s.label}</option>)}</select><button onClick={play} className={cn("w-full h-14 rounded-2xl flex items-center justify-center gap-2 text-white font-bold text-sm shadow-lg transition-all", playing && "scale-95 ring-2 ring-white/60")} style={{ background: `linear-gradient(135deg, ${sd.color.replace("from-", "").replace(" to-", ", ")})` }}><span className="text-xl">{sd.emoji}</span>{sd.label}</button><div className="flex items-center gap-1.5 w-full"><Volume1 className="h-3 w-3 text-white/40 shrink-0" /><input type="range" min="0" max="100" value={Math.round(vol * 100)} onChange={(e) => onUpdate({ soundVolume: parseInt(e.target.value) / 100 })} className="flex-1 h-1.5 rounded-full appearance-none bg-white/20 cursor-pointer" /><Volume2 className="h-3 w-3 text-white/40 shrink-0" /></div></div>;
 }

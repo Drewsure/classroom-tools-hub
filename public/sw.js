@@ -9,13 +9,11 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.2.0";
+const VERSION = "v1.4.0";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 
-// Assets to pre-cache on install (app shell + sounds + icons)
-// FIXED: removed 11 non-existent files (applause, boo, sad-trombone, etc.)
-// ADDED: all 18 actual sound files + 6 new spoken-word TTS files
+// Assets to pre-cache on install (app shell + classroom-critical media)
 const PRECACHE_URLS = [
   "/",
   "/manifest.json",
@@ -24,32 +22,31 @@ const PRECACHE_URLS = [
   "/icons/icon-512.png",
   "/icons/maskable-192.png",
   "/icons/maskable-512.png",
-  // Sound pad audio files (verified to exist)
+  // Sound pad audio files (verified by npm run verify:sounds)
   "/sounds/cheer.mp3",
   "/sounds/clap.mp3",
-  "/sounds/tada.mp3",
+  "/sounds/spoken-great-job.mp3",
+  "/sounds/spoken-wrong.mp3",
+  "/sounds/spoken-correct.mp3",
+  "/sounds/spoken-wow.mp3",
+  "/sounds/spoken-lets-play.mp3",
   "/sounds/laugh.mp3",
   "/sounds/ding.mp3",
-  "/sounds/wow.mp3",
-  "/sounds/drumroll.mp3",
+  "/sounds/boop.mp3",
   "/sounds/buzzer.mp3",
-  "/sounds/wrong.mp3",
+  "/sounds/spring.mp3",
   "/sounds/heartbeat.mp3",
   "/sounds/gameshow.mp3",
-  "/sounds/timeup.mp3",
+  "/sounds/spoken-times-up.mp3",
   "/sounds/sparkle.mp3",
-  "/sounds/spring.mp3",
-  "/sounds/chirping.mp3",
-  "/sounds/dog.mp3",
   "/sounds/whoosh.mp3",
   "/sounds/alarm.mp3",
-  // NEW: AAA-quality spoken-word TTS files for sound pad buttons
-  "/sounds/spoken-correct.mp3",
-  "/sounds/spoken-great-job.mp3",
-  "/sounds/spoken-wow.mp3",
-  "/sounds/spoken-wrong.mp3",
-  "/sounds/spoken-times-up.mp3",
-  "/sounds/spoken-lets-play.mp3",
+  "/sounds/spoken-true.mp3",
+  "/sounds/spoken-false.mp3",
+  "/sounds/spoken-yes.mp3",
+  "/sounds/spoken-no.mp3",
+  "/sounds/spoken-maybe.mp3",
+  "/sounds/spoken-try-again.mp3",
   // Spoken countdown numbers (TTS-generated, used by all timers)
   "/sounds/countdown-1.mp3",
   "/sounds/countdown-2.mp3",
@@ -76,7 +73,7 @@ const PRECACHE_URLS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) =>
-      // Use addAll with individual failures tolerated (some sounds may 404)
+      // Keep install resilient: one optional media failure should not block the app shell.
       Promise.allSettled(PRECACHE_URLS.map((url) => cache.add(url))),
     ).then(() => self.skipWaiting()),
   );
@@ -147,8 +144,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // --- Icons & manifest: cache-first ---
-  if (url.pathname.startsWith("/icons/") || url.pathname === "/manifest.json") {
+  // --- Images, icons & manifest: cache-first ---
+  if (url.pathname.startsWith("/images/") || url.pathname.startsWith("/icons/") || url.pathname === "/manifest.json") {
     event.respondWith(
       caches.match(request).then((cached) =>
         cached ||

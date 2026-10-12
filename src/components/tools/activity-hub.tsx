@@ -11,6 +11,7 @@ import { useToolSkin } from "@/hooks/use-tool-skin";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { SKINS, SkinParticleField, SkinSceneDecorator } from "@/lib/skins";
 import { useAttendance } from "@/hooks/use-attendance";
+import { useClassroomAudio } from "@/hooks/use-classroom-audio";
 import { PHONIC_CARDS } from "@/lib/phonic-cards";
 import { formatTime } from "@/lib/timers";
 import {
@@ -666,6 +667,7 @@ function buildGroups(): { id: string; name: string; cards: MiniCard[] }[] {
 
 function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
   const sound = useDramaticSound();
+  const classroomAudio = useClassroomAudio();
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
   const { flash, flashFn } = useFlash();
   const { shakeIntensity, shake } = useScreenShake();
@@ -714,7 +716,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
   const playWord = () => {
     if (!card) return;
     if (card.type === "phonic" && card.id) {
-      try { const a = new Audio(`/sounds/word-${card.id}.mp3`); a.play().catch(() => {}); } catch { /* ignore */ }
+      void classroomAudio.play(`/sounds/word-${card.id}.mp3`, { volume: 0.5, lowpass: 7600 });
     } else {
       try {
         window.speechSynthesis.cancel();

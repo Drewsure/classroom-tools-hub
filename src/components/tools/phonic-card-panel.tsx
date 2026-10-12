@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Volume2, Play, HelpCircle, CheckCircle2 } from "lucide-react";
 import { findPhonicCard } from "@/lib/phonic-cards";
 import { cn } from "@/lib/utils";
+import { useClassroomAudio } from "@/hooks/use-classroom-audio";
 
 /* Emoji lookup table — one emoji per anchor word (a–z) */
 const WORD_EMOJI: Record<string, string> = {
@@ -63,6 +64,7 @@ export function PhonicCardPanel({
   showActualCard,
 }: PhonicCardPanelProps) {
   const card = useMemo(() => findPhonicCard(letter), [letter]);
+  const classroomAudio = useClassroomAudio();
 
   // Which answer line is currently being spoken (for karaoke highlight)
   const [activeLine, setActiveLine] = useState<number | null>(null);
@@ -86,16 +88,8 @@ export function PhonicCardPanel({
 
   const playAudio = useCallback((url: string) => {
     if (typeof window === "undefined") return;
-    try {
-      const audio = new Audio(url);
-      audio.volume = 0.9;
-      void audio.play().catch(() => {
-        // File may not exist yet — silently ignore
-      });
-    } catch {
-      /* no-op */
-    }
-  }, []);
+    void classroomAudio.play(url, { volume: 0.5, lowpass: 7600 });
+  }, [classroomAudio]);
 
   const speakLine = useCallback((text: string, idx: number) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
