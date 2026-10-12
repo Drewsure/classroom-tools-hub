@@ -343,18 +343,14 @@ export function useDramaticSound() {
 
   // Sound: explosion (cinematic boom with debris)
   const playExplosion = useCallback(() => {
-    void playSample("buzzer.mp3", 0.58);
-    // Sub-bass thump (deep boom)
-    playTone(60, 1, { type: "sawtooth", volume: 0.5, sweepTo: 25, attack: 0.005 });
-    // Mid crash
-    playTone(120, 0.6, { type: "triangle", volume: 0.3, sweepTo: 40 });
-    // Noise crash (wide band)
-    playNoise(1, 0.5, 300);
-    // High debris rattle
-    setTimeout(() => playNoise(0.3, 0.2, 3000, "highpass"), 100);
-    // Triumphant resolution
-    setTimeout(() => playAlarm(), 500);
-  }, [playTone, playNoise, playAlarm, playSample]);
+    // Deep blast with a short debris tail. Keep this synthetic so it sounds like a boom, not a buzzer.
+    playTone(42, 1.35, { type: "sawtooth", volume: 0.62, sweepTo: 22, attack: 0.002 });
+    playTone(86, 0.75, { type: "triangle", volume: 0.36, sweepTo: 34, attack: 0.004 });
+    playNoise(1.2, 0.62, 260);
+    setTimeout(() => playNoise(0.36, 0.22, 3200, "highpass"), 90);
+    setTimeout(() => playNoise(0.28, 0.16, 900, "bandpass"), 260);
+    setTimeout(() => playAlarm(), 620);
+  }, [playTone, playNoise, playAlarm]);
 
   // Sound: dramatic countdown beep (warm bell-like)
   const playCountdownBeep = useCallback(

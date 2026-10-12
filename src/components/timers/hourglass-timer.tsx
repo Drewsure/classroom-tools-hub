@@ -118,10 +118,16 @@ export function HourglassTimer() {
           })}
 
           {/* Time display */}
-          <div className="absolute top-4 left-0 right-0 text-center pointer-events-none z-10">
+          <div
+            className={cn(
+              "absolute pointer-events-none z-10 text-center",
+              isSetup ? "left-0 right-0 top-4" : "right-[6%] top-1/2 -translate-y-1/2",
+            )}
+          >
             <div
               className={cn(
-                "inline-block px-6 py-3 rounded-2xl backdrop-blur-sm border",
+                "inline-block rounded-2xl border px-6 py-3 backdrop-blur-sm",
+                !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(250,204,21,0.35)]",
                 done
                   ? "bg-stone-900/60 border-stone-600/50"
                   : veryLow
@@ -134,6 +140,7 @@ export function HourglassTimer() {
               <div
                 className={cn(
                   "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
+                  !isSetup && "lg:text-[8rem] xl:text-[10rem]",
                   done ? "text-stone-400" : veryLow ? "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]" : lowTime ? "text-orange-300" : "text-yellow-100",
                 )}
               >
@@ -153,7 +160,12 @@ export function HourglassTimer() {
           )}
 
           {/* Hourglass */}
-          <div className="relative">
+          <div
+            className={cn(
+              "relative transition-all duration-500",
+              !isSetup && "absolute left-[34%] top-1/2 -translate-x-1/2 -translate-y-1/2",
+            )}
+          >
             <svg width={isSetup ? 330 : 460} height={isSetup ? 440 : 613} viewBox="0 0 180 240" className="drop-shadow-2xl">
               {/* Frame top */}
               <rect x="20" y="10" width="140" height="10" rx="2" fill="#8b4513" />

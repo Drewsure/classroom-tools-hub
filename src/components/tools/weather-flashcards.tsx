@@ -225,15 +225,15 @@ export function WeatherFlashcards() {
 
       {/* Mode toggle + fullscreen */}
       {!fullscreen && (
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Mode:</span>
-          <button onClick={() => { setMode("flashcard"); handleResetFlashcard(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border transition-all", mode === "flashcard" ? "bg-white text-slate-900 border-white scale-105 shadow-lg" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+        <div className="flex items-center gap-2 flex-wrap justify-center rounded-2xl border border-slate-700 bg-slate-950/85 p-2 shadow-xl backdrop-blur-md">
+          <span className="text-xs font-black text-cyan-100 uppercase tracking-wider">Mode:</span>
+          <button onClick={() => { setMode("flashcard"); handleResetFlashcard(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-black border transition-all", mode === "flashcard" ? "bg-white text-slate-950 border-white scale-105 shadow-lg" : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700")}>
             <Layers className="h-4 w-4" /> Flashcard
           </button>
-          <button onClick={() => { setMode("selection"); sound.playClick(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border transition-all", mode === "selection" ? "bg-white text-slate-900 border-white scale-105 shadow-lg" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+          <button onClick={() => { setMode("selection"); sound.playClick(); }} className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-black border transition-all", mode === "selection" ? "bg-white text-slate-950 border-white scale-105 shadow-lg" : "bg-slate-800 text-white border-slate-500 hover:bg-slate-700")}>
             <Grid3x3 className="h-4 w-4" /> Selection
           </button>
-          <button onClick={toggleFullscreen} className="px-4 py-2 rounded-full text-sm font-bold border bg-white/10 text-white border-white/25 hover:bg-white/20" title="Fullscreen">
+          <button onClick={toggleFullscreen} className="px-4 py-2 rounded-full text-sm font-black border bg-slate-800 text-white border-slate-500 hover:bg-slate-700" title="Fullscreen">
             <Maximize2 className="h-4 w-4" />
           </button>
         </div>
@@ -308,7 +308,7 @@ export function WeatherFlashcards() {
       {mode === "selection" && (
         <div className="w-full max-w-7xl flex flex-col items-center gap-4">
           {/* Summary bar */}
-          <div className="w-full flex items-center justify-between gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 flex-wrap">
+          <div className="w-full flex items-center justify-between gap-3 px-4 py-2 rounded-2xl bg-slate-950/85 border border-slate-600 flex-wrap shadow-xl">
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1.5 font-bold text-emerald-300"><Check className="h-4 w-4" /> Correct: {correctCount}</span>
               <span className="flex items-center gap-1.5 font-bold text-rose-300"><X className="h-4 w-4" /> Wrong: {wrongCount}</span>
@@ -320,7 +320,7 @@ export function WeatherFlashcards() {
                 </Button>
               )}
               {(correctCount > 0 || wrongCount > 0) && (
-                <Button onClick={clearMarks} size="sm" variant="outline" className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Clear</Button>
+                <Button onClick={clearMarks} size="sm" variant="outline" className="rounded-full bg-slate-800 text-white border-slate-500 hover:bg-slate-700 hover:text-white"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Clear</Button>
               )}
             </div>
           </div>
@@ -330,16 +330,16 @@ export function WeatherFlashcards() {
             {WEATHER_TYPES.map((type) => {
               const mark = marks[type];
               return (
-                <div key={type} className={cn("relative rounded-2xl overflow-hidden border-2 shadow-lg bg-white/5 transition-all", mark === "correct" ? "border-emerald-400/80 ring-2 ring-emerald-400/40 scale-[1.02]" : mark === "wrong" ? "border-rose-400/80 ring-2 ring-rose-400/40 opacity-70" : "border-white/15")}>
+                <div key={type} className={cn("relative rounded-2xl overflow-hidden border-2 shadow-lg bg-slate-950/80 transition-all", mark === "correct" ? "border-emerald-300 ring-2 ring-emerald-300/40 scale-[1.02]" : mark === "wrong" ? "border-rose-300 ring-2 ring-rose-300/40 opacity-80" : "border-slate-500")}>
                   <div className="relative aspect-[4/3] min-h-[15rem] bg-black/20 sm:aspect-square">
                     <img src={weatherGif(type)} alt={WEATHER_META[type].label} className="h-full w-full object-contain" draggable={false} />
-                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">{WEATHER_META[type].emoji} {WEATHER_META[type].label}</div>
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-950/85 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-sm">{WEATHER_META[type].emoji} {WEATHER_META[type].label}</div>
                     {mark === "correct" && <div className="absolute top-2 right-2 bg-emerald-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg"><Check className="h-4 w-4" /></div>}
                     {mark === "wrong" && <div className="absolute top-2 right-2 bg-rose-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg"><X className="h-4 w-4" /></div>}
                   </div>
-                  <div className="grid grid-cols-2 gap-1 p-1.5 bg-black/30">
-                    <button onClick={() => toggleMark(type, "correct")} className={cn("py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center", mark === "correct" ? "bg-emerald-500 text-white shadow" : "bg-white/10 text-white/70 hover:bg-emerald-500/40 hover:text-white")}><Check className="h-4 w-4" /></button>
-                    <button onClick={() => toggleMark(type, "wrong")} className={cn("py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center", mark === "wrong" ? "bg-rose-500 text-white shadow" : "bg-white/10 text-white/70 hover:bg-rose-500/40 hover:text-white")}><X className="h-4 w-4" /></button>
+                  <div className="grid grid-cols-2 gap-1 p-1.5 bg-slate-950">
+                    <button onClick={() => toggleMark(type, "correct")} className={cn("py-2 rounded-lg text-sm font-black transition-all flex items-center justify-center", mark === "correct" ? "bg-emerald-400 text-slate-950 shadow" : "bg-slate-800 text-white hover:bg-emerald-500 hover:text-white")}><Check className="h-4 w-4" /></button>
+                    <button onClick={() => toggleMark(type, "wrong")} className={cn("py-2 rounded-lg text-sm font-black transition-all flex items-center justify-center", mark === "wrong" ? "bg-rose-400 text-slate-950 shadow" : "bg-slate-800 text-white hover:bg-rose-500 hover:text-white")}><X className="h-4 w-4" /></button>
                   </div>
                 </div>
               );

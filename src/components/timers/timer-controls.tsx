@@ -207,7 +207,7 @@ export function TimerControls({
 
       {/* Reset button — guarded and outside the main action area */}
       {showReset && (
-        <div className="flex items-center justify-center gap-3 lg:col-span-3">
+        <div className="fixed bottom-4 right-4 z-[90] flex items-center justify-center gap-3 lg:col-span-3">
           <GuardedResetButton onReset={onReset} />
         </div>
       )}
@@ -237,10 +237,10 @@ function GuardedResetButton({ onReset }: { onReset: () => void }) {
       size="lg"
       variant="outline"
       className={cn(
-        "rounded-2xl border-2 px-5 py-5 text-white shadow-sm transition-all",
+        "rounded-2xl border-2 px-5 py-5 text-white shadow-2xl transition-all backdrop-blur-md",
         armed
-          ? "border-rose-300 bg-rose-500/85 hover:bg-rose-500 hover:text-white"
-          : "border-white/25 bg-white/10 hover:bg-white/20 hover:text-white",
+          ? "border-rose-200 bg-rose-600 hover:bg-rose-500 hover:text-white"
+          : "border-amber-200 bg-slate-950/88 hover:bg-slate-900 hover:text-white",
       )}
     >
       <RotateCcw className="mr-2 h-5 w-5" />
