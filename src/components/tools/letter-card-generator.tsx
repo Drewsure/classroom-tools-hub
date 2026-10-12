@@ -133,8 +133,11 @@ export function LetterCardGenerator() {
   return (
     <div className="flex flex-col items-center gap-6 py-2">
       {/* Title area */}
-      <div className="w-full max-w-md text-center px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 border border-white/10 shadow-lg">
-        <h2 className="text-2xl font-black text-white">🔤 Letter Card Generator</h2>
+      <div className="w-full max-w-md text-center px-6 py-4 rounded-3xl bg-gradient-to-r from-sky-300 via-blue-500 to-violet-600 border border-white/20 shadow-lg">
+        <h2 className="text-2xl font-black text-white flex items-center justify-center gap-3 drop-shadow">
+          <img src="/images/manga-icons/letter-cards.png" alt="" className="h-16 w-16 rounded-2xl bg-white/90 object-contain shadow-lg" />
+          Letter Card Generator
+        </h2>
         <p className="text-sm text-white/70 mt-1">Letter generators and practice</p>
       </div>
 

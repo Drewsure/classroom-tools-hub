@@ -51,9 +51,20 @@ const WIDE_TOOL_IDS = new Set([
   "weather-cards",
 ]);
 
+const MANGA_ICON_BY_TOOL: Record<string, string> = {
+  "activity-hub": "/images/manga-icons/activity-hub.png",
+  "custom-dashboard": "/images/manga-icons/dashboard.png",
+  classic: "/images/manga-icons/timer.png",
+  "name-picker": "/images/manga-icons/name-picker.png",
+  "weather-cards": "/images/manga-icons/weather.png",
+  "sound-pad": "/images/manga-icons/sound-pad.png",
+  "letter-cards": "/images/manga-icons/letter-cards.png",
+};
+
 export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const mangaIcon = MANGA_ICON_BY_TOOL[tool.id];
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
@@ -89,13 +100,17 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
 
   return (
     <SoundEnabledContext.Provider value={soundEnabled}>
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/96 backdrop-blur-2xl">
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(251,113,133,0.16),transparent_30%),#060416] backdrop-blur-2xl">
         <div className="flex min-h-screen flex-col">
-          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/82 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/88 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
             <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-1 items-center gap-3 text-white">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-3xl drop-shadow-lg ring-1 ring-white/10 sm:h-14 sm:w-14 sm:text-4xl">
-                  {tool.emoji}
+                <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white text-3xl shadow-lg shadow-black/30 ring-2 ring-white/25 sm:h-16 sm:w-16 sm:text-4xl">
+                  {mangaIcon ? (
+                    <img src={mangaIcon} alt="" className="h-16 w-16 object-contain" />
+                  ) : (
+                    tool.emoji
+                  )}
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">

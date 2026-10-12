@@ -21,7 +21,6 @@ import {
   RotateCcw,
   Check,
   X,
-  Cloud,
   Grid3x3,
   Layers,
   Maximize2,
@@ -216,9 +215,10 @@ export function WeatherFlashcards() {
       {!fullscreen && <UniversalSkinPicker current={skinId} onChange={setSkinId} />}
 
       {/* Title */}
-      <div className="w-full max-w-7xl text-center px-6 py-3 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-700 border border-white/10 shadow-lg">
-        <h2 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2">
-          <Cloud className="h-5 w-5" /> How&apos;s the Weather?
+      <div className="w-full max-w-7xl text-center px-6 py-3 rounded-3xl bg-gradient-to-r from-sky-300 via-cyan-400 to-indigo-500 border border-white/30 shadow-lg">
+        <h2 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-3 drop-shadow">
+          <img src="/images/manga-icons/weather.png" alt="" className="h-14 w-14 rounded-2xl bg-white/90 object-contain shadow-lg" />
+          How&apos;s the Weather?
         </h2>
         <p className="text-xs text-white/70 mt-1">Flashcard + selection + presentation mode</p>
       </div>

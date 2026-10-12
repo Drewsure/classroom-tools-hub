@@ -61,11 +61,13 @@ export function SoundPad() {
   return (
     <div className="flex flex-col items-center gap-4 py-2 w-full min-h-[calc(100vh-200px)]">
       {/* Glassmorphism control bar */}
-      <div className="w-full max-w-5xl flex items-center justify-between gap-3 px-5 py-3 rounded-2xl glass-dark">
+      <div className="w-full max-w-5xl flex items-center justify-between gap-3 px-5 py-3 rounded-3xl border border-pink-200/40 bg-gradient-to-r from-fuchsia-500/22 via-slate-900/88 to-cyan-500/18 shadow-2xl shadow-fuchsia-950/30">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">🔊</span>
+          <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white shadow-lg">
+            <img src="/images/manga-icons/sound-pad.png" alt="" className="h-16 w-16 object-contain" />
+          </span>
           <div>
-            <h2 className="text-xl font-bold text-white">Sound Pad</h2>
+            <h2 className="text-xl font-black text-white">Sound Pad</h2>
             <p className="text-xs text-white/50">
               {lastPlayed
                 ? `Last: ${SOUNDS.find((s) => s.id === lastPlayed)?.emoji} ${SOUNDS.find((s) => s.id === lastPlayed)?.label}`
@@ -144,6 +146,8 @@ export function SoundPad() {
                         isActive && "scale-95 ring-4 ring-white/60",
                       )}
                     >
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.32),transparent_24%)] opacity-80" />
+
                       {/* Key shortcut badge */}
                       {sound.key && (
                         <span className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/30 text-white text-xs font-bold flex items-center justify-center backdrop-blur-sm uppercase">

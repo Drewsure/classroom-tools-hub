@@ -16,7 +16,7 @@ import { PHONIC_CARDS } from "@/lib/phonic-cards";
 import { formatTime } from "@/lib/timers";
 import {
   Play, Pause, RotateCcw, Plus, Minus, Trash2, Edit3, Check, X,
-  Dices, Clock, Hash, Sparkles, Maximize2, Minimize2,
+  Dices, Clock, Hash, Maximize2, Minimize2,
   ChevronLeft, ChevronRight, Volume2, SkipBack, SkipForward, Music,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -85,9 +85,10 @@ export function ActivityHub() {
   return (
     <div className="flex flex-col gap-2 w-full max-w-6xl mx-auto h-[calc(100dvh-12.75rem)] overflow-y-auto lg:overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2 rounded-2xl glass-dark border border-white/10">
-        <h2 className="text-lg font-black text-white flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-cyan-300" /> Activity Hub
+      <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2 rounded-3xl bg-gradient-to-r from-cyan-400/28 via-slate-900/86 to-violet-500/24 border border-cyan-200/20 shadow-xl">
+        <h2 className="text-lg font-black text-white flex items-center gap-3">
+          <img src="/images/manga-icons/activity-hub.png" alt="" className="h-14 w-14 rounded-2xl bg-white object-contain shadow-lg" />
+          Activity Hub
         </h2>
         <p className="hidden sm:block text-xs text-white/50">⛶ expands a tool · Esc returns</p>
       </div>
