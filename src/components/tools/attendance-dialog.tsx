@@ -70,6 +70,12 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
     }
   };
 
+  const loadMinistarClasses = (mode: "merge" | "replace" = "merge") => {
+    const n = att.importMinistarClasses(mode);
+    setToast(n > 0 ? `Loaded ${n} Ministar classes` : "No Ministar classes found");
+    setShowImport(false);
+  };
+
 if (!open) return null;
   const cls = att.activeClass;
   const activeCount = att.activeStudents().length;
@@ -110,6 +116,9 @@ if (!open) return null;
             <Button onClick={() => setShowImport(true)} className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white">
               <Upload className="mr-1 h-4 w-4" /> Import schedule
             </Button>
+            <Button onClick={() => loadMinistarClasses("replace")} variant="outline" className="classroom-control-button rounded-full hover:text-slate-950">
+              <ClipboardList className="mr-1 h-4 w-4" /> Load Ministar weekly classes
+            </Button>
           </div>
         ) : (
           <>
@@ -146,6 +155,10 @@ if (!open) return null;
               <Button size="sm" variant="outline" onClick={() => setShowImport(!showImport)}
                 className="classroom-control-button rounded-full hover:text-slate-950">
                 <Upload className="mr-1 h-3.5 w-3.5" /> Import
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => loadMinistarClasses("merge")}
+                className="classroom-control-button rounded-full hover:text-slate-950">
+                <ClipboardList className="mr-1 h-3.5 w-3.5" /> Ministar Classes
               </Button>
               <Button size="sm" variant="outline" onClick={att.exportDayCSV}
                 className="classroom-control-button rounded-full hover:text-slate-950">
@@ -254,6 +267,10 @@ if (!open) return null;
                   setToast(n > 0 ? `Imported ${n} classes` : "No classes found — check the format");
                   if (n > 0) { setShowImport(false); setImportText(""); }
                 }}>Import</Button>
+              <Button size="sm" variant="outline" className="classroom-control-button rounded-full hover:text-slate-950"
+                onClick={() => loadMinistarClasses(importMode)}>
+                <ClipboardList className="mr-1 h-3.5 w-3.5" /> Load Ministar list
+              </Button>
             </div>
           </div>
         )}

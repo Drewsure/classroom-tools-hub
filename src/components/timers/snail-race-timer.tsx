@@ -144,12 +144,12 @@ export function SnailRaceTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
       {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="snail-race" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn(
           "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
-          isSetup ? "h-[calc(100dvh-34rem)] min-h-[22rem]" : "h-[calc(100dvh-9rem)] min-h-[40rem]",
+          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
           skin.bgGradient,
         )}>
           {/* Themed ambient particles */}

@@ -83,7 +83,7 @@ export function ActivityHub() {
   }, [expanded]);
 
   return (
-    <div className="flex flex-col gap-2 w-full max-w-7xl mx-auto h-[calc(100dvh-10.5rem)] overflow-y-auto lg:overflow-hidden">
+    <div className="flex flex-col gap-2 w-full max-w-7xl mx-auto h-[calc(100vh-10.5rem)] overflow-y-auto lg:overflow-hidden">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2 rounded-3xl bg-gradient-to-r from-cyan-400/28 via-slate-900/86 to-violet-500/24 border border-cyan-200/20 shadow-xl">
         <h2 className="text-lg font-black text-white flex items-center gap-3">

@@ -83,7 +83,7 @@ export function ClassicTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
+    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
       {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="classic" />}
 
       <ShakeWrapper intensity={shakeIntensity} className="flex justify-center">

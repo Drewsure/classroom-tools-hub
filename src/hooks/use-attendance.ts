@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { MINISTAR_WEEKLY_SCHEDULE_TEXT } from "@/lib/ministar-weekly-schedule";
 
 /* ============================================================
    ATTENDANCE STORE — browser-only (never committed to git)
@@ -264,6 +265,10 @@ export function useAttendance() {
     return parsed.length;
   }, []);
 
+  const importMinistarClasses = useCallback((mode: "replace" | "merge" = "merge"): number => {
+    return importClasses(MINISTAR_WEEKLY_SCHEDULE_TEXT, mode);
+  }, [importClasses]);
+
   const removeClass = useCallback((id: string) => {
     const cs = readClasses().filter((c) => c.id !== id);
     writeClasses(cs);
@@ -339,7 +344,7 @@ export function useAttendance() {
   return {
     classes, activeClass, today: todayStr(),
     entryFor, activeStudents, setField, markAll, cycleCard,
-    selectClass, saveCustomList, importClasses, removeClass,
+    selectClass, saveCustomList, importClasses, importMinistarClasses, removeClass,
     yearDates, yearStats, exportDayCSV, exportYearCSV,
   };
 }
