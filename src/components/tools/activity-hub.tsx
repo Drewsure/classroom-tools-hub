@@ -265,7 +265,7 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
               </Button>
             )}
             {!timer.isIdle && !isFinished && (
-              <Button onClick={handleReset} size="sm" variant="outline" className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 ml-2">
+              <Button onClick={handleReset} size="sm" variant="outline" className="classroom-control-button ml-2 rounded-full hover:text-slate-950">
                 <RotateCcw className="mr-1 h-3.5 w-3.5" /> Reset
               </Button>
             )}
@@ -280,7 +280,7 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
       {isEditable && (
         <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2">
           <div>
-            <p className="text-[10px] font-semibold text-white/60 uppercase tracking-wider mb-1">Quick presets</p>
+            <p className="classroom-muted-label mb-1 text-[10px] uppercase tracking-wider">Quick presets</p>
             <div className="flex flex-wrap gap-1.5">
               {TIMER_PRESETS.map((preset) => (
                 <button
@@ -290,7 +290,7 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
                     "px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all",
                     totalInput === preset.seconds
                       ? "bg-cyan-500 text-white border-cyan-400 scale-105 shadow"
-                      : "bg-white/10 text-white border-white/20 hover:bg-white/20",
+                      : "classroom-control-button hover:text-slate-950",
                   )}
                 >
                   {preset.label}
@@ -299,12 +299,12 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
             </div>
           </div>
           <div>
-            <p className="text-[10px] font-semibold text-white/60 uppercase tracking-wider mb-1">Custom time</p>
+            <p className="classroom-muted-label mb-1 text-[10px] uppercase tracking-wider">Custom time</p>
             <div className="flex items-center justify-center gap-2">
               <TimeInputMini label="Hours" value={hours} onChange={setHours} max={23} />
-              <span className="text-xl font-bold text-white/70 pb-4">:</span>
+              <span className="pb-4 text-xl font-black text-white">:</span>
               <TimeInputMini label="Min" value={minutes} onChange={setMinutes} max={59} />
-              <span className="text-xl font-bold text-white/70 pb-4">:</span>
+              <span className="pb-4 text-xl font-black text-white">:</span>
               <TimeInputMini label="Sec" value={seconds} onChange={setSeconds} max={59} />
             </div>
           </div>
@@ -324,9 +324,9 @@ function TimeInputMini({ label, value, onChange, max }: { label: string; value: 
           const v = parseInt(e.target.value, 10);
           if (isNaN(v)) onChange(0); else onChange(Math.max(0, Math.min(max, v)));
         }}
-        className="w-14 h-11 text-center text-lg font-bold bg-white/10 border-white/25 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="classroom-input h-11 w-14 text-center text-lg font-black [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
-      <span className="text-[9px] text-white/60 mt-0.5 font-semibold uppercase tracking-wide">{label}</span>
+      <span className="mt-0.5 text-[9px] font-black uppercase tracking-wide text-white">{label}</span>
     </div>
   );
 }
@@ -463,7 +463,7 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
               <Button disabled className="rounded-full px-6 bg-white/30 text-white font-bold" size="lg">Rolling...</Button>
             )}
             {(phase === "result" || used.length > 0) && (
-              <Button onClick={handleReset} size="sm" variant="outline" className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 ml-2">
+              <Button onClick={handleReset} size="sm" variant="outline" className="classroom-control-button ml-2 rounded-full hover:text-slate-950">
                 <RotateCcw className="mr-1 h-3.5 w-3.5" /> Reset
               </Button>
             )}
@@ -482,10 +482,10 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
       <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2">
         {/* Mode toggle */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">Mode:</span>
-          <button onClick={() => switchMode("students")} className={cn("px-3 py-1 rounded-full text-xs font-bold border transition-all", mode === "students" ? "bg-white text-slate-900 border-white scale-105" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>👥 Students</button>
-          <button onClick={() => switchMode("numbers")} className={cn("px-3 py-1 rounded-full text-xs font-bold border transition-all", mode === "numbers" ? "bg-white text-slate-900 border-white scale-105" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>🔢 Numbers</button>
-          <button onClick={() => { setNoRepeat(!noRepeat); setUsed([]); sound.playClick(); }} className={cn("flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border transition-all", noRepeat ? "bg-emerald-500/30 text-emerald-200 border-emerald-400/50" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+          <span className="classroom-muted-label text-[10px] uppercase tracking-wider">Mode:</span>
+          <button onClick={() => switchMode("students")} className={cn("px-3 py-1 rounded-full text-xs font-black border transition-all", mode === "students" ? "classroom-control-button-active scale-105" : "classroom-control-button")}>👥 Students</button>
+          <button onClick={() => switchMode("numbers")} className={cn("px-3 py-1 rounded-full text-xs font-black border transition-all", mode === "numbers" ? "classroom-control-button-active scale-105" : "classroom-control-button")}>🔢 Numbers</button>
+          <button onClick={() => { setNoRepeat(!noRepeat); setUsed([]); sound.playClick(); }} className={cn("flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black border transition-all", noRepeat ? "bg-emerald-400 text-slate-950 border-emerald-500" : "classroom-control-button")}>
             {noRepeat && <Check className="h-3 w-3" />} No-Repeat
           </button>
         </div>
@@ -507,16 +507,16 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
           <>
             <div className="flex flex-wrap gap-1.5 items-center">
               {DICE_PRESETS.map((n) => (
-                <button key={n} onClick={() => handleSidesChange(n)} className={cn("px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all", sides === n ? "bg-rose-500 text-white border-rose-400 scale-105 shadow" : "bg-white/10 text-white border-white/20 hover:bg-white/20")}>d{n}</button>
+                <button key={n} onClick={() => handleSidesChange(n)} className={cn("px-2.5 py-1 rounded-full text-[11px] font-black border transition-all", sides === n ? "bg-rose-500 text-white border-rose-600 scale-105 shadow" : "classroom-control-button")}>d{n}</button>
               ))}
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => handleSidesChange(sides - 1)} className="w-7 h-7 rounded-full bg-white/10 border border-white/25 text-white hover:bg-white/20 flex items-center justify-center"><Minus className="h-3 w-3" /></button>
+              <button onClick={() => handleSidesChange(sides - 1)} className="classroom-control-button flex h-7 w-7 items-center justify-center rounded-full"><Minus className="h-3 w-3" /></button>
               <Input type="number" min={2} max={100} value={sides}
                 onChange={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) handleSidesChange(v); }}
-                className="w-14 h-8 text-center text-sm font-bold bg-white/10 border-white/25 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <button onClick={() => handleSidesChange(sides + 1)} className="w-7 h-7 rounded-full bg-white/10 border border-white/25 text-white hover:bg-white/20 flex items-center justify-center"><Plus className="h-3 w-3" /></button>
-              <span className="text-[10px] text-white/40">sides (2-100)</span>
+                className="classroom-input h-8 w-14 text-center text-sm font-black [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+              <button onClick={() => handleSidesChange(sides + 1)} className="classroom-control-button flex h-7 w-7 items-center justify-center rounded-full"><Plus className="h-3 w-3" /></button>
+              <span className="text-[10px] font-bold text-white">sides (2-100)</span>
             </div>
           </>
         )}
@@ -589,7 +589,7 @@ function TallyPanel({ skin: _skin, expanded, onToggleExpand }: PanelProps) {
         <div><p className="text-[9px] font-bold uppercase tracking-wider text-white/40">Teams</p><p className="text-base font-black text-white">{teams.length}</p></div>
         <div><p className="text-[9px] font-bold uppercase tracking-wider text-white/40">Total</p><p className="text-base font-black text-emerald-400">{total}</p></div>
         <div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-wider text-white/40">Leader</p><p className="text-base font-black text-yellow-400 truncate max-w-[90px]">{leader && leader.value > 0 ? leader.label : "–"}</p></div>
-        <button onClick={addTeam} disabled={teams.length >= 6} className="px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold hover:bg-white/20 disabled:opacity-30 flex items-center gap-1"><Plus className="h-3 w-3" /> Team</button>
+        <button onClick={addTeam} disabled={teams.length >= 6} className="classroom-control-button flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] disabled:opacity-30"><Plus className="h-3 w-3" /> Team</button>
       </div>
 
       {/* Teams grid (scrolls inside) */}
@@ -733,9 +733,9 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
     <PanelShell icon={<Dices className="h-4 w-4" />} label="Flash Cards" accent="text-violet-300" expanded={expanded} onToggleExpand={onToggleExpand} ariaLabel="Flash card panel">
       {/* Group select */}
       <div className="shrink-0 flex items-center gap-2">
-        <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider shrink-0">Set:</span>
+        <span className="classroom-muted-label shrink-0 text-[10px] uppercase tracking-wider">Set:</span>
         <select value={groupId} onChange={(e) => { setGroupId(e.target.value); sound.playClick(); }}
-          className="flex-1 min-w-0 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold px-2 py-1.5">
+          className="classroom-input flex-1 min-w-0 rounded-xl px-2 py-1.5 text-xs font-black">
           {groups.map((g) => (
             <option key={g.id} value={g.id} className="bg-slate-900">{g.name} ({g.cards.length})</option>
           ))}
@@ -774,7 +774,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
 
       {/* Controls */}
       <div className="shrink-0 flex gap-2 justify-center items-center flex-wrap">
-        <Button onClick={goPrev} size="sm" variant="outline" className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20"><ChevronLeft className="h-4 w-4" /> Prev</Button>
+        <Button onClick={goPrev} size="sm" variant="outline" className="classroom-control-button rounded-full hover:text-slate-950"><ChevronLeft className="h-4 w-4" /> Prev</Button>
         {phase === "drawing" ? (
           <Button disabled size="sm" className="rounded-full px-5 bg-white/30 text-white">Drawing...</Button>
         ) : (
@@ -784,7 +784,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
         <button onClick={playWord} className="w-9 h-9 rounded-full bg-fuchsia-500/20 border border-fuchsia-400/40 text-fuchsia-200 hover:bg-fuchsia-500/35 flex items-center justify-center shrink-0" title="Say the word">
           <Volume2 className="h-4 w-4" />
         </button>
-        <Button onClick={() => { setUsed([]); setPhase("idle"); sound.playClick(); }} size="sm" variant="outline" className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Reset</Button>
+        <Button onClick={() => { setUsed([]); setPhase("idle"); sound.playClick(); }} size="sm" variant="outline" className="classroom-control-button rounded-full hover:text-slate-950"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Reset</Button>
       </div>
     </PanelShell>
   );

@@ -705,7 +705,11 @@ export function useDramaticSound() {
 
   useEffect(() => {
     return () => {
-      if (ctxRef.current) void ctxRef.current.close();
+      const ctx = ctxRef.current;
+      ctxRef.current = null;
+      if (ctx && ctx.state !== "closed") {
+        void ctx.close().catch(() => undefined);
+      }
     };
   }, []);
 

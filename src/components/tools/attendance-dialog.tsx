@@ -22,7 +22,7 @@ function ToggleChip({ on, emoji, label, color, onClick }: {
   return (
     <button onClick={onClick} title={label}
       className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 text-xl sm:text-2xl flex items-center justify-center transition-all active:scale-90 shrink-0",
-        on ? color : "bg-white/5 text-white/25 border-white/10 hover:bg-white/10")}>
+        on ? color : "bg-white text-slate-500 border-slate-300 hover:bg-cyan-50 hover:text-slate-900")}>
       {emoji}
     </button>
   );
@@ -94,7 +94,7 @@ if (!open) return null;
             {cls && <span className="text-xs text-white/40 font-normal">{att.today}</span>}
           </h2>
           <Button onClick={onClose} variant="outline" size="icon"
-            className="rounded-full bg-white/10 border-white/25 text-white hover:bg-white/20 h-10 w-10">
+            className="h-10 w-10 rounded-full border-white bg-white text-slate-900 hover:bg-cyan-100">
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -115,7 +115,7 @@ if (!open) return null;
           <>
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <select value={cls.id} onChange={(e) => att.selectClass(e.target.value)}
-                className="flex-1 min-w-[220px] rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold px-3 py-2">
+                className="classroom-input flex-1 min-w-[220px] rounded-xl px-3 py-2 text-sm font-black">
                 {att.classes.map((c) => (
                   <option key={c.id} value={c.id} className="bg-slate-900">
                     {c.name} · {c.day} {c.time} ({c.students.length})
@@ -123,7 +123,7 @@ if (!open) return null;
                 ))}
               </select>
               <Button onClick={syncToRoster} size="sm" variant="outline"
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20">
+                className="classroom-control-button rounded-full hover:text-slate-950">
                 <RefreshCw className="mr-1 h-3.5 w-3.5" /> Sync to pickers
               </Button>
               <Button size="sm" variant="outline"
@@ -138,21 +138,21 @@ if (!open) return null;
                 <Check className="mr-1 h-3.5 w-3.5" /> All Present
               </Button>
               <Button size="sm" variant="outline" onClick={() => att.markAll(0)}
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20">All Absent</Button>
+                className="classroom-control-button rounded-full hover:text-slate-950">All Absent</Button>
               <Button size="sm" variant="outline" onClick={() => setShowYear(!showYear)}
-                className={cn("rounded-full", showYear ? "bg-sky-500/30 text-sky-100 border-sky-400/40" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+                className={cn("rounded-full", showYear ? "classroom-control-button-active" : "classroom-control-button hover:text-slate-950")}>
                 <CalendarDays className="mr-1 h-3.5 w-3.5" /> Year View
               </Button>
               <Button size="sm" variant="outline" onClick={() => setShowImport(!showImport)}
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20">
+                className="classroom-control-button rounded-full hover:text-slate-950">
                 <Upload className="mr-1 h-3.5 w-3.5" /> Import
               </Button>
               <Button size="sm" variant="outline" onClick={att.exportDayCSV}
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20">
+                className="classroom-control-button rounded-full hover:text-slate-950">
                 <Download className="mr-1 h-3.5 w-3.5" /> CSV Day
               </Button>
               <Button size="sm" variant="outline" onClick={att.exportYearCSV}
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20">
+                className="classroom-control-button rounded-full hover:text-slate-950">
                 <Download className="mr-1 h-3.5 w-3.5" /> CSV Year
               </Button>
             </div>
@@ -161,10 +161,10 @@ if (!open) return null;
               {cls.students.map((s) => {
                 const e = att.entryFor(s.name);
                 return (
-                  <div key={s.name} className="flex items-center gap-2 sm:gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2">
+                  <div key={s.name} className="flex items-center gap-2 sm:gap-3 rounded-xl border border-white/70 bg-white/95 px-3 py-2 shadow-sm">
                     <div className="flex-1 min-w-0">
-                      <p className="text-base sm:text-xl font-bold text-white truncate">{s.name}</p>
-                      {s.grade && <p className="text-xs text-white/40">{s.grade}</p>}
+                      <p className="text-base sm:text-xl font-black text-slate-950 truncate">{s.name}</p>
+                      {s.grade && <p className="text-xs font-semibold text-slate-500">{s.grade}</p>}
                     </div>
                     <ToggleChip on={e.p === 1} emoji="✓" label="Present"
                       color="bg-emerald-500/90 border-emerald-300 text-white"
@@ -178,7 +178,7 @@ if (!open) return null;
                     <button onClick={() => att.cycleCard(s.name)}
                       title={s.card ? `Card: ${CARD_LABEL[s.card]} — click to cycle` : "No card — click to cycle"}
                       className={cn("w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 text-sm font-black shrink-0 transition-all hover:scale-110 active:scale-95",
-                        s.card ? CARD_STYLES[s.card] : "bg-white/5 text-white/30 border-white/15")}>
+                        s.card ? CARD_STYLES[s.card] : "bg-white text-slate-500 border-slate-300")}>
                       {s.card ?? "–"}
                     </button>
                   </div>

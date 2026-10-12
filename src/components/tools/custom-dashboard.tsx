@@ -251,8 +251,8 @@ export function CustomDashboard() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button onClick={() => setShowAddMenu(!showAddMenu)} size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white"><Plus className="mr-1 h-4 w-4" /> Add Widget</Button>
-          <Button onClick={() => setShowSaveDialog(!showSaveDialog)} size="sm" variant="outline" className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"><Save className="mr-1 h-3.5 w-3.5" /> Save</Button>
-          <Button onClick={() => { setShowLoadDialog(!showLoadDialog); setSavedDashboards(readDashboards()); }} size="sm" variant="outline" className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"><FolderOpen className="mr-1 h-3.5 w-3.5" /> Load{Object.keys(savedDashboards).length > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-xs">{Object.keys(savedDashboards).length}</span>}</Button>
+          <Button onClick={() => setShowSaveDialog(!showSaveDialog)} size="sm" variant="outline" className="classroom-control-button hover:bg-cyan-50 hover:text-slate-950"><Save className="mr-1 h-3.5 w-3.5" /> Save</Button>
+          <Button onClick={() => { setShowLoadDialog(!showLoadDialog); setSavedDashboards(readDashboards()); }} size="sm" variant="outline" className="classroom-control-button hover:bg-cyan-50 hover:text-slate-950"><FolderOpen className="mr-1 h-3.5 w-3.5" /> Load{Object.keys(savedDashboards).length > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-cyan-100 text-xs text-cyan-900">{Object.keys(savedDashboards).length}</span>}</Button>
         </div>
       </div>
 

@@ -141,11 +141,12 @@ export function useSoundPad() {
   // Cleanup AudioContext on unmount
   useEffect(() => {
     return () => {
-      if (ctxRef.current) {
-        try { void ctxRef.current.close(); } catch { /* ignore */ }
-        ctxRef.current = null;
-        masterGainRef.current = null;
-        compressorRef.current = null;
+      const ctx = ctxRef.current;
+      ctxRef.current = null;
+      masterGainRef.current = null;
+      compressorRef.current = null;
+      if (ctx && ctx.state !== "closed") {
+        void ctx.close().catch(() => undefined);
       }
     };
   }, []);
@@ -244,11 +245,12 @@ export function useSoundPad() {
     activeSourcesRef.current.clear();
 
     // Close and recreate AudioContext to kill any synth fallbacks
-    if (ctxRef.current) {
-      try { void ctxRef.current.close(); } catch { /* ignore */ }
-      ctxRef.current = null;
-      masterGainRef.current = null;
-      compressorRef.current = null;
+    const ctx = ctxRef.current;
+    ctxRef.current = null;
+    masterGainRef.current = null;
+    compressorRef.current = null;
+    if (ctx && ctx.state !== "closed") {
+      void ctx.close().catch(() => undefined);
     }
   }, []);
 

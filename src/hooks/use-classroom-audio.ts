@@ -143,10 +143,11 @@ export function useClassroomAudio() {
         }
       });
       activeRef.current.clear();
-      if (ctxRef.current) {
-        void ctxRef.current.close().catch(() => undefined);
-        ctxRef.current = null;
-        outputRef.current = null;
+      const ctx = ctxRef.current;
+      ctxRef.current = null;
+      outputRef.current = null;
+      if (ctx && ctx.state !== "closed") {
+        void ctx.close().catch(() => undefined);
       }
     };
   }, []);
