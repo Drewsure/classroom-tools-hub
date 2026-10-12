@@ -341,16 +341,18 @@ export function useDramaticSound() {
     }, 200);
   }, [playTone, playNoise, playChord, playSample]);
 
-  // Sound: explosion (cinematic boom with debris)
+  // Sound: classroom-safe explosion (audible impact blast with debris)
   const playExplosion = useCallback(() => {
-    // Deep blast with a short debris tail. Keep this synthetic so it sounds like a boom, not a buzzer.
-    playTone(42, 1.35, { type: "sawtooth", volume: 0.62, sweepTo: 22, attack: 0.002 });
-    playTone(86, 0.75, { type: "triangle", volume: 0.36, sweepTo: 34, attack: 0.004 });
-    playNoise(1.2, 0.62, 260);
-    setTimeout(() => playNoise(0.36, 0.22, 3200, "highpass"), 90);
-    setTimeout(() => playNoise(0.28, 0.16, 900, "bandpass"), 260);
-    setTimeout(() => playAlarm(), 620);
-  }, [playTone, playNoise, playAlarm]);
+    void playSample("whoosh.mp3", 0.34);
+    // Phone and classroom speakers often miss sub-bass, so the punch sits in the
+    // 120-300 Hz range instead of only rumbling below 80 Hz.
+    playTone(155, 0.42, { type: "sawtooth", volume: 0.58, sweepTo: 58, attack: 0.001, release: 0.36 });
+    playTone(285, 0.16, { type: "square", volume: 0.18, sweepTo: 120, attack: 0.001, release: 0.12 });
+    playNoise(0.24, 0.74, 1550, "lowpass");
+    setTimeout(() => playTone(92, 0.72, { type: "triangle", volume: 0.34, sweepTo: 45, attack: 0.01, release: 0.58 }), 70);
+    setTimeout(() => playNoise(0.42, 0.26, 3400, "highpass"), 105);
+    setTimeout(() => playNoise(0.3, 0.18, 900, "bandpass"), 250);
+  }, [playTone, playNoise, playSample]);
 
   // Sound: dramatic countdown beep (warm bell-like)
   const playCountdownBeep = useCallback(
