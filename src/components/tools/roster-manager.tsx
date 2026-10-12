@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStudentRoster } from "@/hooks/use-student-roster";
-import { Save, FolderOpen, Trash2, Check, X, Users } from "lucide-react";
+import { Check, FolderOpen, Save, Trash2, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RosterManagerProps {
@@ -14,21 +14,10 @@ interface RosterManagerProps {
   onStudentsChange?: (students: string[]) => void;
 }
 
-/**
- * Shared roster manager — appears in both the Name Picker and Group Generator.
- * Lets teachers:
- * - See which roster is currently active
- * - Save current names as a new named class
- * - Switch between saved classes (instantly loads in both tools)
- * - Delete saved classes
- * - Rename the active class
- */
 export function RosterManager({ localStudents, onStudentsChange }: RosterManagerProps) {
   const {
-    students,
     activeRoster,
     allRosters,
-    setStudents,
     saveAsNew,
     loadRoster,
     deleteRoster,
@@ -43,7 +32,6 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
 
   const handleSave = () => {
     const name = newRosterName.trim() || `Class ${allRosters.length + 1}`;
-    // Save the LOCAL students (latest edits) to a new roster
     saveAsNew(name, localStudents);
     setNewRosterName("");
     setShowSaveDialog(false);
@@ -53,21 +41,13 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
   const handleLoad = (id: string) => {
     loadRoster(id);
     const loaded = allRosters.find((r) => r.id === id);
-    if (loaded) {
-      onStudentsChange?.(loaded.students);
-    }
+    if (loaded) onStudentsChange?.(loaded.students);
     setShowLoadDialog(false);
   };
 
   const handleDelete = (id: string) => {
     deleteRoster(id);
-    // After delete, notify with the new active roster's students
-    const remaining = allRosters.filter((r) => r.id !== id);
-    if (remaining.length > 0) {
-      // The hook will auto-switch to the first remaining; we'll be notified via event
-    } else {
-      onStudentsChange?.([]);
-    }
+    if (allRosters.filter((r) => r.id !== id).length === 0) onStudentsChange?.([]);
   };
 
   const handleRenameSave = () => {
@@ -76,75 +56,79 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
   };
 
   return (
-    <div className="w-full">
-      {/* Active roster indicator + actions */}
-      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-        <div className="flex items-center gap-2 text-white">
-          <Users className="h-4 w-4 text-white/60" />
+    <div className="w-full rounded-2xl border border-sky-200 bg-white p-3 text-slate-950 shadow-xl shadow-sky-950/10">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-100 text-sky-800">
+            <Users className="h-5 w-5" />
+          </span>
           {renameMode ? (
-            <div className="flex items-center gap-1">
+            <div className="flex min-w-0 items-center gap-1">
               <Input
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleRenameSave()}
-                className="h-7 w-40 bg-white/10 border-white/20 text-white text-sm"
+                className="h-9 w-44 border-sky-300 bg-white text-sm font-bold text-slate-950"
                 autoFocus
               />
               <button
                 onClick={handleRenameSave}
-                className="p-1 text-emerald-400 hover:bg-white/10 rounded"
+                className="rounded-lg bg-emerald-100 p-2 text-emerald-800 hover:bg-emerald-200"
+                aria-label="Save class name"
               >
                 <Check className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() => setRenameMode(false)}
-                className="p-1 text-white/50 hover:bg-white/10 rounded"
+                className="rounded-lg bg-slate-100 p-2 text-slate-700 hover:bg-slate-200"
+                aria-label="Cancel rename"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ) : (
-            <>
-              <span className="text-sm font-bold">
-                {activeRoster?.name ?? "Unsaved List"}
-              </span>
-              <span className="text-xs text-white/50">
-                ({localStudents.length} students)
-              </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="truncate text-base font-black">
+                  {activeRoster?.name ?? "Unsaved List"}
+                </span>
+                <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-black text-slate-700">
+                  {localStudents.length} students
+                </span>
+              </div>
               {activeRoster && (
                 <button
                   onClick={() => {
                     setRenameMode(true);
                     setRenameValue(activeRoster.name);
                   }}
-                  className="text-white/40 hover:text-white text-xs underline"
+                  className="mt-1 rounded-full bg-sky-50 px-2 py-1 text-xs font-black text-sky-800 underline hover:bg-sky-100"
                 >
-                  rename
+                  Rename class
                 </button>
               )}
-            </>
+            </div>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             onClick={() => setShowSaveDialog(!showSaveDialog)}
             variant="outline"
             size="sm"
-            className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="border-slate-300 bg-white font-black text-slate-900 hover:bg-sky-50"
           >
             <Save className="mr-1 h-3.5 w-3.5" />
             Save Class
           </Button>
           <Button
             onClick={() => setShowLoadDialog(!showLoadDialog)}
-            variant="outline"
             size="sm"
-            className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="bg-sky-700 font-black text-white shadow-md shadow-sky-950/15 hover:bg-sky-800"
           >
             <FolderOpen className="mr-1 h-3.5 w-3.5" />
             Load Class
             {allRosters.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-xs">
+              <span className="ml-1 rounded-full bg-white px-1.5 py-0.5 text-xs text-sky-900">
                 {allRosters.length}
               </span>
             )}
@@ -152,26 +136,21 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
         </div>
       </div>
 
-      {/* Save dialog */}
       {showSaveDialog && (
-        <div className="mb-3 p-4 rounded-2xl bg-black/30 border border-white/10">
-          <p className="text-xs text-white/60 mb-2 font-semibold uppercase tracking-wider">
+        <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <p className="mb-2 text-xs font-black uppercase tracking-wider text-amber-900">
             Save current list as a new class
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Input
               value={newRosterName}
               onChange={(e) => setNewRosterName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
               placeholder='e.g. "Class 5A", "Period 2"'
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="min-w-48 flex-1 border-amber-300 bg-white text-slate-950 placeholder:text-slate-500"
               autoFocus
             />
-            <Button
-              onClick={handleSave}
-              size="sm"
-              className="bg-emerald-500 hover:bg-emerald-600 text-white shrink-0"
-            >
+            <Button onClick={handleSave} size="sm" className="shrink-0 bg-emerald-600 font-black text-white hover:bg-emerald-700">
               <Save className="mr-1 h-4 w-4" />
               Save
             </Button>
@@ -179,66 +158,64 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
               onClick={() => setShowSaveDialog(false)}
               size="sm"
               variant="outline"
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white shrink-0"
+              className="shrink-0 border-slate-300 bg-white font-black text-slate-900 hover:bg-slate-100"
             >
               Cancel
             </Button>
           </div>
-          <p className="text-xs text-white/40 mt-2">
-            Saving creates a new class roster. The saved list will be available
-            in both the Name Picker and Group Generator.
+          <p className="mt-2 text-xs font-semibold text-amber-950">
+            Saved classes are shared with Random Name Picker and Group Generator.
           </p>
         </div>
       )}
 
-      {/* Load dialog */}
       {showLoadDialog && (
-        <div className="mb-3 p-4 rounded-2xl bg-black/30 border border-white/10">
-          <p className="text-xs text-white/60 mb-3 font-semibold uppercase tracking-wider">
+        <div className="mb-3 rounded-2xl border border-sky-200 bg-sky-50 p-4">
+          <p className="mb-3 text-xs font-black uppercase tracking-wider text-sky-950">
             {allRosters.length > 0
               ? "Select a saved class to load"
-              : "No saved classes yet — save your current list first!"}
+              : "No saved classes yet. Use the Ministar loader or save your current list first."}
           </p>
           {allRosters.length > 0 && (
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+            <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
               {allRosters.map((roster) => (
                 <div
                   key={roster.id}
                   className={cn(
-                    "flex items-center justify-between gap-2 p-3 rounded-xl border transition-colors",
+                    "flex items-center justify-between gap-2 rounded-xl border p-3 transition-colors",
                     roster.id === activeRoster?.id
-                      ? "bg-emerald-500/20 border-emerald-400/40"
-                      : "bg-white/5 border-white/10 hover:bg-white/10",
+                      ? "border-emerald-300 bg-emerald-100"
+                      : "border-slate-200 bg-white hover:bg-sky-100",
                   )}
                 >
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-white text-sm truncate">
+                      <span className="truncate text-sm font-black text-slate-950">
                         {roster.name}
                       </span>
                       {roster.id === activeRoster?.id && (
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 font-bold">
+                        <span className="rounded-full bg-emerald-600 px-1.5 py-0.5 text-xs font-black text-white">
                           ACTIVE
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-white/50">
+                    <span className="text-xs font-bold text-slate-600">
                       {roster.students.length} students
                     </span>
                   </div>
-                  <div className="flex gap-1 shrink-0">
+                  <div className="flex shrink-0 gap-1">
                     {roster.id !== activeRoster?.id && (
                       <Button
                         onClick={() => handleLoad(roster.id)}
                         size="sm"
-                        className="bg-white text-slate-900 hover:bg-white/90 h-7 text-xs"
+                        className="h-8 bg-sky-700 text-xs font-black text-white hover:bg-sky-800"
                       >
                         Load
                       </Button>
                     )}
                     <button
                       onClick={() => handleDelete(roster.id)}
-                      className="p-1.5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                      className="rounded p-1.5 text-slate-500 transition-colors hover:bg-red-100 hover:text-red-700"
                       aria-label="Delete roster"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -252,17 +229,16 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
             onClick={() => setShowLoadDialog(false)}
             size="sm"
             variant="outline"
-            className="mt-3 bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white"
+            className="mt-3 border-slate-300 bg-white font-black text-slate-900 hover:bg-slate-100"
           >
             Close
           </Button>
         </div>
       )}
 
-      {/* Sync indicator */}
       {activeRoster && (
-        <p className="text-xs text-white/40 text-center">
-          🔄 Shared with Random Name Picker & Group Generator
+        <p className="pt-1 text-center text-xs font-bold text-slate-600">
+          Shared with Random Name Picker and Group Generator
         </p>
       )}
     </div>
