@@ -23,7 +23,9 @@ export function ServiceWorkerRegister() {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
         .then((reg) => {
-          // Check for updates every hour
+          // Ask for a fresh worker immediately, then periodically. This helps
+          // iOS home-screen installs pick up Vercel deployments without waiting.
+          reg.update().catch(() => {});
           setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
         })
         .catch((err) => {
