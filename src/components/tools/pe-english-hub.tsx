@@ -25,6 +25,12 @@ import { cn } from "@/lib/utils";
    ============================================================ */
 
 type Phase = "warmup" | "drill" | "main" | "cooldown" | "stations";
+type DiceOption = {
+  text: string;
+  emoji: string;
+  visual?: "movement" | "bodyPart";
+  id?: string;
+};
 
 const PHASES: { id: Phase; name: string; emoji: string; minutes: number; color: string; desc: string }[] = [
   { id: "warmup",  name: "Warm-Up: Simon Says",     emoji: "🙋", minutes: 10, color: "from-blue-500 to-cyan-600",    desc: "Listening comprehension & body parts" },
@@ -68,18 +74,18 @@ const SIMON_TRICKS = [
 
 // ===== Body part visuals =====
 const BODY_PARTS = [
-  { en: "Head", jp: "あたま", emoji: "🙂", top: "3%", left: "50%" },
-  { en: "Shoulders", jp: "かた", emoji: "↔", top: "18%", left: "50%" },
-  { en: "Knees", jp: "ひざ", emoji: "→", top: "68%", left: "36%" },
-  { en: "Toes", jp: "つまさき", emoji: "↓", top: "93%", left: "66%" },
-  { en: "Elbows", jp: "ひじ", emoji: "→", top: "39%", left: "20%" },
-  { en: "Legs", jp: "あし", emoji: "↕", top: "68%", left: "50%" },
-  { en: "Arms", jp: "うで", emoji: "↔", top: "34%", left: "50%" },
-  { en: "Hands", jp: "て", emoji: "✋", top: "51%", left: "15%" },
-  { en: "Fingers", jp: "ゆび", emoji: "☝", top: "47%", left: "82%" },
-  { en: "Back", jp: "せなか", emoji: "↩", top: "33%", left: "63%" },
-  { en: "Backside", jp: "おしり", emoji: "↙", top: "55%", left: "62%" },
-  { en: "Ankle", jp: "あしくび", emoji: "→", top: "87%", left: "37%" },
+  { id: "head", en: "Head", jp: "あたま", emoji: "HEAD", top: "11%", left: "50%", calloutX: "67%", calloutY: "12%" },
+  { id: "shoulders", en: "Shoulders", jp: "かた", emoji: "SHOULDERS", top: "27%", left: "50%", calloutX: "72%", calloutY: "25%" },
+  { id: "knees", en: "Knees", jp: "ひざ", emoji: "KNEES", top: "70%", left: "37%", calloutX: "72%", calloutY: "66%" },
+  { id: "toes", en: "Toes", jp: "つまさき", emoji: "TOES", top: "92%", left: "64%", calloutX: "74%", calloutY: "86%" },
+  { id: "elbows", en: "Elbows", jp: "ひじ", emoji: "ELBOWS", top: "44%", left: "25%", calloutX: "72%", calloutY: "42%" },
+  { id: "legs", en: "Legs", jp: "あし", emoji: "LEGS", top: "68%", left: "50%", calloutX: "72%", calloutY: "72%" },
+  { id: "arms", en: "Arms", jp: "うで", emoji: "ARMS", top: "41%", left: "50%", calloutX: "72%", calloutY: "38%" },
+  { id: "hands", en: "Hands", jp: "て", emoji: "HANDS", top: "56%", left: "18%", calloutX: "72%", calloutY: "52%" },
+  { id: "fingers", en: "Fingers", jp: "ゆび", emoji: "FINGERS", top: "53%", left: "83%", calloutX: "66%", calloutY: "48%" },
+  { id: "back", en: "Back", jp: "せなか", emoji: "BACK", top: "39%", left: "58%", calloutX: "72%", calloutY: "34%" },
+  { id: "backside", en: "Backside", jp: "おしり", emoji: "BACKSIDE", top: "58%", left: "56%", calloutX: "76%", calloutY: "58%" },
+  { id: "ankle", en: "Ankle", jp: "あしくび", emoji: "ANKLE", top: "86%", left: "39%", calloutX: "72%", calloutY: "82%" },
 ] as const;
 
 // ===== PE Flashcards (20 cards) =====
@@ -113,18 +119,18 @@ const RANDOM_CARD_BLOCKLIST = new Set(["turn", "free", "toss", "rope", "salad"])
 const RANDOM_PE_FLASHCARDS = PE_FLASHCARDS.filter((card) => !RANDOM_CARD_BLOCKLIST.has(card.id));
 
 // ===== PE Dice Presets =====
-const PE_DICE_PRESETS: Record<string, { text: string; emoji: string }[]> = {
+const PE_DICE_PRESETS: Record<string, DiceOption[]> = {
   movements: [
-    { text: "Stretch", emoji: "🙆" },
-    { text: "Jump",   emoji: "🤸" },
-    { text: "Run",    emoji: "🏃" },
-    { text: "Walk",   emoji: "🚶" },
-    { text: "Swim",   emoji: "🏊" },
-    { text: "Spin",   emoji: "🌀" },
-    { text: "Climb",  emoji: "🧗" },
-    { text: "Sing",   emoji: "🎤" },
+    { id: "stretch", text: "Stretch", emoji: "STRETCH", visual: "movement" },
+    { id: "jump", text: "Jump", emoji: "JUMP", visual: "movement" },
+    { id: "run", text: "Run", emoji: "RUN", visual: "movement" },
+    { id: "walk", text: "Walk", emoji: "WALK", visual: "movement" },
+    { id: "swim", text: "Swim", emoji: "SWIM", visual: "movement" },
+    { id: "spin", text: "Spin", emoji: "SPIN", visual: "movement" },
+    { id: "climb", text: "Climb", emoji: "CLIMB", visual: "movement" },
+    { id: "sing", text: "Sing", emoji: "SING", visual: "movement" },
   ],
-  bodyParts: BODY_PARTS.map((part) => ({ text: part.en, emoji: part.emoji })),
+  bodyParts: BODY_PARTS.map((part) => ({ id: part.id, text: part.en, emoji: part.emoji, visual: "bodyPart" })),
   animals: [
     { text: "Frog",     emoji: "🐸" },
     { text: "Bird",     emoji: "🐦" },
@@ -160,21 +166,42 @@ const STATIONS = [
 
 function BodyPartVisual({ part }: { part: (typeof BODY_PARTS)[number] }) {
   return (
-    <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-b from-sky-100 to-white shadow-inner">
-      <div className="absolute left-1/2 top-4 h-8 w-8 -translate-x-1/2 rounded-full border-4 border-slate-800 bg-white" />
-      <div className="absolute left-1/2 top-12 h-16 w-12 -translate-x-1/2 rounded-full border-4 border-slate-800 bg-orange-100" />
-      <div className="absolute left-[31%] top-[4.6rem] h-14 w-3 rotate-[24deg] rounded-full bg-slate-800" />
-      <div className="absolute right-[31%] top-[4.6rem] h-14 w-3 -rotate-[24deg] rounded-full bg-slate-800" />
-      <div className="absolute left-[27%] top-[7.6rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
-      <div className="absolute right-[27%] top-[7.6rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
-      <div className="absolute left-[42%] top-[7.2rem] h-16 w-3 rotate-[8deg] rounded-full bg-slate-800" />
-      <div className="absolute right-[42%] top-[7.2rem] h-16 w-3 -rotate-[8deg] rounded-full bg-slate-800" />
-      <div className="absolute left-[39%] top-[10rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
-      <div className="absolute right-[39%] top-[10rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
-      <div className="absolute left-[calc(50%-2.5rem)] top-[4rem] h-1.5 w-20 rounded-full bg-slate-800" />
-      <div className="absolute left-[43%] top-[6.5rem] h-8 w-10 rounded-b-full border-b-4 border-slate-800" />
+    <div className="relative h-52 w-full overflow-hidden rounded-2xl border-4 border-slate-900 bg-gradient-to-b from-sky-100 via-white to-amber-50 shadow-inner">
+      <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_20%_18%,#38bdf8_0_7px,transparent_8px),radial-gradient(circle_at_84%_28%,#facc15_0_8px,transparent_9px)]" />
+      <svg viewBox="0 0 220 260" className="absolute inset-0 h-full w-full" aria-hidden="true">
+        <path d="M110 43c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32z" fill="#fff7ed" stroke="#0f172a" strokeWidth="8" />
+        <path d="M80 128c8-28 52-28 60 0l10 58H70z" fill="#f97316" stroke="#0f172a" strokeWidth="8" strokeLinejoin="round" />
+        <path d="M78 132L38 176M142 132l40 44" fill="none" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" />
+        <path d="M40 176l-14 22M180 176l18 20" fill="none" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" />
+        <path d="M88 186L74 242M132 186l14 56" fill="none" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" />
+        <path d="M74 242H48M146 242h26" fill="none" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" />
+        <path d="M86 72h12M122 72h12" stroke="#0f172a" strokeWidth="6" strokeLinecap="round" />
+        <path d="M94 90c10 9 22 9 32 0" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
+        <path d="M66 118h88" stroke="#0f172a" strokeWidth="8" strokeLinecap="round" />
+        <circle cx="38" cy="176" r="9" fill="#fff" stroke="#0f172a" strokeWidth="5" />
+        <circle cx="182" cy="176" r="9" fill="#fff" stroke="#0f172a" strokeWidth="5" />
+        <circle cx="74" cy="206" r="9" fill="#fff" stroke="#0f172a" strokeWidth="5" />
+        <circle cx="146" cy="206" r="9" fill="#fff" stroke="#0f172a" strokeWidth="5" />
+      </svg>
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <marker id={`arrow-${part.id}`} markerHeight="7" markerWidth="7" orient="auto" refX="6" refY="3.5">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#ef4444" />
+          </marker>
+        </defs>
+        <line
+          x1={part.calloutX}
+          y1={part.calloutY}
+          x2={part.left}
+          y2={part.top}
+          stroke="#ef4444"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          markerEnd={`url(#arrow-${part.id})`}
+        />
+      </svg>
       <div
-        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500 px-2 py-1 text-lg font-black text-white shadow-lg ring-4 ring-white"
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-600 px-3 py-1 text-xs font-black uppercase text-white shadow-lg ring-4 ring-white"
         style={{ top: part.top, left: part.left }}
       >
         {part.emoji}
@@ -183,6 +210,90 @@ function BodyPartVisual({ part }: { part: (typeof BODY_PARTS)[number] }) {
         <p className="text-lg font-black text-slate-950">{part.en}</p>
       </div>
     </div>
+  );
+}
+
+function MovementVisual({ id, label }: { id?: string; label: string }) {
+  const body = (() => {
+    switch (id) {
+      case "stretch":
+        return <path d="M110 78v74M110 102L56 52M110 102l54-50M92 152l-36 70M128 152l36 70" />;
+      case "jump":
+        return <path d="M110 84v62M110 112L64 94M110 112l46-18M96 146l-48 42M124 146l48 42" />;
+      case "run":
+        return <path d="M118 92l-30 52 48 28M92 144l-54 4M136 172l42 48M112 126l56 6" />;
+      case "walk":
+        return <path d="M110 92v64M110 124l-42 30M110 126l42 18M100 156l-36 62M120 156l40 62" />;
+      case "swim":
+        return <path d="M58 142c30-28 60-28 92 0M88 118l48 48M52 180c42-18 78-18 120 0" />;
+      case "spin":
+        return <path d="M110 92v64M110 122l-48 2M110 122l48 2M94 156l-30 54M126 156l30 54" />;
+      case "climb":
+        return <path d="M72 54v174M148 54v174M72 92h76M72 134h76M72 176h76M114 96l-26 52 42 24M88 148l-26 34M130 172l22 46" />;
+      case "sing":
+        return <path d="M110 94v72M110 124l-42 30M110 124l42 30M94 166l-26 48M126 166l26 48" />;
+      default:
+        return <path d="M110 92v64M110 124l-42 30M110 126l42 18M96 156l-34 62M124 156l34 62" />;
+    }
+  })();
+
+  return (
+    <div className="relative h-full min-h-32 w-full overflow-hidden rounded-2xl border-4 border-slate-900 bg-gradient-to-br from-cyan-100 via-white to-yellow-100">
+      <svg viewBox="0 0 220 260" className="absolute inset-0 h-full w-full" aria-hidden="true">
+        <path d="M30 56h50M28 96h34M150 54h46M160 206h36M30 222h52" stroke="#38bdf8" strokeWidth="10" strokeLinecap="round" opacity=".45" />
+        {id === "spin" ? (
+          <path d="M62 82c32-42 104-42 128 8M176 76l18 20-28 6M158 198c-38 34-100 24-124-22M44 194l-18-20 28-6" fill="none" stroke="#f97316" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+        ) : null}
+        {id === "sing" ? (
+          <>
+            <path d="M154 64v84" stroke="#a855f7" strokeWidth="10" strokeLinecap="round" />
+            <circle cx="136" cy="148" r="18" fill="#a855f7" />
+            <path d="M172 58c22 8 28 24 18 42" fill="none" stroke="#a855f7" strokeWidth="8" strokeLinecap="round" />
+          </>
+        ) : null}
+        <circle cx="110" cy="56" r="28" fill="#fff7ed" stroke="#0f172a" strokeWidth="8" />
+        <g fill="none" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round">
+          {body}
+        </g>
+        <path d="M98 55h8M122 55h8" stroke="#0f172a" strokeWidth="6" strokeLinecap="round" />
+        <path d="M100 72c8 8 20 8 28 0" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
+      </svg>
+      <div className="absolute bottom-2 left-2 right-2 rounded-xl bg-white/92 px-2 py-1 text-center shadow">
+        <p className="text-xl font-black uppercase tracking-wide text-slate-950">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function DiceVisual({ option, large = false }: { option: DiceOption | null; large?: boolean }) {
+  if (!option) {
+    return <span className={cn("font-black text-slate-800", large ? "text-8xl" : "text-xl")}>?</span>;
+  }
+
+  if (option.visual === "bodyPart") {
+    const part = BODY_PARTS.find((bodyPart) => bodyPart.id === option.id);
+    if (part) {
+      return (
+        <div className={cn("w-full", large ? "max-w-[25rem]" : "max-w-[12rem]")}>
+          <BodyPartVisual part={part} />
+        </div>
+      );
+    }
+  }
+
+  if (option.visual === "movement") {
+    return (
+      <div className={cn("w-full", large ? "h-full max-h-[22rem] max-w-[25rem]" : "h-28 max-w-[11rem]")}>
+        <MovementVisual id={option.id} label={option.text} />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <span className={cn("leading-none", large ? "text-[8rem] sm:text-[10rem]" : "text-4xl")}>{option.emoji}</span>
+      <span className={cn("font-black text-slate-800 text-center px-2 leading-tight", large ? "text-4xl sm:text-5xl" : "text-sm")}>{option.text}</span>
+    </>
   );
 }
 
@@ -202,7 +313,7 @@ export function PEEnglishHub() {
   const [popupFlippedCard, setPopupFlippedCard] = useState<string | null>(null);
   const [randomCard, setRandomCard] = useState<typeof PE_FLASHCARDS[0] | null>(null);
   const [showJapanese, setShowJapanese] = useState(true);
-  const [diceResult, setDiceResult] = useState<{ text: string; emoji: string } | null>(null);
+  const [diceResult, setDiceResult] = useState<DiceOption | null>(null);
   const [diceCategory, setDiceCategory] = useState<keyof typeof PE_DICE_PRESETS>("movements");
   const [diceRolling, setDiceRolling] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(600);
@@ -474,7 +585,7 @@ export function PEEnglishHub() {
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center">
                 {BODY_PARTS.map(bp => (
-                  <div key={bp.en} className="px-2 py-2 rounded-lg bg-white/5 text-white text-xs font-bold">{bp.en} {bp.emoji}</div>
+                  <div key={bp.en} className="px-2 py-2 rounded-lg bg-white/5 text-white text-xs font-bold">{bp.en}</div>
                 ))}
               </div>
             </div>
@@ -761,17 +872,10 @@ export function PEEnglishHub() {
           {/* Dice display */}
           <div className="flex flex-col items-center gap-3">
             <div className={cn(
-              "w-32 h-32 rounded-2xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white gap-1",
+              "h-44 w-full max-w-64 rounded-2xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white gap-1 p-2",
               diceRolling && "animate-[diceTumble_0.3s_linear_infinite]"
             )}>
-              {diceResult ? (
-                <>
-                  <span className="text-4xl">{diceResult.emoji}</span>
-                  <span className="text-sm font-black text-slate-800 text-center px-2 leading-tight">{diceResult.text}</span>
-                </>
-              ) : (
-                <span className="text-xl font-black text-slate-800">?</span>
-              )}
+              <DiceVisual option={diceResult} />
             </div>
             <Button
               onClick={rollDice}
@@ -1010,17 +1114,10 @@ export function PEEnglishHub() {
                 </div>
                 <div className="flex flex-col items-center gap-8">
                   <div className={cn(
-                    "w-80 h-80 sm:w-96 sm:h-96 rounded-[2rem] bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-8 border-white gap-4",
+                    "h-[min(72vh,34rem)] w-full max-w-[34rem] rounded-[2rem] bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-8 border-white gap-4 p-4",
                     diceRolling && "animate-[diceTumble_0.3s_linear_infinite]"
                   )}>
-                    {diceResult ? (
-                      <>
-                        <span className="text-[8rem] sm:text-[10rem] leading-none">{diceResult.emoji}</span>
-                        <span className="text-4xl sm:text-5xl font-black text-slate-800 text-center px-4 leading-tight">{diceResult.text}</span>
-                      </>
-                    ) : (
-                      <span className="text-8xl font-black text-slate-800">?</span>
-                    )}
+                    <DiceVisual option={diceResult} large />
                   </div>
                   <Button
                     onClick={rollDice}
