@@ -477,14 +477,14 @@ export function PEEnglishHub() {
             className={cn(
               "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all",
               activePhase === p.id
-                ? cn("bg-gradient-to-r text-white border-white scale-105 shadow-lg", p.color)
+                ? "bg-slate-900 text-white border-slate-900 shadow-lg"
                 : "classroom-control-button"
             )}
           >
             <span className="text-lg">{p.emoji}</span>
             <div className="text-left">
-              <p className="text-xs leading-tight">{idx + 1}. {p.name.split(":")[0]}</p>
-              <p className="text-[10px] opacity-70 leading-tight">{p.minutes} min</p>
+              <p className="text-sm leading-tight">{idx + 1}. {p.name.split(":")[0]}</p>
+              <p className="text-xs leading-tight">{p.minutes} min</p>
             </div>
           </button>
         ))}
@@ -493,18 +493,18 @@ export function PEEnglishHub() {
       {/* Current phase info + Timer */}
       <div className="w-full max-w-6xl flex flex-col sm:flex-row gap-3 items-stretch">
         {/* Phase description */}
-        <div className={cn("flex-1 p-4 rounded-2xl bg-gradient-to-r text-white shadow-lg", currentPhase.color)}>
+        <div className="flex-1 p-4 rounded-2xl border-2 border-sky-300 bg-white text-slate-950 shadow-lg">
           <p className="text-sm font-bold flex items-center gap-2">
             <span className="text-2xl">{currentPhase.emoji}</span>
             {currentPhase.name}
           </p>
-          <p className="text-xs text-white/80 mt-1">{currentPhase.desc}</p>
+          <p className="text-sm font-semibold text-slate-700 mt-1">{currentPhase.desc}</p>
         </div>
 
         {/* Timer */}
-        <div className="p-4 rounded-2xl bg-black/40 border border-white/15 shadow-lg flex items-center gap-4">
+        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-700 shadow-lg flex items-center gap-4">
           <div className="text-center">
-            <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider">Timer</p>
+            <p className="text-sm font-bold text-white uppercase">Timer</p>
             <p className={cn(
               "font-mono font-black tabular-nums text-white",
               timerRemaining <= 10 && timerRemaining > 0 ? "text-red-400 animate-pulse text-4xl" : "text-3xl"
@@ -515,6 +515,8 @@ export function PEEnglishHub() {
           <div className="flex flex-col gap-1">
             <button
               onClick={() => { setTimerRunning(!timerRunning); sound.playClick(); }}
+              aria-label={timerRunning ? "Pause lesson timer" : "Start lesson timer"}
+              title={timerRunning ? "Pause lesson timer" : "Start lesson timer"}
               className={cn(
                 "w-12 h-12 rounded-full flex items-center justify-center transition-all",
                 timerRunning ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-white text-slate-900 hover:scale-105"
@@ -524,9 +526,10 @@ export function PEEnglishHub() {
             </button>
             <button
               onClick={() => { setTimerRemaining(timerSeconds); setTimerRunning(false); sound.playClick(); }}
-              className="w-12 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 text-xs"
+              className="classroom-control-button flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm"
+              title="Reset lesson timer"
             >
-              <RotateCcw className="h-3 w-3" />
+              <RotateCcw className="h-4 w-4" /> Reset
             </button>
           </div>
         </div>
@@ -537,12 +540,12 @@ export function PEEnglishHub() {
         {/* WARM-UP: Simon Says */}
         {activePhase === "warmup" && (
           <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-blue-500/10 border border-blue-400/30 text-center">
+        <div className="pe-lesson-panel p-6 rounded-2xl border-2 border-blue-300 text-center">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-black text-white">🙋 Simon Says Command Generator</h3>
                 <button
                   onClick={() => openPopup("simon")}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
+                  className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                 >
                   <Maximize2 className="h-3 w-3" /> Pop Up
                 </button>
@@ -563,7 +566,7 @@ export function PEEnglishHub() {
                       {simonCommand}
                     </p>
                     {simonIsTrick && (
-                      <p className="text-sm text-red-300/70 mt-2">Trick! No "Simon says" — don't move!</p>
+                      <p className="text-base font-semibold text-white mt-2">Trick! No "Simon says" — don't move!</p>
                     )}
                   </div>
                 ) : (
@@ -578,25 +581,25 @@ export function PEEnglishHub() {
                 <Shuffle className="mr-2 h-5 w-5" />
                 Draw Command
               </Button>
-              <p className="text-xs text-white/40 mt-3">
+              <p className="text-sm font-semibold text-white mt-3">
                 {SIMON_COMMANDS.length - usedSimonCommands.size} of {SIMON_COMMANDS.length} commands remaining
               </p>
             </div>
 
             {/* Quick body part reference — popup flashcards */}
-            <div className="p-4 rounded-2xl bg-black/20 border border-white/10">
+        <div className="pe-lesson-panel p-4 rounded-2xl border-2 border-slate-300">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-bold text-white/60 uppercase tracking-wider">Body Parts Quick Reference:</p>
+                <p className="text-sm font-bold text-white uppercase">Body Parts Quick Reference:</p>
                 <button
                   onClick={() => openPopup("body-parts")}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
+                  className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                 >
                   <Maximize2 className="h-3 w-3" /> Pop Up
                 </button>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center">
                 {BODY_PARTS.map(bp => (
-                  <div key={bp.en} className="px-2 py-2 rounded-lg bg-white/5 text-white text-xs font-bold">{bp.en}</div>
+                  <div key={bp.en} className="break-words px-2 py-2 rounded-lg bg-white text-slate-950 text-sm font-bold">{bp.en}</div>
                 ))}
               </div>
             </div>
@@ -606,12 +609,12 @@ export function PEEnglishHub() {
         {/* DRILL: Red Light Green Light */}
         {activePhase === "drill" && (
           <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-yellow-500/10 border border-yellow-400/30">
+        <div className="pe-lesson-panel p-6 rounded-2xl border-2 border-yellow-400">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-black text-white">🚦 Red Light, Green Light Plus</h3>
                 <button
                   onClick={() => openPopup("traffic")}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
+                  className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                 >
                   <Maximize2 className="h-3 w-3" /> Pop Up
                 </button>
@@ -626,16 +629,16 @@ export function PEEnglishHub() {
                       "flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all",
                       activeLight === light.color
                         ? cn("border-white scale-105 shadow-2xl animate-[revealPulse_0.6s_ease-out]", light.bg)
-                        : cn("border-white/20 hover:scale-105 hover:border-white/50", light.bg, "opacity-70 hover:opacity-100")
+                        : cn("border-white/20 hover:scale-105 hover:border-white/50", light.bg)
                     )}
                   >
                     <span className="text-4xl sm:text-5xl">{light.emoji}</span>
-                    <div className="text-center">
-                      <p className="text-xs font-black text-white uppercase tracking-wide">{light.action}</p>
+                    <div className="w-full rounded-lg bg-white p-2 text-center text-slate-950">
+                      <p className="text-sm font-black uppercase">{light.action}</p>
                       {showJapanese && (
-                        <p className="text-[10px] text-white/80 mt-1">{light.jp}</p>
+                        <p className="mt-1 text-sm font-semibold">{light.jp}</p>
                       )}
-                      <p className="text-[9px] text-white/60 mt-0.5">{light.katakana}</p>
+                      <p className="mt-1 text-sm font-semibold">{light.katakana}</p>
                     </div>
                   </button>
                 ))}
@@ -645,7 +648,7 @@ export function PEEnglishHub() {
                   onClick={() => setShowJapanese(!showJapanese)}
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-bold border transition-all",
-                    showJapanese ? "bg-white/20 text-white border-white/40" : "bg-white/10 text-white/50 border-white/20"
+                    showJapanese ? "classroom-control-button-active" : "classroom-control-button"
                   )}
                 >
                   日本語 {showJapanese ? "ON" : "OFF"}
@@ -658,12 +661,12 @@ export function PEEnglishHub() {
         {/* MAIN: Fruit Salad Tag */}
         {activePhase === "main" && (
           <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-red-500/10 border border-red-400/30">
+        <div className="pe-lesson-panel p-6 rounded-2xl border-2 border-red-300">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-black text-white">🍎 Fruit Salad Tag</h3>
                 <button
                   onClick={() => openPopup("fruit-salad")}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
+                  className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                 >
                   <Maximize2 className="h-3 w-3" /> Pop Up
                 </button>
@@ -682,7 +685,7 @@ export function PEEnglishHub() {
                     className={cn("flex flex-col items-center gap-2 p-5 rounded-2xl text-white font-black shadow-lg hover:scale-105 transition-all", team.color)}
                   >
                     <span className="text-5xl">{team.emoji}</span>
-                    <span className="text-lg">{team.name}!</span>
+                    <span className="w-full rounded-lg bg-white px-2 py-1 text-lg text-slate-950">{team.name}!</span>
                   </button>
                 ))}
               </div>
@@ -711,7 +714,7 @@ export function PEEnglishHub() {
         {/* STATIONS: Choice A */}
         {activePhase === "stations" && (
           <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-green-500/10 border border-green-400/30">
+        <div className="pe-lesson-panel p-6 rounded-2xl border-2 border-green-300">
               <h3 className="text-lg font-black text-white text-center mb-4">🎯 Choice A Stations</h3>
               <p className="text-xs text-white/60 text-center mb-4">Students choose their station. Rotate every 5 minutes.</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -740,7 +743,7 @@ export function PEEnglishHub() {
         {/* COOL-DOWN */}
         {activePhase === "cooldown" && (
           <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-purple-500/10 border border-purple-400/30">
+        <div className="pe-lesson-panel p-6 rounded-2xl border-2 border-purple-300">
               <h3 className="text-lg font-black text-white text-center mb-4">🧘 Cool-Down & Review</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Stretches */}
@@ -789,38 +792,38 @@ export function PEEnglishHub() {
 
       {/* ===== PE Flashcards (always visible) ===== */}
       <div className="w-full max-w-6xl">
-        <div className="p-4 rounded-2xl bg-black/20 border border-white/10">
+        <div className="pe-lesson-panel p-4 rounded-2xl border-2 border-slate-300">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Activity className="h-4 w-4" />
               PE Flashcards (20 cards — tap to flip)
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setShowJapanese(!showJapanese)}
                 className={cn(
                   "px-3 py-1 rounded-full text-xs font-bold border transition-all",
-                  showJapanese ? "bg-white/20 text-white border-white/40" : "bg-white/10 text-white/50 border-white/20"
+                  showJapanese ? "classroom-control-button-active" : "classroom-control-button"
                 )}
               >
                 日本語 {showJapanese ? "ON" : "OFF"}
               </button>
               <button
                 onClick={() => { drawRandomCard(); openPopup("random-card"); }}
-                className="flex items-center gap-1 px-3 py-1 rounded-full bg-purple-500/30 hover:bg-purple-500/50 text-purple-200 border border-purple-400/40 text-xs font-bold transition-all"
+                className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                 title="Draw a random flashcard"
               >
                 <Shuffle className="h-3 w-3" /> Random Card
               </button>
               <button
                 onClick={() => { setPopupFlippedCard(null); openPopup("flashcards"); }}
-                className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
+                className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
               >
                 <Maximize2 className="h-3 w-3" /> Pop Up
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
             {PE_FLASHCARDS.map(card => (
               <button
                 key={card.id}
@@ -833,13 +836,13 @@ export function PEEnglishHub() {
                 )}
               >
                 {flippedCard === card.id ? (
-                  <div className="text-white">
-                    <p className="text-[10px] font-bold whitespace-pre-line leading-tight">{card.back}</p>
+                  <div className="w-full rounded-lg bg-white p-2 text-slate-950">
+                    <p className="text-sm font-bold whitespace-pre-line leading-snug">{card.back}</p>
                   </div>
                 ) : (
-                  <div className="text-white">
-                    <p className="text-[10px] font-bold uppercase tracking-wide opacity-70 mb-1">{card.set}</p>
-                    <p className="text-xs font-black leading-tight">{card.front}</p>
+                  <div className="w-full rounded-lg bg-white p-2 text-slate-950">
+                    <p className="text-xs font-bold uppercase mb-1">{card.set}</p>
+                    <p className="text-base font-black leading-snug">{card.front}</p>
                   </div>
                 )}
               </button>
@@ -850,7 +853,7 @@ export function PEEnglishHub() {
 
       {/* ===== PE Dice ===== */}
       <div className="w-full max-w-6xl">
-        <div className="p-4 rounded-2xl bg-black/20 border border-white/10">
+        <div className="pe-lesson-panel p-4 rounded-2xl border-2 border-slate-300">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Dice5 className="h-4 w-4" />
@@ -858,7 +861,7 @@ export function PEEnglishHub() {
             </h3>
             <button
               onClick={() => openPopup("dice")}
-              className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all"
+              className="classroom-control-button flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
             >
               <Maximize2 className="h-3 w-3" /> Pop Up
             </button>
@@ -954,7 +957,7 @@ export function PEEnglishHub() {
                       <p className={cn("text-4xl font-black text-center", simonIsTrick ? "text-red-300" : "text-white")}>
                         {simonIsTrick ? "⚠️ " : "✅ Simon says: "}{simonCommand}
                       </p>
-                      {simonIsTrick && <p className="text-lg text-red-300/70 mt-3 text-center">Trick! No "Simon says" — don't move!</p>}
+                      {simonIsTrick && <p className="text-lg font-semibold text-white mt-3 text-center">Trick! No "Simon says" — don't move!</p>}
                     </div>
                   ) : (
                     <p className="text-white/50 text-xl">Click "Draw Command" to get a random instruction</p>
@@ -999,14 +1002,14 @@ export function PEEnglishHub() {
                         "flex flex-col items-center gap-3 p-8 rounded-3xl border-4 transition-all",
                         activeLight === light.color
                           ? cn("border-white scale-105 shadow-2xl", light.bg)
-                          : cn("border-white/20 hover:scale-105", light.bg, "opacity-80 hover:opacity-100")
+                          : cn("border-white/20 hover:scale-105", light.bg)
                       )}
                     >
                       <span className="text-7xl">{light.emoji}</span>
-                      <div className="text-center">
-                        <p className="text-xl font-black text-white uppercase">{light.action}</p>
-                        {showJapanese && <p className="text-sm text-white/80 mt-1">{light.jp}</p>}
-                        <p className="text-xs text-white/60 mt-0.5">{light.katakana}</p>
+                      <div className="w-full rounded-lg bg-white p-3 text-center text-slate-950">
+                        <p className="text-xl font-black uppercase">{light.action}</p>
+                        {showJapanese && <p className="mt-1 text-base font-semibold">{light.jp}</p>}
+                        <p className="mt-1 text-base font-semibold">{light.katakana}</p>
                       </div>
                     </button>
                   ))}
@@ -1031,7 +1034,7 @@ export function PEEnglishHub() {
                       className={cn("flex flex-col items-center gap-3 p-8 rounded-3xl text-white font-black shadow-lg hover:scale-105 transition-all", team.color)}
                     >
                       <span className="text-8xl">{team.emoji}</span>
-                      <span className="text-3xl">{team.name}!</span>
+                      <span className="w-full rounded-lg bg-white px-2 py-1 text-2xl text-slate-950">{team.name}!</span>
                     </button>
                   ))}
                 </div>
@@ -1061,12 +1064,12 @@ export function PEEnglishHub() {
                       )}
                     >
                       {popupFlippedCard === card.id ? (
-                        <div className="text-white">
+                        <div className="w-full rounded-lg bg-white p-2 text-slate-950">
                           <p className="text-sm font-bold whitespace-pre-line leading-tight">{card.back}</p>
                         </div>
                       ) : (
-                        <div className="text-white">
-                          <p className="text-xs font-bold uppercase tracking-wide opacity-70 mb-1">{card.set}</p>
+                        <div className="w-full rounded-lg bg-white p-2 text-slate-950">
+                          <p className="text-xs font-bold uppercase mb-1">{card.set}</p>
                           <p className="text-base font-black leading-tight">{card.front}</p>
                         </div>
                       )}
@@ -1083,7 +1086,7 @@ export function PEEnglishHub() {
                   <h2 className="text-3xl font-black text-white text-center">Random PE Flashcard</h2>
                   <button
                     onClick={drawRandomCard}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/30 hover:bg-purple-500/50 text-purple-100 border border-purple-300/40 text-sm font-bold transition-all"
+                    className="classroom-control-button flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition-all"
                   >
                     <Shuffle className="h-4 w-4" /> Draw Again
                   </button>
@@ -1098,14 +1101,14 @@ export function PEEnglishHub() {
                   )}
                 >
                   {popupFlippedCard === randomCard.id ? (
-                    <div className="text-white">
+                    <div className="w-full rounded-lg bg-white p-3 text-slate-950">
                       <p className="text-3xl font-black whitespace-pre-line leading-tight">{randomCard.back}</p>
                     </div>
                   ) : (
-                    <div className="text-white">
-                      <p className="text-base font-bold uppercase tracking-wide opacity-75 mb-4">{randomCard.set}</p>
+                    <div className="w-full rounded-lg bg-white p-3 text-slate-950">
+                      <p className="text-base font-bold uppercase mb-4">{randomCard.set}</p>
                       <p className="text-5xl font-black leading-tight">{randomCard.front}</p>
-                      <p className="text-sm text-white/70 mt-6">Tap to flip</p>
+                      <p className="text-base font-semibold mt-6">Tap to flip</p>
                     </div>
                   )}
                 </button>

@@ -307,6 +307,20 @@
 }
 
 /* Projector-readable command controls for student-facing panels. */
+.pe-lesson-panel {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.pe-lesson-panel :is(p, h3) {
+  color: #0f172a;
+}
+
+.pe-lesson-panel .text-xs {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
 .classroom-control-panel {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.72);
