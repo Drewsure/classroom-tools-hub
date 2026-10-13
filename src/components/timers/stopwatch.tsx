@@ -147,7 +147,7 @@ export function Stopwatch() {
           size="lg"
           variant="outline"
           className={cn(
-            "rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white transition-transform shadow-lg",
+            "classroom-control-button rounded-full px-6 transition-transform shadow-lg hover:text-slate-950",
             justLapped && "scale-95 bg-white/30",
           )}
         >

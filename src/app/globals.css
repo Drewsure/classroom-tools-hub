@@ -319,6 +319,8 @@
   border: 1px solid #cbd5e1;
   color: #1e293b;
   font-weight: 900;
+  min-height: 2.5rem;
+  text-shadow: none;
 }
 .classroom-control-button:hover {
   background: #ecfeff;
@@ -331,6 +333,7 @@
   border-color: #0e7490;
   color: #ffffff;
   font-weight: 900;
+  min-height: 2.5rem;
   box-shadow: 0 10px 22px rgba(14, 116, 144, 0.28);
 }
 

@@ -262,7 +262,7 @@ export function ChanceGames() {
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Game selector */}
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="classroom-control-panel flex flex-wrap justify-center gap-2 rounded-2xl p-2">
         {games.map((g) => (
           <button
             key={g.id}
@@ -270,8 +270,8 @@ export function ChanceGames() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
               game === g.id
-                ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                ? "classroom-control-button-active scale-105"
+                : "classroom-control-button",
             )}
           >
             {g.icon}
@@ -282,10 +282,10 @@ export function ChanceGames() {
 
       {/* Dice controls: range selector + no-repeat toggle */}
       {game === "dice" && (
-        <div className="flex items-center gap-3 flex-wrap justify-center">
+        <div className="classroom-control-panel flex flex-wrap items-center justify-center gap-3 rounded-2xl p-3">
           {/* Range selector */}
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-bold text-white/80 uppercase tracking-wider mr-1">Range:</span>
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            <span className="classroom-muted-label mr-1 text-sm uppercase tracking-wider">Range:</span>
             {([
               { id: "all" as const, label: "1-6" },
               { id: "low" as const, label: "1-3" },
@@ -301,8 +301,8 @@ export function ChanceGames() {
                 className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
                   diceRange === r.id
-                    ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                    : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                    ? "classroom-control-button-active scale-105"
+                    : "classroom-control-button",
                 )}
               >
                 {r.label}
@@ -319,15 +319,15 @@ export function ChanceGames() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all",
               noRepeatMode
-                ? "bg-emerald-500/30 text-emerald-200 border-emerald-400/50"
-                : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                ? "bg-emerald-500 text-white border-emerald-700 shadow-lg"
+                : "classroom-control-button",
             )}
           >
             {noRepeatMode && <Check className="h-4 w-4" />}
             No-Repeat Mode
           </button>
           {noRepeatMode && (
-            <div className="flex items-center gap-2 text-white/70 text-sm">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
               <span>Used:</span>
               <div className="flex gap-1">
                 {getDicePool().map((n) => (
@@ -336,8 +336,8 @@ export function ChanceGames() {
                     className={cn(
                       "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
                       usedDiceNumbers.includes(n)
-                        ? "bg-emerald-500/40 text-emerald-200 border-emerald-400/50 line-through"
-                        : "bg-white/10 text-white/60 border-white/20",
+                        ? "bg-emerald-500 text-white border-emerald-700 line-through"
+                        : "bg-white text-slate-800 border-slate-300",
                     )}
                   >
                     {n}
@@ -347,7 +347,7 @@ export function ChanceGames() {
               {usedDiceNumbers.length > 0 && (
                 <button
                   onClick={handleResetDiceHistory}
-                  className="text-xs text-white/50 hover:text-white underline ml-1"
+                  className="ml-1 text-xs font-black text-sky-800 underline hover:text-sky-950"
                 >
                   reset
                 </button>
@@ -472,7 +472,7 @@ export function ChanceGames() {
               onClick={handleReset}
               size="lg"
               variant="outline"
-              className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+              className="classroom-control-button rounded-full px-6 hover:text-slate-950"
             >
               <RotateCcw className="mr-2 h-5 w-5" />
               Reset

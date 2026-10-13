@@ -189,8 +189,8 @@ export function SpinnerWheel() {
           className={cn(
             "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
             removeOnPick
-              ? "bg-emerald-500/20 border-emerald-400 text-emerald-200"
-              : "bg-white/10 border-white/20 text-white/60",
+              ? "bg-emerald-500 text-white border-emerald-700 shadow"
+              : "classroom-control-button",
           )}
           title="When ON, each spin removes the winner so the next spin picks a different option"
         >
@@ -364,7 +364,7 @@ export function SpinnerWheel() {
             onClick={handleReset}
             size="lg"
             variant="outline"
-            className="rounded-full px-8 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="classroom-control-button rounded-full px-8 hover:text-slate-950"
           >
             <RotateCcw className="mr-2 h-5 w-5" />
             Spin Again

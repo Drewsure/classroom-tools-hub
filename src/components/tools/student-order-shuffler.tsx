@@ -197,7 +197,7 @@ export function StudentOrderShuffler() {
                       onClick={handleCopyOrder}
                       variant="outline"
                       size="sm"
-                      className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                      className="classroom-control-button hover:text-slate-950"
                     >
                       <Copy className="mr-1 h-3.5 w-3.5" />
                       Copy Order
@@ -254,7 +254,7 @@ export function StudentOrderShuffler() {
                 onClick={handleReset}
                 size="lg"
                 variant="outline"
-                className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full px-6 hover:text-slate-950"
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset

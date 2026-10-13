@@ -155,7 +155,7 @@ export function StopwatchSplits() {
           size="lg"
           variant="outline"
           className={cn(
-            "rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white transition-transform",
+            "classroom-control-button rounded-full px-6 transition-transform hover:text-slate-950",
             justSplit && "scale-95 bg-purple-500/40",
           )}
         >
@@ -166,7 +166,7 @@ export function StopwatchSplits() {
           onClick={handleReset}
           size="lg"
           variant="outline"
-          className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+          className="classroom-control-button rounded-full px-6 hover:text-slate-950"
         >
           <RotateCcw className="mr-2 h-5 w-5" />
           Reset

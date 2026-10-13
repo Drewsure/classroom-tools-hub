@@ -192,31 +192,31 @@ export function RandomGroupGenerator() {
       />
 
       {/* Remove-on-pick toggle + restore controls */}
-      <div className="w-full max-w-2xl flex flex-wrap items-center gap-3">
+      <div className="classroom-control-panel flex w-full max-w-2xl flex-wrap items-center gap-3 rounded-2xl p-3">
         <button
           onClick={() => setRemoveOnPick((v) => !v)}
           className={cn(
             "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
             removeOnPick
-              ? "bg-emerald-500/20 border-emerald-400 text-emerald-200"
-              : "bg-white/10 border-white/20 text-white/60",
+              ? "bg-emerald-500 text-white border-emerald-700 shadow"
+              : "classroom-control-button",
           )}
           title="When ON, generating groups moves all names to 'picked' so the next Generate pulls from a fresh batch (if more names are added)"
         >
-          <span className={cn("w-3 h-3 rounded-full border", removeOnPick ? "bg-emerald-400 border-emerald-300" : "border-white/40")} />
+          <span className={cn("w-3 h-3 rounded-full border", removeOnPick ? "bg-white border-white" : "border-slate-500")} />
           Remove after grouping {removeOnPick ? "(ON)" : "(OFF)"}
         </button>
         {pickedNames.length > 0 && (
           <button
             onClick={restoreAllPicked}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border bg-amber-500/20 border-amber-400 text-amber-200 hover:bg-amber-500/30 transition-all"
+            className="flex items-center gap-1.5 rounded-full border border-amber-500 bg-amber-300 px-3 py-1.5 text-xs font-black text-amber-950 transition-all hover:bg-amber-200"
           >
             <History className="h-3.5 w-3.5" />
             Restore all picked ({pickedNames.length})
           </button>
         )}
         {names.length < numGroups && pickedNames.length > 0 && (
-          <span className="text-xs text-amber-300/80 font-semibold">
+          <span className="text-xs font-black text-amber-900">
             All used! Restore to shuffle again.
           </span>
         )}
@@ -224,14 +224,14 @@ export function RandomGroupGenerator() {
 
       {/* Picked history strip */}
       {pickedNames.length > 0 && (
-        <div className="w-full max-w-2xl">
-          <p className="text-xs text-white/50 uppercase tracking-wider mb-1.5 font-bold">Already grouped</p>
+        <div className="classroom-control-panel w-full max-w-2xl rounded-2xl p-3">
+          <p className="classroom-muted-label mb-1.5 text-xs uppercase tracking-wider">Already grouped</p>
           <div className="flex flex-wrap gap-1.5">
             {pickedNames.map((p, i) => (
               <button
                 key={`${p}-${i}`}
                 onClick={() => restoreOne(i)}
-                className="group flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-white/50 hover:bg-emerald-500/10 hover:border-emerald-400/40 hover:text-emerald-200 transition-all"
+                className="group flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-black text-slate-800 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-800"
                 title="Click to restore this name"
               >
                 <span className="line-through opacity-70">{p}</span>
@@ -243,8 +243,8 @@ export function RandomGroupGenerator() {
       )}
 
       {/* Group count selector */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-bold text-white/80 uppercase tracking-wider">Groups:</span>
+      <div className="classroom-control-panel flex items-center gap-3 rounded-2xl p-3">
+        <span className="classroom-muted-label text-sm uppercase tracking-wider">Groups:</span>
         <div className="flex gap-1">
           {[2, 3, 4, 5, 6].map((n) => (
             <button
@@ -253,8 +253,8 @@ export function RandomGroupGenerator() {
               className={cn(
                 "w-10 h-10 rounded-full font-bold border-2 transition-all",
                 numGroups === n
-                  ? "bg-white text-purple-700 border-white scale-110 shadow-lg"
-                  : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                  ? "classroom-control-button-active scale-110 shadow-lg"
+                  : "classroom-control-button",
               )}
             >
               {n}
@@ -348,7 +348,7 @@ export function RandomGroupGenerator() {
               onClick={() => setShowBulk(!showBulk)}
               variant="outline"
               size="sm"
-              className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+              className="classroom-control-button hover:text-slate-950"
             >
               <UserPlus className="mr-1 h-4 w-4" />
               Bulk
@@ -417,7 +417,7 @@ export function RandomGroupGenerator() {
           <Button
             onClick={handleReset}
             variant="outline"
-            className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="classroom-control-button rounded-full px-6 hover:text-slate-950"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
             Reset

@@ -377,7 +377,7 @@ export function WeatherFlashcards() {
           </ShakeWrapper>
 
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <Button onClick={handlePresentPrev} size="lg" variant="outline" className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20"><ChevronLeft className="mr-1 h-5 w-5" /> Prev</Button>
+            <Button onClick={handlePresentPrev} size="lg" variant="outline" className="classroom-control-button rounded-full px-6 hover:text-slate-950"><ChevronLeft className="mr-1 h-5 w-5" /> Prev</Button>
             <Button onClick={handlePresentNext} size="lg" className="rounded-full px-8 bg-white text-slate-900 hover:bg-white/90 shadow-lg">Next <ChevronRight className="ml-1 h-5 w-5" /></Button>
             <button onClick={() => { setMode("selection"); sound.playClick(); }} className="text-xs text-white/40 hover:text-red-400 transition-colors flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Back to Selection</button>
           </div>

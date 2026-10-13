@@ -236,51 +236,51 @@ export function CustomDice() {
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Configuration */}
-      <div className="flex items-center gap-4 flex-wrap justify-center">
+      <div className="classroom-control-panel flex flex-wrap items-center justify-center gap-4 rounded-2xl p-3">
         {/* Sides */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-white/80 uppercase tracking-wider">Sides:</span>
-          <button onClick={() => handleSidesChange(sides - 1)} className="w-9 h-9 rounded-full bg-white/10 border border-white/25 text-white hover:bg-white/20 flex items-center justify-center">
+          <span className="classroom-muted-label text-sm uppercase tracking-wider">Sides:</span>
+          <button onClick={() => handleSidesChange(sides - 1)} className="classroom-control-button flex h-9 w-9 items-center justify-center rounded-full">
             <Minus className="h-4 w-4" />
           </button>
-          <span className="text-2xl font-black text-white w-10 text-center">{sides}</span>
-          <button onClick={() => handleSidesChange(sides + 1)} className="w-9 h-9 rounded-full bg-white/10 border border-white/25 text-white hover:bg-white/20 flex items-center justify-center">
+          <span className="w-12 rounded-xl bg-slate-950 px-2 py-1 text-center text-2xl font-black text-white">{sides}</span>
+          <button onClick={() => handleSidesChange(sides + 1)} className="classroom-control-button flex h-9 w-9 items-center justify-center rounded-full">
             <Plus className="h-4 w-4" />
           </button>
         </div>
 
         {/* Label mode */}
         <div className="flex items-center gap-1">
-          <span className="text-sm font-bold text-white/80 uppercase tracking-wider mr-1">Type:</span>
-          <button onClick={() => switchLabelMode("numbers")} className={cn("px-3 py-1.5 rounded-full text-xs font-bold border transition-all", labelMode === "numbers" ? "bg-white text-slate-900 border-white scale-105" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>Numbers</button>
-          <button onClick={() => switchLabelMode("words")} className={cn("px-3 py-1.5 rounded-full text-xs font-bold border transition-all", labelMode === "words" ? "bg-white text-slate-900 border-white scale-105" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>Words/Names</button>
+          <span className="classroom-muted-label mr-1 text-sm uppercase tracking-wider">Type:</span>
+          <button onClick={() => switchLabelMode("numbers")} className={cn("px-3 py-1.5 rounded-full text-xs font-bold border transition-all", labelMode === "numbers" ? "classroom-control-button-active scale-105" : "classroom-control-button")}>Numbers</button>
+          <button onClick={() => switchLabelMode("words")} className={cn("px-3 py-1.5 rounded-full text-xs font-bold border transition-all", labelMode === "words" ? "classroom-control-button-active scale-105" : "classroom-control-button")}>Words/Names</button>
         </div>
 
         {/* No-repeat */}
-        <button onClick={() => { setNoRepeat(!noRepeat); setUsedIndices([]); sound.playClick(); }} className={cn("flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all", noRepeat ? "bg-emerald-500/30 text-emerald-200 border-emerald-400/50" : "bg-white/10 text-white border-white/25 hover:bg-white/20")}>
+        <button onClick={() => { setNoRepeat(!noRepeat); setUsedIndices([]); sound.playClick(); }} className={cn("flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all", noRepeat ? "bg-emerald-500 text-white border-emerald-700 shadow-lg" : "classroom-control-button")}>
           {noRepeat && <Check className="h-4 w-4" />} No-Repeat
         </button>
 
         {/* Label editor + save/load */}
         {labelMode === "words" && (
           <>
-            <Button onClick={() => setShowLabelEditor(!showLabelEditor)} variant="outline" size="sm" className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white">
+            <Button onClick={() => setShowLabelEditor(!showLabelEditor)} variant="outline" size="sm" className="classroom-control-button hover:text-slate-950">
               Edit Labels
             </Button>
-            <Button onClick={() => setShowSaveDialog(!showSaveDialog)} variant="outline" size="sm" className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white">
+            <Button onClick={() => setShowSaveDialog(!showSaveDialog)} variant="outline" size="sm" className="classroom-control-button hover:text-slate-950">
               <Save className="mr-1 h-3.5 w-3.5" /> Save Set
             </Button>
-            <Button onClick={() => { setShowLoadDialog(!showLoadDialog); setSavedSets(readLabelSets()); }} variant="outline" size="sm" className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white">
+            <Button onClick={() => { setShowLoadDialog(!showLoadDialog); setSavedSets(readLabelSets()); }} variant="outline" size="sm" className="classroom-control-button hover:text-slate-950">
               <FolderOpen className="mr-1 h-3.5 w-3.5" /> Load Set
-              {Object.keys(savedSets).length > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-xs">{Object.keys(savedSets).length}</span>}
+              {Object.keys(savedSets).length > 0 && <span className="ml-1 rounded-full bg-cyan-100 px-1.5 py-0.5 text-xs text-cyan-950">{Object.keys(savedSets).length}</span>}
             </Button>
           </>
         )}
       </div>
 
       {/* Quick Select — preset sides for fast access to higher numbers */}
-      <div className="flex items-center gap-2 flex-wrap justify-center">
-        <span className="text-xs font-bold text-white/60 uppercase tracking-wider mr-1">Quick:</span>
+      <div className="classroom-control-panel flex flex-wrap items-center justify-center gap-2 rounded-2xl p-2">
+        <span className="classroom-muted-label mr-1 text-xs uppercase tracking-wider">Quick:</span>
         {[6, 10, 20, 40, 60, 80, 100].map((n) => (
           <button
             key={n}
@@ -288,8 +288,8 @@ export function CustomDice() {
             className={cn(
               "px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
               sides === n
-                ? "bg-emerald-500 text-white border-emerald-400 scale-105 shadow-lg"
-                : "bg-white/10 text-white border-white/25 hover:bg-white/20 hover:scale-105",
+                ? "bg-emerald-500 text-white border-emerald-700 scale-105 shadow-lg"
+                : "classroom-control-button hover:scale-105",
             )}
             title={`Set dice to ${n} sides`}
           >
@@ -299,8 +299,8 @@ export function CustomDice() {
       </div>
 
       {/* Themed Dice Presets — story cubes, movement, emotions, etc. */}
-      <div className="w-full max-w-2xl p-3 rounded-2xl bg-black/20 border border-white/10">
-        <p className="text-xs font-bold text-white/60 uppercase tracking-wider mb-2 text-center">
+      <div className="classroom-control-panel w-full max-w-2xl rounded-2xl p-3">
+        <p className="classroom-muted-label mb-2 text-center text-xs uppercase tracking-wider">
           🎲 Themed Dice Presets
         </p>
         <div className="flex flex-wrap gap-2 justify-center">
@@ -308,7 +308,7 @@ export function CustomDice() {
             <button
               key={preset.id}
               onClick={() => loadDicePreset(preset.id)}
-              className="px-3 py-2 rounded-xl text-xs font-bold bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-white border border-indigo-400/30 hover:from-indigo-500/50 hover:to-purple-500/50 hover:scale-105 transition-all shadow-lg"
+              className="classroom-control-button rounded-xl px-3 py-2 text-xs transition-all hover:scale-105"
               title={`Load ${preset.label} dice preset`}
             >
               {preset.label}
@@ -452,7 +452,7 @@ export function CustomDice() {
       {/* Controls — Reset button only (Roll/Next Roll is now INSIDE the dice container) */}
       {phase === "result" && (
         <div className="flex gap-3 justify-center">
-          <Button onClick={handleReset} size="lg" variant="outline" className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white">
+          <Button onClick={handleReset} size="lg" variant="outline" className="classroom-control-button rounded-full px-6 hover:text-slate-950">
             <RotateCcw className="mr-2 h-5 w-5" /> Reset
           </Button>
         </div>

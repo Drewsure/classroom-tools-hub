@@ -792,7 +792,7 @@ export function OfflineAudioPlayer() {
             <Button
               onClick={() => setShowPlaylistBuilder(!showPlaylistBuilder)}
               variant="outline"
-              className="rounded-full px-4 bg-white/10 text-white border-white/25 hover:bg-white/20 font-bold"
+              className="classroom-control-button rounded-full px-4"
               title="Create and manage playlists"
             >
               <List className="mr-2 h-4 w-4" />
@@ -804,7 +804,7 @@ export function OfflineAudioPlayer() {
             <Button
               onClick={() => exportAllTracks(playlists)}
               variant="outline"
-              className="rounded-full px-4 bg-white/10 text-white border-white/25 hover:bg-white/20 font-bold"
+              className="classroom-control-button rounded-full px-4"
               title="Download all tracks for backup or transfer to another device"
             >
               <Download className="mr-2 h-4 w-4" />
@@ -815,7 +815,7 @@ export function OfflineAudioPlayer() {
           <Button
             onClick={() => importInputRef.current?.click()}
             variant="outline"
-            className="rounded-full px-4 bg-white/10 text-white border-white/25 hover:bg-white/20 font-bold"
+            className="classroom-control-button rounded-full px-4"
             title="Import tracks from exported audio files"
           >
             <Package className="mr-2 h-4 w-4" />
@@ -948,7 +948,7 @@ export function OfflineAudioPlayer() {
                     "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold border transition-all text-left",
                     uploadLevel === l.id
                       ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                      : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                      : "classroom-control-button"
                   )}
                 >
                   <span>{l.emoji}</span>
@@ -1003,7 +1003,7 @@ export function OfflineAudioPlayer() {
                       "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold border transition-all text-left",
                       uploadSubcat === sc.id
                         ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                        : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                        : "classroom-control-button"
                     )}
                   >
                     <span>{sc.emoji}</span>

@@ -117,7 +117,7 @@ export function RandomColorGenerator() {
             onClick={() => setShowPalette(!showPalette)}
             variant="outline"
             size="sm"
-            className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="classroom-control-button hover:text-slate-950"
           >
             <Palette className="mr-1 h-4 w-4" />
             {showPalette ? "Hide" : "Edit"} Colors
@@ -286,7 +286,7 @@ export function RandomColorGenerator() {
                 onClick={handleReset}
                 size="lg"
                 variant="outline"
-                className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full px-6 hover:text-slate-950"
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset

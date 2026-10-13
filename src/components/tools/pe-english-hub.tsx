@@ -356,7 +356,7 @@ export function PEEnglishHub() {
               "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all",
               activePhase === p.id
                 ? cn("bg-gradient-to-r text-white border-white scale-105 shadow-lg", p.color)
-                : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                : "classroom-control-button"
             )}
           >
             <span className="text-lg">{p.emoji}</span>
@@ -751,7 +751,7 @@ export function PEEnglishHub() {
                   "px-3 py-1.5 rounded-full text-xs font-bold border transition-all capitalize",
                   diceCategory === cat
                     ? "bg-white text-slate-900 border-white scale-105 shadow"
-                    : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                    : "classroom-control-button"
                 )}
               >
                 {cat}
@@ -1001,7 +1001,7 @@ export function PEEnglishHub() {
                         "px-4 py-2 rounded-full text-sm font-bold border transition-all capitalize",
                         diceCategory === cat
                           ? "bg-white text-slate-900 border-white scale-105 shadow"
-                          : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                          : "classroom-control-button"
                       )}
                     >
                       {cat}

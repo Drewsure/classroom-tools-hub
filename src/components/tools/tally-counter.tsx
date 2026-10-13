@@ -172,7 +172,7 @@ export function TallyCounter() {
             onClick={() => setShowRoster(!showRoster)}
             variant="outline"
             size="sm"
-            className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="classroom-control-button hover:text-slate-950"
           >
             <Users className="mr-1 h-4 w-4" />
             Load Class
@@ -193,7 +193,7 @@ export function TallyCounter() {
             onClick={resetAll}
             variant="outline"
             size="sm"
-            className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="classroom-control-button hover:text-slate-950"
           >
             <RotateCcw className="mr-1 h-4 w-4" />
             Reset All

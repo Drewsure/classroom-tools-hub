@@ -622,8 +622,8 @@ export function FlashCardPresenter() {
       {/* ===== Select mode: card picker ===== */}
       {mode === "select" && !presenting && (
         <div className="w-full max-w-3xl">
-          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-            <p className="text-xs font-bold text-white/70 uppercase tracking-wider">
+          <div className="classroom-control-panel mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl p-3">
+            <p className="classroom-muted-label text-xs uppercase tracking-wider">
               Tap cards to select ({selected.size} selected)
             </p>
             <div className="flex gap-2">
@@ -631,7 +631,7 @@ export function FlashCardPresenter() {
                 onClick={() => { setSelected(new Set(allCardIds)); sound.playClick(); }}
                 size="sm"
                 variant="outline"
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full hover:text-slate-950"
               >
                 Select All
               </Button>
@@ -639,7 +639,7 @@ export function FlashCardPresenter() {
                 onClick={() => { setSelected(new Set()); sound.playClick(); }}
                 size="sm"
                 variant="outline"
-                className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full hover:text-slate-950"
               >
                 Clear
               </Button>
@@ -692,7 +692,7 @@ export function FlashCardPresenter() {
               disabled={selected.size === 0}
               size="sm"
               variant="outline"
-              className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+              className="classroom-control-button rounded-full hover:text-slate-950"
             >
               <Save className="mr-1.5 h-3.5 w-3.5" /> Save Group
             </Button>
@@ -700,11 +700,11 @@ export function FlashCardPresenter() {
               onClick={() => { setShowLoadDialog(!showLoadDialog); setSavedGroupsState(readSavedGroups()); }}
               size="sm"
               variant="outline"
-              className="rounded-full bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+              className="classroom-control-button rounded-full hover:text-slate-950"
             >
               <FolderOpen className="mr-1.5 h-3.5 w-3.5" /> Load Group
               {Object.keys(savedGroupsState).length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-xs">
+                <span className="ml-1 rounded-full bg-cyan-100 px-1.5 py-0.5 text-xs text-cyan-950">
                   {Object.keys(savedGroupsState).length}
                 </span>
               )}
@@ -849,7 +849,7 @@ export function FlashCardPresenter() {
                 onClick={mode === "select" ? prevSelected : goPrev}
                 size="lg"
                 variant="outline"
-                className="rounded-full px-5 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full px-5 hover:text-slate-950"
               >
                 <ChevronLeft className="mr-1 h-5 w-5" />
                 Prev
@@ -876,7 +876,7 @@ export function FlashCardPresenter() {
                   onClick={resetShuffle}
                   size="lg"
                   variant="outline"
-                  className="rounded-full px-5 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                  className="classroom-control-button rounded-full px-5 hover:text-slate-950"
                 >
                   <RotateCcw className="mr-2 h-5 w-5" />
                   Reset
@@ -893,7 +893,7 @@ export function FlashCardPresenter() {
                 }}
                 size="lg"
                 variant="outline"
-                className="rounded-full px-5 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full px-5 hover:text-slate-950"
               >
                 <RotateCcw className="mr-2 h-5 w-5" />
                 First Card
@@ -905,7 +905,7 @@ export function FlashCardPresenter() {
                 onClick={exitPresenting}
                 size="lg"
                 variant="outline"
-                className="rounded-full px-5 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="classroom-control-button rounded-full px-5 hover:text-slate-950"
               >
                 <X className="mr-2 h-5 w-5" />
                 Exit
@@ -926,8 +926,8 @@ export function FlashCardPresenter() {
 
           {/* Browse: quick-jump strip */}
           {mode === "browse" && (
-            <div className="w-full max-w-2xl">
-              <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider mb-1.5 text-center">
+            <div className="classroom-control-panel w-full max-w-2xl rounded-2xl p-3">
+              <p className="classroom-muted-label mb-1.5 text-center text-[10px] uppercase tracking-wider">
                 Jump to card
               </p>
               <div className="flex flex-wrap gap-1 justify-center">
@@ -942,8 +942,8 @@ export function FlashCardPresenter() {
                     className={cn(
                       "w-7 h-7 rounded-md text-[10px] font-bold border transition-all",
                       card.id === currentCardId
-                        ? "bg-white text-slate-900 border-white scale-110 shadow"
-                        : "bg-white/10 text-white/70 border-white/20 hover:bg-white/20",
+                        ? "classroom-control-button-active scale-110 shadow"
+                        : "classroom-control-button",
                     )}
                     title={card.label}
                   >

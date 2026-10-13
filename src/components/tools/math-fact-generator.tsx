@@ -174,7 +174,7 @@ export function MathFactGenerator() {
                 "px-3 py-1.5 rounded-full text-sm font-bold border transition-all",
                 operation === op
                   ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                  : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                  : "classroom-control-button",
               )}
             >
               {OP_LABELS[op]} {op !== "mixed" && OP_SYMBOLS[op]}
@@ -225,7 +225,7 @@ export function MathFactGenerator() {
             onClick={handleReset}
             variant="outline"
             size="sm"
-            className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+            className="classroom-control-button hover:text-slate-950"
           >
             <RotateCcw className="mr-1 h-4 w-4" />
             Reset
@@ -336,7 +336,7 @@ export function MathFactGenerator() {
         <Button
           onClick={handleNext}
           variant="outline"
-          className="bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+          className="classroom-control-button hover:text-slate-950"
         >
           Skip Question
         </Button>
