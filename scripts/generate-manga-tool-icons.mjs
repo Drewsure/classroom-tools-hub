@@ -109,31 +109,44 @@ function propSvg(prop, a, b) {
   }
 }
 
-function mangaFace(kind) {
-  const mouth =
-    kind === "shout"
-      ? `<ellipse cx="170" cy="221" rx="16" ry="21" fill="#0f172a"/><ellipse cx="170" cy="215" rx="7" ry="8" fill="#fff" opacity=".38"/>`
-      : kind === "calm"
-        ? `<path d="M150 221c12 10 28 10 40 0" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`
-        : kind === "focused"
-          ? `<path d="M148 222h44" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`
-          : `<path d="M146 218c12 20 36 20 48 0" fill="none" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>`;
-  const eyes =
-    kind === "focused"
-      ? `<path d="M118 187l34 10M222 187l-34 10" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/><circle cx="142" cy="200" r="7" fill="#0f172a"/><circle cx="198" cy="200" r="7" fill="#0f172a"/>`
-      : `<ellipse cx="140" cy="197" rx="13" ry="20" fill="#0f172a"/><ellipse cx="200" cy="197" rx="13" ry="20" fill="#0f172a"/><circle cx="135" cy="189" r="5" fill="#fff"/><circle cx="195" cy="189" r="5" fill="#fff"/>`;
-  return `<g>
-    <path d="M86 180c20-54 78-80 136-54 42 18 60 58 42 102-20 50-92 66-144 40-34-18-50-50-34-88z" fill="#fff8f0" stroke="#0f172a" stroke-width="9"/>
-    <path d="M98 178c20-66 124-86 164-18-42-18-92-8-154 32z" fill="#0f172a" opacity=".9"/>
-    ${eyes}
-    ${mouth}
-    <circle cx="112" cy="225" r="12" fill="#fb7185" opacity=".55"/>
-    <circle cx="228" cy="225" r="12" fill="#fb7185" opacity=".55"/>
-  </g>`;
+function mangaBackdrop(tool) {
+  const panels = {
+    clock: `<circle cx="296" cy="78" r="34" fill="#fff" opacity=".7"/><path d="M284 78h24M296 66v24" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/>`,
+    stopwatch: `<path d="M286 58l50 20-48 18 28 42-56-20" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>`,
+    rocket: `<path d="M274 54l52 30-42 24 46 40-74-18" fill="#fff" opacity=".75" stroke="#0f172a" stroke-width="6" stroke-linejoin="round"/>`,
+    bomb: `<path d="M284 52l18 30 34-8-18 30 24 26-34-2-16 32-14-34-34-4 28-22-10-34z" fill="#fef08a" stroke="#0f172a" stroke-width="6" stroke-linejoin="round"/>`,
+    flame: `<path d="M286 58c24 28 18 72-14 88 54 0 74-56 14-88z" fill="#fff" opacity=".75"/>`,
+    hourglass: `<path d="M280 66h54M280 120h54M294 78l26 30-26 30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`,
+    ring: `<circle cx="302" cy="100" r="46" fill="none" stroke="#fff" stroke-width="14" opacity=".75"/>`,
+    snail: `<path d="M262 88c28-26 68-18 76 22-42-10-60 0-84 24" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".8"/>`,
+    traffic: `<rect x="286" y="54" width="42" height="104" rx="18" fill="#fff" opacity=".75"/><circle cx="307" cy="80" r="9" fill="#ef4444"/><circle cx="307" cy="106" r="9" fill="#facc15"/><circle cx="307" cy="132" r="9" fill="#22c55e"/>`,
+    bars: `<path d="M276 142l18-54 20 28 22-60" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`,
+    clipboard: `<path d="M270 64h62v82h-62z" fill="#fff" opacity=".7" stroke="#0f172a" stroke-width="5"/><path d="M282 92h38M282 118h32" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>`,
+    target: `<circle cx="308" cy="98" r="44" fill="#fff" opacity=".75" stroke="#0f172a" stroke-width="5"/><circle cx="308" cy="98" r="20" fill="none" stroke="#0f172a" stroke-width="5"/>`,
+    students: `<circle cx="286" cy="86" r="16" fill="#fff" opacity=".8"/><circle cx="326" cy="86" r="16" fill="#fff" opacity=".8"/><path d="M260 142c10-32 58-32 68 0M300 142c10-32 58-32 68 0" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".8"/>`,
+    shuffle: `<path d="M270 76c44 0 34 60 78 60M270 136c44 0 34-60 78-60" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".82"/>`,
+    dice: `<rect x="274" y="70" width="68" height="68" rx="14" fill="#fff" opacity=".78" stroke="#0f172a" stroke-width="5"/><circle cx="294" cy="90" r="5" fill="#0f172a"/><circle cx="322" cy="118" r="5" fill="#0f172a"/>`,
+    die: `<rect x="274" y="70" width="68" height="68" rx="14" fill="#fff" opacity=".78" stroke="#0f172a" stroke-width="5"/><text x="308" y="114" text-anchor="middle" font-size="29" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">20</text>`,
+    wheel: `<circle cx="310" cy="104" r="48" fill="#fff" opacity=".75" stroke="#0f172a" stroke-width="5"/><path d="M310 104V58M310 104l40 22M310 104l-40 22" stroke="#0f172a" stroke-width="5"/>`,
+    palette: `<circle cx="284" cy="82" r="12" fill="#ef4444"/><circle cx="318" cy="82" r="12" fill="#facc15"/><circle cx="302" cy="118" r="12" fill="#22c55e"/><path d="M270 146c42 14 78 2 86-40" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".8"/>`,
+    score: `<text x="304" y="120" text-anchor="middle" font-size="76" font-weight="900" fill="#fff" stroke="#0f172a" stroke-width="3" font-family="Arial Black, Arial">+1</text>`,
+    split: `<text x="304" y="116" text-anchor="middle" font-size="50" font-weight="900" fill="#fff" stroke="#0f172a" stroke-width="3" font-family="Arial Black, Arial">LAP</text>`,
+    math: `<text x="306" y="114" text-anchor="middle" font-size="48" font-weight="900" fill="#fff" stroke="#0f172a" stroke-width="3" font-family="Arial Black, Arial">7x8</text>`,
+    letter: `<text x="304" y="124" text-anchor="middle" font-size="76" font-weight="900" fill="#fff" stroke="#0f172a" stroke-width="3" font-family="Arial Black, Arial">Aa</text>`,
+    cards: `<rect x="270" y="66" width="54" height="76" rx="10" fill="#fff" opacity=".8" stroke="#0f172a" stroke-width="5" transform="rotate(-9 297 104)"/><rect x="304" y="58" width="54" height="76" rx="10" fill="#fff" opacity=".8" stroke="#0f172a" stroke-width="5" transform="rotate(12 331 96)"/>`,
+    weather: `<circle cx="294" cy="82" r="26" fill="#facc15" stroke="#0f172a" stroke-width="5"/><path d="M282 128c12-30 58-30 70 0z" fill="#fff" opacity=".82" stroke="#0f172a" stroke-width="5"/>`,
+    dashboard: `<rect x="266" y="64" width="76" height="78" rx="12" fill="#fff" opacity=".76" stroke="#0f172a" stroke-width="5"/><path d="M284 88h40M284 116h24" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/>`,
+    spark: `<path d="M308 54l14 42 42 8-34 26 12 44-34-26-36 26 12-44-34-26 42-8z" fill="#fff" opacity=".78" stroke="#0f172a" stroke-width="5" stroke-linejoin="round"/>`,
+    movement: `<path d="M304 54c28 24 36 62 24 104M278 90l50 24-46 28" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity=".84"/>`,
+    speaker: `<path d="M270 114h28l44 32V70l-44 32h-28z" fill="#fff" opacity=".8" stroke="#0f172a" stroke-width="5" stroke-linejoin="round"/><path d="M350 88c18 22 18 42 0 64" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>`,
+    headphones: `<path d="M270 120c0-44 26-72 62-72s62 28 62 72" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".8"/><rect x="262" y="112" width="30" height="46" rx="12" fill="#fff" opacity=".8"/><rect x="372" y="112" width="30" height="46" rx="12" fill="#fff" opacity=".8"/>`,
+  };
+  return panels[tool.prop] ?? panels.spark;
 }
 
-function actionBurst() {
-  return `<path d="M170 24l20 58 58-42-24 68 74-6-58 44 72 26-76 16 38 64-66-32-8 76-38-64-52 58 8-78-72 28 44-64-78-10 72-34-54-54 72 14z" fill="#ffffff" opacity=".64" stroke="#0f172a" stroke-width="6" stroke-linejoin="round"/>`;
+function speedLines() {
+  return `<path d="M28 62h92M20 118h68M26 296h110M246 42h92M288 300h58M38 340h74" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".42"/>
+  <path d="M42 92h48M252 84h74M258 328h42" stroke="#0f172a" stroke-width="5" stroke-linecap="round" opacity=".42"/>`;
 }
 
 function iconSvg(tool) {
@@ -152,26 +165,22 @@ function iconSvg(tool) {
       <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#0f172a" flood-opacity=".28"/>
     </filter>
   </defs>
-  <rect width="380" height="380" rx="56" fill="url(#bg)"/>
-  <rect width="380" height="380" rx="56" fill="url(#dots)"/>
-  <path d="M190 190L6 30M190 190L76 0M190 190L186 0M190 190L304 0M190 190L374 36M190 190L380 158M190 190L368 302M190 190L292 380M190 190L168 380M190 190L50 380M190 190L0 272M190 190L0 130" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".34"/>
-  <path d="M20 30h340v320H20z" fill="none" stroke="#0f172a" stroke-width="12" stroke-linejoin="round" opacity=".92"/>
-  <path d="M44 52h292v244H44z" fill="#ffffff" opacity=".12" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
-  <g transform="translate(20 18) scale(.92)" filter="url(#shadow)">
-    ${actionBurst()}
+  <rect width="380" height="380" rx="46" fill="url(#bg)"/>
+  <rect width="380" height="380" rx="46" fill="url(#dots)"/>
+  ${speedLines()}
+  <path d="M22 30h336v320H22z" fill="none" stroke="#0f172a" stroke-width="12" stroke-linejoin="round" opacity=".94"/>
+  <path d="M48 56h284v198H48z" fill="#ffffff" opacity=".12" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
+  ${mangaBackdrop(tool)}
+  <g transform="translate(14 44) scale(1.06)" filter="url(#shadow)">
     ${propSvg(tool.prop, tool.a, tool.b)}
   </g>
-  <g transform="translate(0 34) scale(.72)" filter="url(#shadow)">
-    ${mangaFace(tool.face)}
+  <path d="M56 282h268c14 0 24 10 24 24v22c0 14-10 24-24 24H56c-14 0-24-10-24-24v-22c0-14 10-24 24-24z" fill="#ffffff" stroke="#0f172a" stroke-width="9"/>
+  <text x="190" y="326" text-anchor="middle" font-size="32" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${title}</text>
+  <g transform="rotate(-10 102 82)">
+    <path d="M34 50h138l20 28-20 28H34z" fill="#fffef2" stroke="#0f172a" stroke-width="8" stroke-linejoin="round"/>
+    <text x="103" y="88" text-anchor="middle" font-size="25" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${symbol}</text>
   </g>
-  <path d="M36 316c62 30 246 30 308 0" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".6"/>
-  <path d="M78 282h224c16 0 28 12 28 28s-12 28-28 28H154l-38 28 8-28H78c-16 0-28-12-28-28s12-28 28-28z" fill="#ffffff" stroke="#0f172a" stroke-width="9" stroke-linejoin="round"/>
-  <text x="190" y="319" text-anchor="middle" font-size="26" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${title}</text>
-  <g transform="rotate(-12 104 82)">
-    <path d="M38 52h128l18 26-18 26H38z" fill="#fffef2" stroke="#0f172a" stroke-width="8" stroke-linejoin="round"/>
-    <text x="102" y="85" text-anchor="middle" font-size="24" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${symbol}</text>
-  </g>
-  <path d="M300 56l18-30M324 82l34-8M294 94l28 28M66 92L40 62M54 122l-36 4M76 54L64 22" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+  <path d="M304 44l18-30M330 70l34-8M296 92l28 28" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
 </svg>
 `;
 }
