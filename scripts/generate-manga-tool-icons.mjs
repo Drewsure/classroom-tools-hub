@@ -7,35 +7,35 @@ const outDir = join(root, "public", "images", "manga-icons");
 mkdirSync(outDir, { recursive: true });
 
 const tools = [
-  { id: "classic", title: "Timer", symbol: "00:05", a: "#fb923c", b: "#fef08a", prop: "clock" },
-  { id: "stopwatch", title: "Stopwatch", symbol: "GO!", a: "#06b6d4", b: "#818cf8", prop: "stopwatch" },
-  { id: "rocket", title: "Rocket", symbol: "3 2 1", a: "#a855f7", b: "#f472b6", prop: "rocket" },
-  { id: "bomb", title: "Bomb", symbol: "BOM!", a: "#ef4444", b: "#f59e0b", prop: "bomb" },
-  { id: "candle", title: "Candle", symbol: "QUIET", a: "#f59e0b", b: "#f97316", prop: "flame" },
-  { id: "hourglass", title: "Hourglass", symbol: "SAND", a: "#fbbf24", b: "#fb923c", prop: "hourglass" },
-  { id: "circle", title: "Circle", symbol: "FULL", a: "#14b8a6", b: "#22c55e", prop: "ring" },
-  { id: "snail-race", title: "Snail", symbol: "RACE!", a: "#84cc16", b: "#22c55e", prop: "snail" },
-  { id: "traffic-light", title: "Lights", symbol: "STOP", a: "#71717a", b: "#22c55e", prop: "traffic" },
-  { id: "bar", title: "Bar", symbol: "LEVEL", a: "#f43f5e", b: "#a855f7", prop: "bars" },
-  { id: "enter-names", title: "Roster", symbol: "CLASS", a: "#8b5cf6", b: "#38bdf8", prop: "clipboard" },
-  { id: "name-picker", title: "Picker", symbol: "NEXT?", a: "#c084fc", b: "#818cf8", prop: "target" },
-  { id: "group-generator", title: "Groups", symbol: "TEAM", a: "#6366f1", b: "#d946ef", prop: "students" },
-  { id: "student-shuffler", title: "Order", symbol: "1 2 3", a: "#a78bfa", b: "#38bdf8", prop: "shuffle" },
-  { id: "chance-games", title: "Chance", symbol: "LUCK", a: "#f97316", b: "#fb7185", prop: "dice" },
-  { id: "custom-dice", title: "Dice", symbol: "d100", a: "#fb7185", b: "#ef4444", prop: "die" },
-  { id: "spinner-wheel", title: "Wheel", symbol: "SPIN", a: "#818cf8", b: "#d946ef", prop: "wheel" },
-  { id: "color-generator", title: "Color", symbol: "POP", a: "#e879f9", b: "#f43f5e", prop: "palette" },
-  { id: "tally-counter", title: "Tally", symbol: "+1", a: "#10b981", b: "#22d3ee", prop: "score" },
-  { id: "stopwatch-splits", title: "Splits", symbol: "LAP", a: "#22d3ee", b: "#3b82f6", prop: "split" },
-  { id: "math-facts", title: "Math", symbol: "7x8", a: "#3b82f6", b: "#f59e0b", prop: "math" },
-  { id: "letter-cards", title: "Letters", symbol: "Aa", a: "#60a5fa", b: "#34d399", prop: "letter" },
-  { id: "flash-card-presenter", title: "Cards", symbol: "Q&A", a: "#a855f7", b: "#6366f1", prop: "cards" },
-  { id: "weather-cards", title: "Weather", symbol: "SUN?", a: "#38bdf8", b: "#facc15", prop: "weather" },
-  { id: "custom-dashboard", title: "Board", symbol: "HUB", a: "#94a3b8", b: "#a78bfa", prop: "dashboard" },
-  { id: "activity-hub", title: "Activity", symbol: "PLAY", a: "#06b6d4", b: "#818cf8", prop: "spark" },
-  { id: "pe-english-hub", title: "PE", symbol: "MOVE", a: "#ea580c", b: "#f43f5e", prop: "movement" },
-  { id: "sound-pad", title: "Sound", symbol: "SFX", a: "#d946ef", b: "#f472b6", prop: "speaker" },
-  { id: "audio-player", title: "Audio", symbol: "MP3", a: "#8b5cf6", b: "#06b6d4", prop: "headphones" },
+  { id: "classic", title: "Timer", symbol: "HURRY!", a: "#fb923c", b: "#fef08a", prop: "clock", face: "focused" },
+  { id: "stopwatch", title: "Stopwatch", symbol: "GO!", a: "#06b6d4", b: "#818cf8", prop: "stopwatch", face: "happy" },
+  { id: "rocket", title: "Rocket", symbol: "3 2 1!", a: "#a855f7", b: "#f472b6", prop: "rocket", face: "excited" },
+  { id: "bomb", title: "Bomb", symbol: "BANG!", a: "#ef4444", b: "#f59e0b", prop: "bomb", face: "shout" },
+  { id: "candle", title: "Candle", symbol: "SHH...", a: "#f59e0b", b: "#f97316", prop: "flame", face: "calm" },
+  { id: "hourglass", title: "Hourglass", symbol: "SAND!", a: "#fbbf24", b: "#fb923c", prop: "hourglass", face: "focused" },
+  { id: "circle", title: "Circle", symbol: "FULL!", a: "#14b8a6", b: "#22c55e", prop: "ring", face: "happy" },
+  { id: "snail-race", title: "Snail", symbol: "RACE!", a: "#84cc16", b: "#22c55e", prop: "snail", face: "excited" },
+  { id: "traffic-light", title: "Lights", symbol: "STOP!", a: "#71717a", b: "#22c55e", prop: "traffic", face: "focused" },
+  { id: "bar", title: "Bar", symbol: "MAX!", a: "#f43f5e", b: "#a855f7", prop: "bars", face: "happy" },
+  { id: "enter-names", title: "Roster", symbol: "CLASS!", a: "#8b5cf6", b: "#38bdf8", prop: "clipboard", face: "happy" },
+  { id: "name-picker", title: "Picker", symbol: "NEXT?", a: "#c084fc", b: "#818cf8", prop: "target", face: "excited" },
+  { id: "group-generator", title: "Groups", symbol: "TEAM!", a: "#6366f1", b: "#d946ef", prop: "students", face: "happy" },
+  { id: "student-shuffler", title: "Order", symbol: "MIX!", a: "#a78bfa", b: "#38bdf8", prop: "shuffle", face: "excited" },
+  { id: "chance-games", title: "Chance", symbol: "LUCK!", a: "#f97316", b: "#fb7185", prop: "dice", face: "shout" },
+  { id: "custom-dice", title: "Dice", symbol: "ROLL!", a: "#fb7185", b: "#ef4444", prop: "die", face: "shout" },
+  { id: "spinner-wheel", title: "Wheel", symbol: "SPIN!", a: "#818cf8", b: "#d946ef", prop: "wheel", face: "excited" },
+  { id: "color-generator", title: "Color", symbol: "POP!", a: "#e879f9", b: "#f43f5e", prop: "palette", face: "happy" },
+  { id: "tally-counter", title: "Tally", symbol: "+1!", a: "#10b981", b: "#22d3ee", prop: "score", face: "happy" },
+  { id: "stopwatch-splits", title: "Splits", symbol: "LAP!", a: "#22d3ee", b: "#3b82f6", prop: "split", face: "focused" },
+  { id: "math-facts", title: "Math", symbol: "WOW!", a: "#3b82f6", b: "#f59e0b", prop: "math", face: "focused" },
+  { id: "letter-cards", title: "Letters", symbol: "Aa!", a: "#60a5fa", b: "#34d399", prop: "letter", face: "happy" },
+  { id: "flash-card-presenter", title: "Cards", symbol: "Q&A!", a: "#a855f7", b: "#6366f1", prop: "cards", face: "excited" },
+  { id: "weather-cards", title: "Weather", symbol: "SUN!", a: "#38bdf8", b: "#facc15", prop: "weather", face: "happy" },
+  { id: "custom-dashboard", title: "Board", symbol: "HUB!", a: "#94a3b8", b: "#a78bfa", prop: "dashboard", face: "focused" },
+  { id: "activity-hub", title: "Activity", symbol: "PLAY!", a: "#06b6d4", b: "#818cf8", prop: "spark", face: "excited" },
+  { id: "pe-english-hub", title: "PE", symbol: "MOVE!", a: "#ea580c", b: "#f43f5e", prop: "movement", face: "shout" },
+  { id: "sound-pad", title: "Sound", symbol: "SFX!", a: "#d946ef", b: "#f472b6", prop: "speaker", face: "excited" },
+  { id: "audio-player", title: "Audio", symbol: "LISTEN!", a: "#8b5cf6", b: "#06b6d4", prop: "headphones", face: "calm" },
 ];
 
 const escapeXml = (value) =>
@@ -109,10 +109,37 @@ function propSvg(prop, a, b) {
   }
 }
 
+function mangaFace(kind) {
+  const mouth =
+    kind === "shout"
+      ? `<ellipse cx="170" cy="221" rx="16" ry="21" fill="#0f172a"/><ellipse cx="170" cy="215" rx="7" ry="8" fill="#fff" opacity=".38"/>`
+      : kind === "calm"
+        ? `<path d="M150 221c12 10 28 10 40 0" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`
+        : kind === "focused"
+          ? `<path d="M148 222h44" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`
+          : `<path d="M146 218c12 20 36 20 48 0" fill="none" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>`;
+  const eyes =
+    kind === "focused"
+      ? `<path d="M118 187l34 10M222 187l-34 10" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/><circle cx="142" cy="200" r="7" fill="#0f172a"/><circle cx="198" cy="200" r="7" fill="#0f172a"/>`
+      : `<ellipse cx="140" cy="197" rx="13" ry="20" fill="#0f172a"/><ellipse cx="200" cy="197" rx="13" ry="20" fill="#0f172a"/><circle cx="135" cy="189" r="5" fill="#fff"/><circle cx="195" cy="189" r="5" fill="#fff"/>`;
+  return `<g>
+    <path d="M86 180c20-54 78-80 136-54 42 18 60 58 42 102-20 50-92 66-144 40-34-18-50-50-34-88z" fill="#fff8f0" stroke="#0f172a" stroke-width="9"/>
+    <path d="M98 178c20-66 124-86 164-18-42-18-92-8-154 32z" fill="#0f172a" opacity=".9"/>
+    ${eyes}
+    ${mouth}
+    <circle cx="112" cy="225" r="12" fill="#fb7185" opacity=".55"/>
+    <circle cx="228" cy="225" r="12" fill="#fb7185" opacity=".55"/>
+  </g>`;
+}
+
+function actionBurst() {
+  return `<path d="M170 24l20 58 58-42-24 68 74-6-58 44 72 26-76 16 38 64-66-32-8 76-38-64-52 58 8-78-72 28 44-64-78-10 72-34-54-54 72 14z" fill="#ffffff" opacity=".64" stroke="#0f172a" stroke-width="6" stroke-linejoin="round"/>`;
+}
+
 function iconSvg(tool) {
   const title = escapeXml(tool.title);
   const symbol = escapeXml(tool.symbol);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 340" role="img" aria-label="${title} manga classroom tool icon">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 380" role="img" aria-label="${title} manga classroom tool icon">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="${tool.a}"/>
@@ -125,20 +152,26 @@ function iconSvg(tool) {
       <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#0f172a" flood-opacity=".28"/>
     </filter>
   </defs>
-  <rect width="340" height="340" rx="58" fill="url(#bg)"/>
-  <rect width="340" height="340" rx="58" fill="url(#dots)"/>
-  <path d="M36 58h268M20 116h300M30 282h280M54 22l-28 76M314 44l-72 42M304 306l-88-36M32 314l94-54" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".42"/>
-  <path d="M30 40h280v260H30z" fill="none" stroke="#0f172a" stroke-width="10" stroke-linejoin="round" opacity=".9"/>
-  <g filter="url(#shadow)">
+  <rect width="380" height="380" rx="56" fill="url(#bg)"/>
+  <rect width="380" height="380" rx="56" fill="url(#dots)"/>
+  <path d="M190 190L6 30M190 190L76 0M190 190L186 0M190 190L304 0M190 190L374 36M190 190L380 158M190 190L368 302M190 190L292 380M190 190L168 380M190 190L50 380M190 190L0 272M190 190L0 130" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".34"/>
+  <path d="M20 30h340v320H20z" fill="none" stroke="#0f172a" stroke-width="12" stroke-linejoin="round" opacity=".92"/>
+  <path d="M44 52h292v244H44z" fill="#ffffff" opacity=".12" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
+  <g transform="translate(20 18) scale(.92)" filter="url(#shadow)">
+    ${actionBurst()}
     ${propSvg(tool.prop, tool.a, tool.b)}
   </g>
-  <path d="M42 268c50 28 206 28 256 0" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".58"/>
-  <rect x="62" y="246" width="216" height="52" rx="20" fill="#ffffff" stroke="#0f172a" stroke-width="8"/>
-  <text x="170" y="281" text-anchor="middle" font-size="22" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${title}</text>
-  <g transform="rotate(-10 82 72)">
-    <rect x="38" y="48" width="88" height="40" rx="14" fill="#ffffff" stroke="#0f172a" stroke-width="7"/>
-    <text x="82" y="75" text-anchor="middle" font-size="17" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${symbol}</text>
+  <g transform="translate(0 34) scale(.72)" filter="url(#shadow)">
+    ${mangaFace(tool.face)}
   </g>
+  <path d="M36 316c62 30 246 30 308 0" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".6"/>
+  <path d="M78 282h224c16 0 28 12 28 28s-12 28-28 28H154l-38 28 8-28H78c-16 0-28-12-28-28s12-28 28-28z" fill="#ffffff" stroke="#0f172a" stroke-width="9" stroke-linejoin="round"/>
+  <text x="190" y="319" text-anchor="middle" font-size="26" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${title}</text>
+  <g transform="rotate(-12 104 82)">
+    <path d="M38 52h128l18 26-18 26H38z" fill="#fffef2" stroke="#0f172a" stroke-width="8" stroke-linejoin="round"/>
+    <text x="102" y="85" text-anchor="middle" font-size="24" font-weight="900" fill="#0f172a" font-family="Arial Black, Arial">${symbol}</text>
+  </g>
+  <path d="M300 56l18-30M324 82l34-8M294 94l28 28M66 92L40 62M54 122l-36 4M76 54L64 22" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
 </svg>
 `;
 }

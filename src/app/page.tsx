@@ -69,7 +69,6 @@ const PATHWAY_STYLES: Record<
   string,
   {
     kicker: string;
-    image?: string;
     hue: string;
     bg: string;
   }
@@ -318,7 +317,7 @@ export default function Home() {
             ) : null}
 
             <div className={cn(
-              "grid grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6",
+              "grid grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5",
               !query.trim() && activeCategory === "all"
                 ? "max-h-[calc(100vh-19rem)] lg:max-h-[calc(100vh-20.5rem)]"
                 : "max-h-[calc(100vh-10.5rem)] lg:max-h-[calc(100vh-12rem)]",
@@ -430,7 +429,7 @@ function PathwayCard({
       type="button"
       onClick={onOpen}
       className={cn(
-        "group relative min-h-[6.25rem] min-w-[7.7rem] flex-1 overflow-hidden rounded-[1.25rem] bg-gradient-to-br p-2.5 text-left text-white shadow-lg shadow-slate-900/14 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300",
+        "group relative min-h-[7.25rem] min-w-[9.25rem] flex-1 overflow-hidden rounded-[1.25rem] bg-gradient-to-br p-2.5 text-left text-white shadow-lg shadow-slate-900/14 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300",
         style.bg,
       )}
     >
@@ -439,7 +438,7 @@ function PathwayCard({
         <img
           src={mangaIcon}
           alt=""
-          className="absolute bottom-0 right-0 h-20 w-20 object-contain opacity-95 drop-shadow-xl transition group-hover:scale-105"
+          className="absolute -bottom-2 -right-2 h-28 w-28 object-contain opacity-100 drop-shadow-xl transition group-hover:scale-105 sm:h-32 sm:w-32"
         />
       ) : (
         <span className="absolute bottom-1 right-2 text-5xl opacity-80 drop-shadow-xl transition group-hover:scale-105">
@@ -450,7 +449,7 @@ function PathwayCard({
         <span className="w-fit rounded-full bg-white/[0.84] px-2 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-900">
           {style.kicker}
         </span>
-        <div className="max-w-[6rem]">
+        <div className="max-w-[7rem]">
           <div
             className="mb-1 grid h-8 w-8 place-items-center rounded-xl bg-white/90 text-slate-950"
             style={{ color: style.hue }}
@@ -528,16 +527,21 @@ function ToolTile({
           onOpen();
         }
       }}
-      className="group relative flex min-h-[4.35rem] cursor-pointer flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm outline-none transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 focus-visible:ring-2 focus-visible:ring-sky-400"
+      className="group relative flex min-h-[7rem] cursor-pointer flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-sm outline-none transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 focus-visible:ring-2 focus-visible:ring-sky-400"
     >
       <div
         className="absolute inset-x-0 top-0 h-0.5 opacity-90"
         style={{ backgroundColor: tool.accent }}
       />
+      <img
+        src={mangaIcon}
+        alt=""
+        className="pointer-events-none absolute -right-2 -top-2 h-24 w-24 object-contain opacity-95 drop-shadow-lg transition group-hover:scale-105"
+      />
 
       <div className="flex items-start justify-between gap-2">
-        <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-sky-50 shadow-sm ring-1 ring-slate-200">
-          <img src={mangaIcon} alt="" className="h-11 w-11 object-contain" />
+        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-sky-50 shadow-sm ring-1 ring-slate-200">
+          <img src={mangaIcon} alt="" className="h-14 w-14 object-contain" />
         </div>
         <button
           type="button"
@@ -555,8 +559,8 @@ function ToolTile({
         </button>
       </div>
 
-      <div>
-        <h3 className="line-clamp-1 text-xs font-black leading-tight text-slate-950">
+      <div className="relative z-10 max-w-[70%] rounded-lg bg-white/85 px-1.5 py-1 backdrop-blur-sm">
+        <h3 className="line-clamp-2 text-xs font-black leading-tight text-slate-950">
           {tool.name}
         </h3>
         <p className="mt-0.5 line-clamp-1 text-[10px] font-semibold leading-tight text-slate-500">

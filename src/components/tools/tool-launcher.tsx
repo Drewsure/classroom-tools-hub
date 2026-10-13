@@ -135,11 +135,16 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
     <SoundEnabledContext.Provider value={soundEnabled}>
       <div className="fixed inset-0 z-50 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(251,113,133,0.16),transparent_30%),#060416] backdrop-blur-2xl">
         <div className="flex min-h-screen flex-col">
-          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/90 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
+          <header className="sticky top-0 z-20 overflow-hidden border-b border-white/10 bg-slate-950/90 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
+            <img
+              src={mangaIcon}
+              alt=""
+              className="pointer-events-none absolute -left-6 -top-12 h-40 w-40 rotate-[-10deg] object-contain opacity-20 sm:h-48 sm:w-48"
+            />
             <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-1 items-center gap-3 text-white">
-                <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white text-3xl shadow-lg shadow-black/30 ring-2 ring-white/25 sm:h-16 sm:w-16 sm:text-4xl">
-                  <img src={mangaIcon} alt="" className="h-16 w-16 object-contain" />
+                <span className="relative z-10 grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white text-3xl shadow-lg shadow-black/30 ring-2 ring-white/25 sm:h-20 sm:w-20 sm:text-4xl">
+                  <img src={mangaIcon} alt="" className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">
