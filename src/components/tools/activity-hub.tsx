@@ -12,7 +12,7 @@ import { UniversalSkinPicker } from "./universal-skin-picker";
 import { SKINS, SkinParticleField, SkinSceneDecorator } from "@/lib/skins";
 import { useAttendance } from "@/hooks/use-attendance";
 import { useClassroomAudio } from "@/hooks/use-classroom-audio";
-import { PHONIC_CARDS } from "@/lib/phonic-cards";
+import { PHONIC_CARDS, phonicWordAudioUrl } from "@/lib/phonic-cards";
 import { formatTime } from "@/lib/timers";
 import {
   Play, Pause, RotateCcw, Plus, Minus, Trash2, Edit3, Check, X,
@@ -718,7 +718,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
   const playWord = () => {
     if (!card) return;
     if (card.type === "phonic" && card.id) {
-      void classroomAudio.play(`/sounds/word-${card.id}.mp3`, { volume: 0.5, lowpass: 7600 });
+      void classroomAudio.play(phonicWordAudioUrl(card.id), { volume: 0.5, lowpass: 7600 });
     } else {
       try {
         window.speechSynthesis.cancel();

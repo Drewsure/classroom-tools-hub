@@ -9,6 +9,27 @@ const code = ts.transpileModule(readFileSync(new URL("../src/lib/classroom-cues.
 const { TimerMilestones, CLASSROOM_CUE_FILES, TIMER_FINISH_CUES } =
   await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
 
+const phonicCode = ts.transpileModule(readFileSync(new URL("../src/lib/phonic-cards.ts", import.meta.url), "utf8"), {
+  compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
+}).outputText;
+const { PHONIC_CARDS, findPhonicCard, phonicWordAudioUrl } =
+  await import(`data:text/javascript;base64,${Buffer.from(phonicCode).toString("base64")}`);
+
+test("L keeps loud and uses the repaired recording with a fresh offline cache key", () => {
+  assert.equal(findPhonicCard("L").word, "loud");
+  const url = phonicWordAudioUrl("L");
+  assert.equal(url, "/sounds/word-l.mp3?v=clean-1");
+  assert.equal(phonicWordAudioUrl("l"), url);
+  const sw = readFileSync(new URL("../public/sw.js", import.meta.url), "utf8");
+  assert.ok(sw.includes(JSON.stringify(url)));
+});
+
+test("all other phonic word recordings retain their original URLs", () => {
+  for (const card of PHONIC_CARDS.filter((card) => card.letter !== "l")) {
+    assert.equal(phonicWordAudioUrl(card.upper), `/sounds/word-${card.letter}.mp3`);
+  }
+});
+
 test("countdowns announce all three marks once", () => {
   const tracker = new TimerMilestones();
   assert.equal(tracker.update(61, true), null);

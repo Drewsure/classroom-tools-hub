@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Volume2, Play, HelpCircle, CheckCircle2 } from "lucide-react";
-import { findPhonicCard } from "@/lib/phonic-cards";
+import { findPhonicCard, phonicWordAudioUrl } from "@/lib/phonic-cards";
 import { cn } from "@/lib/utils";
 import { useClassroomAudio } from "@/hooks/use-classroom-audio";
 
@@ -70,7 +70,7 @@ export function PhonicCardPanel({
   const [activeLine, setActiveLine] = useState<number | null>(null);
 
   const baseLetter = letter?.charAt(0).toLowerCase() ?? "";
-  const wordSoundUrl = `/sounds/word-${baseLetter}.mp3`;
+  const wordSoundUrl = phonicWordAudioUrl(baseLetter);
   const questionSoundUrl = `/sounds/question-only-${baseLetter}.mp3`;
 
   // Split the answer string into individual answer options

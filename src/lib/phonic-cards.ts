@@ -46,3 +46,9 @@ export function findPhonicCard(letter: string): PhonicCard | undefined {
   const baseLetter = letter.charAt(0).toLowerCase();
   return PHONIC_CARDS.find((c) => c.letter === baseLetter);
 }
+
+export function phonicWordAudioUrl(letter: string): string {
+  const baseLetter = letter.charAt(0).toLowerCase();
+  // Version the repaired L recording to bypass installed/browser audio caches.
+  return `/sounds/word-${baseLetter}.mp3${baseLetter === "l" ? "?v=clean-1" : ""}`;
+}

@@ -9,7 +9,7 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.5.17";
+const VERSION = "v1.5.18";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 
@@ -17,6 +17,7 @@ const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 const PRECACHE_URLS = [
   "/",
   "/manifest.json",
+  "/sounds/word-l.mp3?v=clean-1",
   "/icons/icon-32.png",
   "/icons/icon-192.png",
   "/icons/icon-512.png",

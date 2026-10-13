@@ -30,7 +30,9 @@ for (const dir of sourceDirs) {
 for (const sourceFile of sourceFiles) {
   const source = readFileSync(sourceFile, "utf8");
   for (const match of source.matchAll(/["'`](\/(?:images|sounds|icons)\/[^"'`\s)]+)["'`]/g)) {
-    if (!match[1].includes("${")) expectedAssets.add(match[1]);
+    if (!match[1].includes("${")) {
+      expectedAssets.add(new URL(match[1], "https://classroom.invalid").pathname);
+    }
   }
 }
 
