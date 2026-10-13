@@ -13,6 +13,7 @@ import {
 import { ToolLauncher } from "@/components/tools/tool-launcher";
 import { useFavorites } from "@/hooks/use-favorites";
 import { AttendanceButton } from "@/components/tools/attendance-dialog";
+import { getMangaToolIcon } from "@/lib/tool-art.generated";
 import {
   BookOpenCheck,
   Clock3,
@@ -75,56 +76,39 @@ const PATHWAY_STYLES: Record<
 > = {
   "activity-hub": {
     kicker: "Daily warm-up",
-    image: "/images/manga-icons/activity-hub.png",
     hue: "#22d3ee",
     bg: "from-cyan-300 via-sky-400 to-indigo-500",
   },
   "custom-dashboard": {
     kicker: "Teacher board",
-    image: "/images/manga-icons/dashboard.png",
     hue: "#a78bfa",
     bg: "from-violet-300 via-fuchsia-400 to-rose-400",
   },
   classic: {
     kicker: "Class timer",
-    image: "/images/manga-icons/timer.png",
     hue: "#fb923c",
     bg: "from-orange-300 via-amber-300 to-yellow-300",
   },
   "name-picker": {
     kicker: "Student turn",
-    image: "/images/manga-icons/name-picker.png",
     hue: "#c084fc",
     bg: "from-purple-300 via-violet-400 to-indigo-500",
   },
   "weather-cards": {
     kicker: "ESL picture talk",
-    image: "/images/manga-icons/weather.png",
     hue: "#38bdf8",
     bg: "from-sky-200 via-cyan-300 to-blue-400",
   },
   "sound-pad": {
     kicker: "Class reactions",
-    image: "/images/manga-icons/sound-pad.png",
     hue: "#e879f9",
     bg: "from-fuchsia-300 via-pink-400 to-rose-400",
   },
   "letter-cards": {
     kicker: "Phonics cards",
-    image: "/images/manga-icons/letter-cards.png",
     hue: "#60a5fa",
     bg: "from-blue-300 via-sky-300 to-emerald-300",
   },
-};
-
-const MANGA_ICON_BY_TOOL: Record<string, string> = {
-  "activity-hub": "/images/manga-icons/activity-hub.png",
-  "custom-dashboard": "/images/manga-icons/dashboard.png",
-  classic: "/images/manga-icons/timer.png",
-  "name-picker": "/images/manga-icons/name-picker.png",
-  "weather-cards": "/images/manga-icons/weather.png",
-  "sound-pad": "/images/manga-icons/sound-pad.png",
-  "letter-cards": "/images/manga-icons/letter-cards.png",
 };
 
 export default function Home() {
@@ -438,6 +422,7 @@ function PathwayCard({
     hue: tool.accent,
     bg: tool.gradient,
   };
+  const mangaIcon = getMangaToolIcon(tool.id);
   const Icon = tool.icon;
 
   return (
@@ -450,11 +435,11 @@ function PathwayCard({
       )}
     >
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.18),rgba(15,23,42,0.02)_45%,rgba(15,23,42,0.28))]" />
-      {style.image ? (
+      {mangaIcon ? (
         <img
-          src={style.image}
+          src={mangaIcon}
           alt=""
-          className="absolute bottom-0 right-0 h-16 w-16 object-contain opacity-95 drop-shadow-xl transition group-hover:scale-105"
+          className="absolute bottom-0 right-0 h-20 w-20 object-contain opacity-95 drop-shadow-xl transition group-hover:scale-105"
         />
       ) : (
         <span className="absolute bottom-1 right-2 text-5xl opacity-80 drop-shadow-xl transition group-hover:scale-105">
@@ -530,8 +515,7 @@ function ToolTile({
   onOpen: () => void;
   onToggleFavorite: () => void;
 }) {
-  const Icon = tool.icon;
-  const mangaIcon = MANGA_ICON_BY_TOOL[tool.id];
+  const mangaIcon = getMangaToolIcon(tool.id);
 
   return (
     <article
@@ -552,18 +536,9 @@ function ToolTile({
       />
 
       <div className="flex items-start justify-between gap-2">
-        {mangaIcon ? (
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-50">
-            <img src={mangaIcon} alt="" className="h-9 w-9 object-contain" />
-          </div>
-        ) : (
-          <div
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg"
-            style={{ backgroundColor: `${tool.accent}24` }}
-          >
-            <Icon className="h-4 w-4" style={{ color: tool.accent }} />
-          </div>
-        )}
+        <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-sky-50 shadow-sm ring-1 ring-slate-200">
+          <img src={mangaIcon} alt="" className="h-11 w-11 object-contain" />
+        </div>
         <button
           type="button"
           onClick={(event) => {

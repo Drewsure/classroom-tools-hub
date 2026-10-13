@@ -36,6 +36,7 @@ import { CircleTimer } from "@/components/timers/circle-timer";
 import { SnailRaceTimer } from "@/components/timers/snail-race-timer";
 import { TrafficLightTimer } from "@/components/timers/traffic-light-timer";
 import { BarTimer } from "@/components/timers/bar-timer";
+import { getMangaToolIcon } from "@/lib/tool-art.generated";
 
 interface ToolLauncherProps {
   tool: ToolDef;
@@ -91,20 +92,10 @@ const PROJECTOR_TOOL_IDS = new Set([
   "custom-dashboard",
 ]);
 
-const MANGA_ICON_BY_TOOL: Record<string, string> = {
-  "activity-hub": "/images/manga-icons/activity-hub.png",
-  "custom-dashboard": "/images/manga-icons/dashboard.png",
-  classic: "/images/manga-icons/timer.png",
-  "name-picker": "/images/manga-icons/name-picker.png",
-  "weather-cards": "/images/manga-icons/weather.png",
-  "sound-pad": "/images/manga-icons/sound-pad.png",
-  "letter-cards": "/images/manga-icons/letter-cards.png",
-};
-
 export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const mangaIcon = MANGA_ICON_BY_TOOL[tool.id];
+  const mangaIcon = getMangaToolIcon(tool.id);
   const isTimerTool = TIMER_TOOL_IDS.has(tool.id);
   const isProjectorTool = PROJECTOR_TOOL_IDS.has(tool.id);
 
@@ -148,11 +139,7 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
             <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-1 items-center gap-3 text-white">
                 <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white text-3xl shadow-lg shadow-black/30 ring-2 ring-white/25 sm:h-16 sm:w-16 sm:text-4xl">
-                  {mangaIcon ? (
-                    <img src={mangaIcon} alt="" className="h-16 w-16 object-contain" />
-                  ) : (
-                    tool.emoji
-                  )}
+                  <img src={mangaIcon} alt="" className="h-16 w-16 object-contain" />
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">

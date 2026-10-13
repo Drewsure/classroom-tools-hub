@@ -4,10 +4,12 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const toolsPath = join(root, "src", "lib", "tools.ts");
+const mangaArtPath = join(root, "src", "lib", "tool-art.generated.ts");
 const launcherPath = join(root, "src", "components", "tools", "tool-launcher.tsx");
 const weatherPath = join(root, "src", "components", "tools", "weather-flashcards.tsx");
 
 const toolsSource = readFileSync(toolsPath, "utf8");
+const mangaArtSource = readFileSync(mangaArtPath, "utf8");
 const launcherSource = readFileSync(launcherPath, "utf8");
 const weatherSource = readFileSync(weatherPath, "utf8");
 
@@ -16,6 +18,14 @@ const duplicateToolIds = toolIds.filter((id, index) => toolIds.indexOf(id) !== i
 const rendererIds = [...launcherSource.matchAll(/case\s+"([^"]+)":/g)].map((match) => match[1]);
 const missingRenderers = toolIds.filter((id) => !rendererIds.includes(id));
 const orphanRenderers = rendererIds.filter((id) => !toolIds.includes(id));
+const mangaIconEntries = [...mangaArtSource.matchAll(/"([^"]+)":\s*"\/images\/manga-icons\/([^"]+\.svg)"/g)]
+  .map((match) => ({ id: match[1], file: match[2] }));
+const mangaIconIds = mangaIconEntries.map((entry) => entry.id);
+const missingMangaIcons = toolIds.filter((id) => !mangaIconIds.includes(id));
+const orphanMangaIcons = mangaIconIds.filter((id) => !toolIds.includes(id));
+const missingMangaAssets = mangaIconEntries
+  .filter((entry) => !existsSync(join(root, "public", "images", "manga-icons", entry.file)))
+  .map((entry) => `${entry.id}: ${entry.file}`);
 
 const categories = [
   ...new Set([...toolsSource.matchAll(/\bcategory:\s*"([^"]+)"/g)].map((match) => match[1])),
@@ -39,6 +49,9 @@ const failures = [
   duplicateToolIds.length && `Duplicate tool ids: ${duplicateToolIds.join(", ")}`,
   missingRenderers.length && `Missing launcher renderers: ${missingRenderers.join(", ")}`,
   orphanRenderers.length && `Launcher renderers without registry entries: ${orphanRenderers.join(", ")}`,
+  missingMangaIcons.length && `Missing manga icons for tools: ${missingMangaIcons.join(", ")}`,
+  orphanMangaIcons.length && `Manga icons without registry entries: ${orphanMangaIcons.join(", ")}`,
+  missingMangaAssets.length && `Missing manga icon assets: ${missingMangaAssets.join(", ")}`,
   missingCategoryInfo.length && `Missing CATEGORY_INFO entries: ${missingCategoryInfo.join(", ")}`,
   missingWeatherAssets.length && `Missing weather GIF assets: ${missingWeatherAssets.join(", ")}`,
 ].filter(Boolean);
@@ -49,4 +62,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Verified ${toolIds.length} tools, ${categories.length} categories, and ${uniqueWeatherTypes.length} weather assets.`);
+console.log(`Verified ${toolIds.length} tools, ${mangaIconIds.length} manga icons, ${categories.length} categories, and ${uniqueWeatherTypes.length} weather assets.`);
