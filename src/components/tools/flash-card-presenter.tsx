@@ -469,8 +469,9 @@ export function FlashCardPresenter() {
       {/* ===== Group selector ===== */}
       {!presenting && (
         <div className="w-full max-w-4xl">
+          <div className="rounded-2xl border border-sky-200 bg-white/95 p-3 shadow-xl shadow-sky-950/10">
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Card Set:</span>
+            <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-black uppercase tracking-wider text-sky-950">Card Set</span>
             {allGroups.map((g) => {
               const isActive = g.id === activeGroupId;
               return (
@@ -478,15 +479,18 @@ export function FlashCardPresenter() {
                   key={g.id}
                   onClick={() => { setActiveGroupId(g.id); sound.playClick(); }}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold border transition-all",
+                    "flex min-h-10 items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-black transition-all",
                     isActive
-                      ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                      : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                      ? "border-sky-700 bg-sky-700 text-white shadow-lg shadow-sky-950/20"
+                      : "border-slate-300 bg-white text-slate-900 hover:border-sky-400 hover:bg-sky-50",
                   )}
                 >
                   {groupIcon(g.icon)}
                   {g.name}
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full bg-black/20 text-xs">
+                  <span className={cn(
+                    "ml-1 rounded-full px-1.5 py-0.5 text-xs font-black",
+                    isActive ? "bg-white text-sky-900" : "bg-slate-100 text-slate-700",
+                  )}>
                     {g.cards.length}
                   </span>
                 </button>
@@ -496,10 +500,11 @@ export function FlashCardPresenter() {
               onClick={() => setShowUploadDialog(!showUploadDialog)}
               size="sm"
               variant="outline"
-              className="rounded-full bg-emerald-500/20 text-emerald-100 border-emerald-400/40 hover:bg-emerald-500/30 hover:text-emerald-50"
+              className="min-h-10 rounded-xl border-emerald-300 bg-emerald-50 px-3 font-black text-emerald-950 hover:bg-emerald-100"
             >
               <Upload className="mr-1.5 h-3.5 w-3.5" /> Upload New Group
             </Button>
+          </div>
           </div>
         </div>
       )}
@@ -585,8 +590,9 @@ export function FlashCardPresenter() {
 
       {/* ===== Mode toggle ===== */}
       {!presenting && (
+        <div className="rounded-2xl border border-violet-200 bg-white/95 p-3 shadow-xl shadow-violet-950/10">
         <div className="flex items-center gap-2 flex-wrap justify-center">
-          <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Mode:</span>
+          <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-black uppercase tracking-wider text-violet-950">Mode</span>
           {([
             { id: "shuffle" as const, label: "Shuffle", icon: Shuffle },
             { id: "browse" as const, label: "Browse", icon: ChevronRight },
@@ -598,10 +604,10 @@ export function FlashCardPresenter() {
                 key={m.id}
                 onClick={() => switchMode(m.id)}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border transition-all",
+                  "flex min-h-10 items-center gap-1.5 rounded-xl border px-4 py-2 text-sm font-black transition-all",
                   mode === m.id
-                    ? "bg-white text-slate-900 border-white scale-105 shadow-lg"
-                    : "bg-white/10 text-white border-white/25 hover:bg-white/20",
+                    ? "border-violet-700 bg-violet-700 text-white shadow-lg shadow-violet-950/20"
+                    : "border-slate-300 bg-white text-slate-900 hover:border-violet-400 hover:bg-violet-50",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -609,6 +615,7 @@ export function FlashCardPresenter() {
               </button>
             );
           })}
+        </div>
         </div>
       )}
 
