@@ -131,7 +131,7 @@ export function LetterCardGenerator() {
   const usedUpper = new Set(usedLetters.map((l) => l.toUpperCase()));
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="flex flex-col items-center gap-6 pb-28 pt-2">
       {/* Title area */}
       <div className="w-full max-w-md text-center px-6 py-4 rounded-3xl bg-gradient-to-r from-sky-300 via-blue-500 to-violet-600 border border-white/20 shadow-lg">
         <h2 className="text-2xl font-black text-white flex items-center justify-center gap-3 drop-shadow">
@@ -498,36 +498,46 @@ export function LetterCardGenerator() {
         </ShakeWrapper>
       )}
 
-      {(phase === "result" || isBusy) && (
-        <div className="flex gap-3 justify-center">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-[80] flex justify-center px-3">
+        <div className="pointer-events-auto flex max-w-[min(42rem,100%)] gap-2 rounded-2xl border border-white/80 bg-white/95 p-2 shadow-2xl shadow-slate-950/25 backdrop-blur-md">
           {isBusy ? (
-            <Button disabled size="lg" className="rounded-full px-8 bg-white/30 text-white">
-              {phase === "buildup" ? "⚡ Building up..." : "Flipping..."}
+            <Button disabled size="lg" className="min-h-14 rounded-xl bg-slate-200 px-8 text-base font-black text-slate-700">
+              {phase === "buildup" ? "Building up..." : "Flipping..."}
             </Button>
-          ) : (
+          ) : phase === "result" ? (
             <>
               <Button
                 onClick={handleGenerate}
                 disabled={allExhausted}
                 size="lg"
-                className="rounded-full px-6 bg-white text-slate-900 hover:bg-white/90 shadow-lg"
+                className="min-h-14 flex-1 rounded-xl bg-sky-700 px-6 text-base font-black text-white shadow-lg shadow-sky-950/20 hover:bg-sky-800"
               >
-                <Play className="mr-2 h-4 w-4 fill-current" />
+                <Play className="mr-2 h-5 w-5 fill-current" />
                 Next Card
               </Button>
               <Button
                 onClick={handleReset}
                 size="lg"
                 variant="outline"
-                className="rounded-full px-6 bg-white/10 text-white border-white/25 hover:bg-white/20 hover:text-white"
+                className="min-h-14 rounded-xl border-slate-300 bg-white px-5 text-base font-black text-slate-900 hover:bg-slate-100"
               >
-                <RotateCcw className="mr-2 h-4 w-4" />
+                <RotateCcw className="mr-2 h-5 w-5" />
                 Reset
               </Button>
             </>
+          ) : (
+            <Button
+              onClick={handleGenerate}
+              disabled={allExhausted || (customMode && selectedLetters.size === 0)}
+              size="lg"
+              className="min-h-14 rounded-xl bg-sky-700 px-8 text-base font-black text-white shadow-lg shadow-sky-950/20 hover:bg-sky-800"
+            >
+              <Play className="mr-2 h-5 w-5 fill-current" />
+              Draw a Card!
+            </Button>
           )}
         </div>
-      )}
+      </div>
 
       {allExhausted && (
         <p className="text-center text-white/70 text-lg font-bold">
