@@ -48,22 +48,39 @@ const TRAFFIC_LIGHTS = [
 // ===== Simon Says Commands =====
 const SIMON_COMMANDS = [
   // Round 1: Body Parts
-  "Touch your left ear", "Touch your right knee", "Reach for the sky", "Clap your hands 3 times",
+  "Touch your head", "Touch your shoulders", "Touch your right knee", "Touch your toes",
+  "Touch your elbow", "Touch your ankle", "Touch your back", "Clap your hands 3 times",
   "Stand on one leg", "Spin around once", "Touch your nose", "Jump twice",
   // Round 2: Dynamic Actions
   "Run in place!", "Hop like a frog", "March like a soldier", "Swim in the air",
-  "Freeze!", "Flap your arms like a bird", "Do 3 jumping jacks", "Stomp your feet",
-  "Sit down!", "Strike a superhero pose",
+  "Walk slowly", "Stretch tall", "Climb the ladder", "Sing one word",
+  "Freeze!", "Flap your arms like a bird", "Wiggle your fingers", "Stomp your feet",
   // Round 3: Spatial
   "Take 2 steps forward", "Take 1 giant leap backward", "Touch the floor with your left hand",
   "Whisper your name", "Shout 'English!'", "Cross your arms", "Sit down quietly",
-  "Touch your toes", "Roll your shoulders", "Reach up high", "Make a big circle",
+  "Roll your shoulders", "Point to your backside", "Make a big circle",
 ];
 
 // Trick commands (no "Simon says" prefix)
 const SIMON_TRICKS = [
   "Touch your nose!", "Jump twice!", "Freeze!", "Sit down!", "Shout 'English'!",
 ];
+
+// ===== Body part visuals =====
+const BODY_PARTS = [
+  { en: "Head", jp: "あたま", emoji: "🙂", top: "3%", left: "50%" },
+  { en: "Shoulders", jp: "かた", emoji: "↔", top: "18%", left: "50%" },
+  { en: "Knees", jp: "ひざ", emoji: "→", top: "68%", left: "36%" },
+  { en: "Toes", jp: "つまさき", emoji: "↓", top: "93%", left: "66%" },
+  { en: "Elbows", jp: "ひじ", emoji: "→", top: "39%", left: "20%" },
+  { en: "Legs", jp: "あし", emoji: "↕", top: "68%", left: "50%" },
+  { en: "Arms", jp: "うで", emoji: "↔", top: "34%", left: "50%" },
+  { en: "Hands", jp: "て", emoji: "✋", top: "51%", left: "15%" },
+  { en: "Fingers", jp: "ゆび", emoji: "☝", top: "47%", left: "82%" },
+  { en: "Back", jp: "せなか", emoji: "↩", top: "33%", left: "63%" },
+  { en: "Backside", jp: "おしり", emoji: "↙", top: "55%", left: "62%" },
+  { en: "Ankle", jp: "あしくび", emoji: "→", top: "87%", left: "37%" },
+] as const;
 
 // ===== PE Flashcards (20 cards) =====
 const PE_FLASHCARDS = [
@@ -76,40 +93,38 @@ const PE_FLASHCARDS = [
   { id: "blue",   set: "Signal Lights", front: "🔵 BLUE LIGHT",   back: "FLY LIKE A BIRD\n鳥のように飛ぶ\nフライ", color: "bg-blue-500" },
   { id: "pink",   set: "Signal Lights", front: "🩷 PINK LIGHT",   back: "KANGAROO JUMP\nカンガルージャンプ\nジャンプ", color: "bg-pink-500" },
   // SET 2: Stations
-  { id: "toss",   set: "Stations", front: "🎯 TARGET TOSS",     back: "I choose Target Toss!\n的当て (まとあて)", color: "bg-emerald-600" },
-  { id: "rope",   set: "Stations", front: "🪢 JUMP ROPE",       back: "I choose Jump Rope!\n縄跳び (なわとび)", color: "bg-cyan-600" },
-  { id: "agility",set: "Stations", front: "🏃 AGILITY COURSE",  back: "I choose Agility Course!\nアジリティコース", color: "bg-teal-600" },
+  { id: "toss",   set: "Stations", front: "🎯 TARGET TOSS",     back: "Throw to the target!\n的当て (まとあて)", color: "bg-emerald-600" },
+  { id: "rope",   set: "Stations", front: "🪢 JUMP ROPE",       back: "Jump and count!\n縄跳び (なわとび)", color: "bg-cyan-600" },
+  { id: "balance",set: "Stations", front: "⚖️ BALANCE PATH",    back: "Walk carefully!\nバランス", color: "bg-teal-600" },
   // SET 3: Game Words
   { id: "apple",  set: "Game Words", front: "🍎 Apples",        back: "りんご\nアップルズ", color: "bg-red-400" },
   { id: "banana", set: "Game Words", front: "🍌 Bananas",       back: "バナナ", color: "bg-yellow-400" },
   { id: "orange", set: "Game Words", front: "🍊 Oranges",       back: "みかん・オレンジ", color: "bg-orange-400" },
   { id: "salad",  set: "Game Words", front: "🥗 Fruit Salad!",  back: "フルーツサラダ！\nEveryone runs!", color: "bg-green-400" },
-  { id: "help",   set: "Game Words", front: "🆘 Help me, please!", back: "助けて！(たすけて)", color: "bg-red-500" },
+  { id: "ok",     set: "Game Words", front: "👍 Are you OK?",   back: "だいじょうぶ？", color: "bg-red-500" },
   { id: "free",   set: "Game Words", front: "🆓 You're free!",  back: "自由だよ！(じゆうだよ)", color: "bg-green-500" },
-  { id: "choose", set: "Game Words", front: "🙋 I choose...",   back: "えらびます", color: "bg-blue-400" },
+  { id: "try",    set: "Game Words", front: "🙋 Can I try?",    back: "やってみてもいい？", color: "bg-blue-400" },
   { id: "turn",   set: "Game Words", front: "👉 My turn!",      back: "私の番！(わたしのばん)", color: "bg-purple-400" },
-  { id: "reach",  set: "Game Words", front: "🙆 Reach up",      back: "上に伸びる (うえにのびる)", color: "bg-indigo-400" },
-  { id: "what",   set: "Game Words", front: "💭 What did we do?", back: "何をした？(なにをした)", color: "bg-slate-500" },
+  { id: "stretch-tall", set: "Game Words", front: "🙆 Stretch tall", back: "大きくのびる", color: "bg-indigo-400" },
+  { id: "fun",    set: "Game Words", front: "💭 What was fun?", back: "何が楽しかった？", color: "bg-slate-500" },
 ];
+
+const RANDOM_CARD_BLOCKLIST = new Set(["turn", "free", "toss", "rope", "salad"]);
+const RANDOM_PE_FLASHCARDS = PE_FLASHCARDS.filter((card) => !RANDOM_CARD_BLOCKLIST.has(card.id));
 
 // ===== PE Dice Presets =====
 const PE_DICE_PRESETS: Record<string, { text: string; emoji: string }[]> = {
   movements: [
-    { text: "Jump",  emoji: "🤸" },
-    { text: "Hop",   emoji: "🦘" },
-    { text: "Spin",  emoji: "🌀" },
-    { text: "Clap",  emoji: "👏" },
-    { text: "Stomp", emoji: "🦶" },
-    { text: "March", emoji: "🥁" },
+    { text: "Stretch", emoji: "🙆" },
+    { text: "Jump",   emoji: "🤸" },
+    { text: "Run",    emoji: "🏃" },
+    { text: "Walk",   emoji: "🚶" },
+    { text: "Swim",   emoji: "🏊" },
+    { text: "Spin",   emoji: "🌀" },
+    { text: "Climb",  emoji: "🧗" },
+    { text: "Sing",   emoji: "🎤" },
   ],
-  bodyParts: [
-    { text: "Head",      emoji: "🧠" },
-    { text: "Shoulders", emoji: "💪" },
-    { text: "Knees",     emoji: "🦵" },
-    { text: "Toes",      emoji: "🦶" },
-    { text: "Elbows",    emoji: "💪" },
-    { text: "Ankles",    emoji: "🦶" },
-  ],
+  bodyParts: BODY_PARTS.map((part) => ({ text: part.en, emoji: part.emoji })),
   animals: [
     { text: "Frog",     emoji: "🐸" },
     { text: "Bird",     emoji: "🐦" },
@@ -140,8 +155,36 @@ const PE_DICE_PRESETS: Record<string, { text: string; emoji: string }[]> = {
 const STATIONS = [
   { name: "TARGET TOSS", emoji: "🎯", phrases: ["Step back", "Nice shot!", "Count: 1,2,3!"], desc: "Throw ball into hoop. Count points in English!" },
   { name: "JUMP ROPE", emoji: "🪢", phrases: ["Ready, set, jump!", "How many?", "Faster/Slower"], desc: "Jump continuously. Count without stopping!" },
-  { name: "AGILITY COURSE", emoji: "🏃", phrases: ["Walk carefully", "Step over", "High knees!"], desc: "Balance beam + agility ladder. Don't touch lines!" },
+  { name: "BALANCE PATH", emoji: "⚖️", phrases: ["Walk carefully", "Step over", "Stay balanced!"], desc: "Step, balance, and finish. Use slow careful English commands." },
 ];
+
+function BodyPartVisual({ part }: { part: (typeof BODY_PARTS)[number] }) {
+  return (
+    <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-b from-sky-100 to-white shadow-inner">
+      <div className="absolute left-1/2 top-4 h-8 w-8 -translate-x-1/2 rounded-full border-4 border-slate-800 bg-white" />
+      <div className="absolute left-1/2 top-12 h-16 w-12 -translate-x-1/2 rounded-full border-4 border-slate-800 bg-orange-100" />
+      <div className="absolute left-[31%] top-[4.6rem] h-14 w-3 rotate-[24deg] rounded-full bg-slate-800" />
+      <div className="absolute right-[31%] top-[4.6rem] h-14 w-3 -rotate-[24deg] rounded-full bg-slate-800" />
+      <div className="absolute left-[27%] top-[7.6rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
+      <div className="absolute right-[27%] top-[7.6rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
+      <div className="absolute left-[42%] top-[7.2rem] h-16 w-3 rotate-[8deg] rounded-full bg-slate-800" />
+      <div className="absolute right-[42%] top-[7.2rem] h-16 w-3 -rotate-[8deg] rounded-full bg-slate-800" />
+      <div className="absolute left-[39%] top-[10rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
+      <div className="absolute right-[39%] top-[10rem] h-5 w-5 rounded-full border-4 border-slate-800 bg-white" />
+      <div className="absolute left-[calc(50%-2.5rem)] top-[4rem] h-1.5 w-20 rounded-full bg-slate-800" />
+      <div className="absolute left-[43%] top-[6.5rem] h-8 w-10 rounded-b-full border-b-4 border-slate-800" />
+      <div
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500 px-2 py-1 text-lg font-black text-white shadow-lg ring-4 ring-white"
+        style={{ top: part.top, left: part.left }}
+      >
+        {part.emoji}
+      </div>
+      <div className="absolute bottom-2 left-2 right-2 rounded-xl bg-white/90 px-2 py-1 text-center">
+        <p className="text-lg font-black text-slate-950">{part.en}</p>
+      </div>
+    </div>
+  );
+}
 
 // ===== Component =====
 export function PEEnglishHub() {
@@ -263,7 +306,7 @@ export function PEEnglishHub() {
   // Dice roll
   // Draw a random flashcard
   const drawRandomCard = () => {
-    const card = PE_FLASHCARDS[Math.floor(Math.random() * PE_FLASHCARDS.length)];
+    const card = RANDOM_PE_FLASHCARDS[Math.floor(Math.random() * RANDOM_PE_FLASHCARDS.length)];
     setRandomCard(card);
     setPopupFlippedCard(null);
     sound.playWhoosh();
@@ -430,8 +473,8 @@ export function PEEnglishHub() {
                 </button>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center">
-                {["Head 🧠", "Shoulders 💪", "Knees 🦵", "Toes 🦶", "Elbows 💪", "Ankles 🦶", "Nose 👃", "Ears 👂", "Eyes 👀", "Mouth 👄", "Hands ✋", "Feet 🦶"].map(bp => (
-                  <div key={bp} className="px-2 py-2 rounded-lg bg-white/5 text-white text-xs font-bold">{bp}</div>
+                {BODY_PARTS.map(bp => (
+                  <div key={bp.en} className="px-2 py-2 rounded-lg bg-white/5 text-white text-xs font-bold">{bp.en} {bp.emoji}</div>
                 ))}
               </div>
             </div>
@@ -531,8 +574,8 @@ export function PEEnglishHub() {
               {/* Key phrases */}
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-xl bg-red-500/20 border border-red-400/30 text-center">
-                  <p className="text-sm font-bold text-white">🆘 Help me, please!</p>
-                  <p className="text-xs text-white/60">助けて！(たすけて)</p>
+                  <p className="text-sm font-bold text-white">👍 Are you OK?</p>
+                  <p className="text-xs text-white/60">だいじょうぶ？</p>
                 </div>
                 <div className="p-3 rounded-xl bg-green-500/20 border border-green-400/30 text-center">
                   <p className="text-sm font-bold text-white">🆓 You're free!</p>
@@ -566,7 +609,7 @@ export function PEEnglishHub() {
                 ))}
               </div>
               <div className="mt-4 p-3 rounded-xl bg-blue-500/20 border border-blue-400/30 text-center">
-                <p className="text-sm font-bold text-white">🙋 "I choose... {STATIONS[0].name}!" / 「えらびます」</p>
+                <p className="text-sm font-bold text-white">🙋 "Can I try {STATIONS[0].name}?" / 「やってみてもいい？」</p>
               </div>
             </div>
           </div>
@@ -607,7 +650,7 @@ export function PEEnglishHub() {
                       "Who can tell me one verb we used?",
                       "Repeat: 'Great job today, team!'",
                       "Give your partner a high-five!",
-                      "What did we do today?",
+                      "What was fun today?",
                     ].map(q => (
                       <div key={q} className="flex items-start gap-2">
                         <span className="text-emerald-300 text-xs mt-0.5">💡</span>
@@ -805,25 +848,14 @@ export function PEEnglishHub() {
             {popupType === "body-parts" && (
               <div className="w-full">
                 <h2 className="text-3xl font-black text-white text-center mb-6">Body Parts 🧠💪🦵</h2>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                  {[
-                    { en: "Head", jp: "あたま", emoji: "🧠" },
-                    { en: "Shoulders", jp: "かた", emoji: "💪" },
-                    { en: "Knees", jp: "ひざ", emoji: "🦵" },
-                    { en: "Toes", jp: "つまさき", emoji: "🦶" },
-                    { en: "Elbows", jp: "ひじ", emoji: "💪" },
-                    { en: "Ankles", jp: "あしくび", emoji: "🦶" },
-                    { en: "Nose", jp: "はな", emoji: "👃" },
-                    { en: "Ears", jp: "みみ", emoji: "👂" },
-                    { en: "Eyes", jp: "め", emoji: "👀" },
-                    { en: "Mouth", jp: "くち", emoji: "👄" },
-                    { en: "Hands", jp: "て", emoji: "✋" },
-                    { en: "Feet", jp: "あし", emoji: "🦶" },
-                  ].map(bp => (
-                    <div key={bp.en} className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-white/10 border border-white/20">
-                      <span className="text-6xl">{bp.emoji}</span>
-                      <p className="text-2xl font-black text-white">{bp.en}</p>
-                      <p className="text-lg text-white/60">{bp.jp}</p>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {BODY_PARTS.map(bp => (
+                    <div key={bp.en} className="rounded-2xl border border-white/20 bg-white/10 p-3">
+                      <BodyPartVisual part={bp} />
+                      <div className="mt-2 text-center">
+                        <p className="text-2xl font-black text-white">{bp.en}</p>
+                        <p className="text-base font-bold text-white/70">{bp.jp}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
