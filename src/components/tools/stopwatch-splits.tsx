@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useStopwatch } from "@/hooks/use-timer";
-import { useDramaticSound, useConfetti, useFlash } from "@/hooks/use-effects";
+import { useElapsedTimerAudio } from "@/hooks/use-timer-audio";
+import { useConfetti, useFlash } from "@/hooks/use-effects";
 import { useToolSkin } from "@/hooks/use-tool-skin";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import { UniversalSkinPicker } from "./universal-skin-picker";
@@ -19,11 +20,11 @@ interface Split {
 }
 
 export function StopwatchSplits() {
-  const sound = useDramaticSound();
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
   const { flash, flashFn } = useFlash();
 
   const sw = useStopwatch();
+  const sound = useElapsedTimerAudio(sw.elapsed, sw.running);
   const { skinId, setSkinId, skin } = useToolSkin("stopwatch-splits");
   const [splits, setSplits] = useState<Split[]>([]);
   const [justSplit, setJustSplit] = useState(false);
@@ -68,7 +69,7 @@ export function StopwatchSplits() {
       label: `Split ${splits.length + 1}`,
     };
     setSplits((prev) => [newSplit, ...prev]);
-    sound.playSparkle();
+    sound.playLap();
     flashFn("rgba(168, 85, 247, 0.4)");
     setJustSplit(true);
     setTimeout(() => setJustSplit(false), 300);

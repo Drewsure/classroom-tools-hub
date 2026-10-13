@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useSoundEnabled } from "@/components/timers/timer-launcher";
+import { useClassroomAudio } from "@/hooks/use-classroom-audio";
+import { CLASSROOM_CUE_FILES, TIMER_VOICE_CUES, ELAPSED_VOICE_CUES, TIMER_FINISH_CUES, INTERACTION_CUES } from "@/lib/classroom-cues";
 
 /* ============================================================
    PARTICLE FIELD — drifting particles for ambience
@@ -136,10 +138,13 @@ export function useFlash() {
 export function useDramaticSound() {
   const soundEnabled = useSoundEnabled();
   const ctxRef = useRef<AudioContext | null>(null);
+  const aliveRef = useRef(true);
+  const enabledRef = useRef(soundEnabled);
+  const activeNodesRef = useRef(new Set<AudioScheduledSourceNode>());
 
   const getCtx = useCallback(() => {
-    if (typeof window === "undefined") return null;
-    if (!ctxRef.current) {
+    if (typeof window === "undefined" || !aliveRef.current) return null;
+    if (!ctxRef.current || ctxRef.current.state === "closed") {
       const Ctor =
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
@@ -149,6 +154,30 @@ export function useDramaticSound() {
     }
     return ctxRef.current;
   }, []);
+
+  const samples = useClassroomAudio(getCtx);
+  const { play: playAudio, preload, stopAll: stopSamples, resume: resumeSamples } = samples;
+  useEffect(() => {
+    void preload(CLASSROOM_CUE_FILES.map((file) => `/sounds/${file}`));
+    const unlock = () => { void resumeSamples(); };
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
+    return () => {
+      window.removeEventListener("pointerdown", unlock, true);
+      window.removeEventListener("keydown", unlock, true);
+    };
+  }, [preload, resumeSamples]);
+
+  const stopAll = useCallback(() => {
+    stopSamples();
+    activeNodesRef.current.forEach((node) => { try { node.stop(); } catch { /* Already stopped. */ } });
+    activeNodesRef.current.clear();
+  }, [stopSamples]);
+
+  useEffect(() => {
+    enabledRef.current = soundEnabled;
+    if (!soundEnabled) stopAll();
+  }, [soundEnabled, stopAll]);
 
   const playTone = useCallback(
     (
@@ -164,7 +193,7 @@ export function useDramaticSound() {
         detune?: number;
       } = {},
     ) => {
-      if (!soundEnabled) return;
+      if (!soundEnabled || !enabledRef.current || !aliveRef.current) return;
       const ctx = getCtx();
       if (!ctx) return;
       if (ctx.state === "suspended") void ctx.resume();
@@ -186,6 +215,8 @@ export function useDramaticSound() {
       gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
       osc.connect(gain);
       gain.connect(ctx.destination);
+      activeNodesRef.current.add(osc);
+      osc.onended = () => { activeNodesRef.current.delete(osc); osc.disconnect(); gain.disconnect(); };
       osc.start(start);
       osc.stop(start + duration);
     },
@@ -222,7 +253,7 @@ export function useDramaticSound() {
 
   const playNoise = useCallback(
     (duration: number, volume = 0.4, filterFreq = 1000, filterType: BiquadFilterType = "lowpass") => {
-      if (!soundEnabled) return;
+      if (!soundEnabled || !enabledRef.current || !aliveRef.current) return;
       const ctx = getCtx();
       if (!ctx) return;
       if (ctx.state === "suspended") void ctx.resume();
@@ -243,6 +274,8 @@ export function useDramaticSound() {
       noise.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
+      activeNodesRef.current.add(noise);
+      noise.onended = () => { activeNodesRef.current.delete(noise); noise.disconnect(); filter.disconnect(); gain.disconnect(); };
       noise.start();
     },
     [getCtx, soundEnabled],
@@ -293,37 +326,18 @@ export function useDramaticSound() {
     playNoise(1.5, 0.12, 600);
   }, [playTone, playNoise]);
 
-  const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
-
   const playSample = useCallback(async (file: string, volume = 0.55) => {
-    if (!soundEnabled) return;
-    const ctx = getCtx();
-    if (!ctx) return;
-    if (ctx.state === "suspended") {
-      try { await ctx.resume(); } catch { /* ignore */ }
-    }
+    await playAudio(`/sounds/${file}`, { volume });
+  }, [playAudio]);
 
-    try {
-      let buffer = audioBufferCacheRef.current.get(file);
-      if (!buffer) {
-        const response = await fetch(`/sounds/${file}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const arrayBuffer = await response.arrayBuffer();
-        buffer = await ctx.decodeAudioData(arrayBuffer);
-        audioBufferCacheRef.current.set(file, buffer);
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(volume, ctx.currentTime);
-      source.connect(gain);
-      gain.connect(ctx.destination);
-      source.start();
-    } catch {
-      // Sample playback is decorative; keep timer flow resilient.
-    }
-  }, [soundEnabled, getCtx]);
+  const playCardShuffle = useCallback(() => { void playSample(INTERACTION_CUES.cards, 0.5); }, [playSample]);
+  const playCardTurn = useCallback(() => { void playSample(INTERACTION_CUES.cardTurn, 0.45); }, [playSample]);
+  const playLap = useCallback(() => { void playSample(INTERACTION_CUES.lap, 0.45); }, [playSample]);
+  const playResultChime = useCallback(() => { void playSample(TIMER_FINISH_CUES.classic, 0.45); }, [playSample]);
+  const playTimerMilestone = useCallback((seconds: number, elapsed = false) => {
+    const file = (elapsed ? ELAPSED_VOICE_CUES : TIMER_VOICE_CUES)[seconds];
+    if (file) void playAudio(`/sounds/${file}`, { volume: 0.82, channel: "voice" });
+  }, [playAudio]);
 
   // Sound: rocket blastoff (big cinematic)
   const playBlastoff = useCallback(() => {
@@ -426,17 +440,8 @@ export function useDramaticSound() {
 
   // Sound: dice roll (clattering)
   const playDiceRoll = useCallback(() => {
-    // Rapid random clicks for clatter
-    for (let i = 0; i < 8; i++) {
-      setTimeout(() => {
-        playTone(200 + Math.random() * 400, 0.03, {
-          type: "triangle",
-          volume: 0.15,
-          attack: 0.001,
-        });
-      }, i * 60 + Math.random() * 30);
-    }
-  }, [playTone]);
+    void playSample(INTERACTION_CUES.dice, 0.55);
+  }, [playSample]);
 
   // Sound: coin flip (metallic ping)
   const playCoinFlip = useCallback(() => {
@@ -517,41 +522,9 @@ export function useDramaticSound() {
   // Numbers 1-10 are pre-generated as /sounds/countdown-N.mp3
   // Routes through the AudioContext (not HTMLAudioElement) for reliable mobile playback
   const playSpokenNumber = useCallback(async (n: number) => {
-    if (!soundEnabled) return;
     if (n < 1 || n > 10) return;
-    const ctx = getCtx();
-    if (!ctx) return;
-    // Resume context if suspended (mobile autoplay policy)
-    if (ctx.state === "suspended") {
-      try { await ctx.resume(); } catch { /* ignore */ }
-    }
-
-    const url = `/sounds/countdown-${n}.mp3`;
-    const cacheKey = `countdown-${n}`;
-
-    try {
-      let buffer = audioBufferCacheRef.current.get(cacheKey);
-      if (!buffer) {
-        // Fetch + decode the MP3 into an AudioBuffer (cached for reuse)
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const arrayBuffer = await response.arrayBuffer();
-        buffer = await ctx.decodeAudioData(arrayBuffer);
-        audioBufferCacheRef.current.set(cacheKey, buffer);
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.9, ctx.currentTime);
-      source.connect(gain);
-      gain.connect(ctx.destination);
-      source.start();
-    } catch {
-      // Fallback to beep if audio fails
-      playChord(440 + (10 - n) * 50, 0.3, { type: "triangle", volume: 0.25 });
-    }
-  }, [soundEnabled, getCtx, playChord]);
+    await playAudio(`/sounds/countdown-${n}.mp3`, { volume: 0.72, channel: "voice" });
+  }, [playAudio]);
 
   // ============================================================
   // PER-TIMER THEMED ALARM SOUNDS
@@ -663,39 +636,10 @@ export function useDramaticSound() {
 
   // Dispatcher: play the themed alarm for a given timer type
   const playThemedAlarm = useCallback((timerType: string) => {
-    switch (timerType) {
-      case "rocket":
-        playBlastoff();
-        break;
-      case "bomb":
-        playExplosion();
-        break;
-      case "candle":
-        playCandlePuff();
-        break;
-      case "hourglass":
-        playHourglassFinish();
-        break;
-      case "circle":
-        playCircleChime();
-        break;
-      case "snail-race":
-      case "snail":
-        playSnailFinish();
-        break;
-      case "traffic-light":
-      case "traffic":
-        playTrafficAlarm();
-        break;
-      case "bar":
-        playBarFinish();
-        break;
-      case "classic":
-      default:
-        playAlarm();
-        break;
-    }
-  }, [playBlastoff, playExplosion, playCandlePuff, playHourglassFinish, playCircleChime, playSnailFinish, playTrafficAlarm, playBarFinish, playAlarm]);
+    stopAll();
+    const file = TIMER_FINISH_CUES[timerType] ?? TIMER_FINISH_CUES.classic;
+    void playSample(file, timerType === "snail-race" || timerType === "snail" ? 0.5 : 0.6);
+  }, [playSample, stopAll]);
 
   // Resume the AudioContext (needed on mobile after user gesture)
   const resume = useCallback(async () => {
@@ -706,14 +650,17 @@ export function useDramaticSound() {
   }, [getCtx]);
 
   useEffect(() => {
+    aliveRef.current = true;
     return () => {
+      aliveRef.current = false;
+      stopAll();
       const ctx = ctxRef.current;
       ctxRef.current = null;
       if (ctx && ctx.state !== "closed") {
         void ctx.close().catch(() => undefined);
       }
     };
-  }, []);
+  }, [stopAll]);
 
   return {
     playTone,
@@ -731,6 +678,12 @@ export function useDramaticSound() {
     playSparkle,
     playSpin,
     playDiceRoll,
+    playCardShuffle,
+    playCardTurn,
+    playLap,
+    playResultChime,
+    playTimerMilestone,
+    stopAll,
     playCoinFlip,
     playCoinLand,
     playWheelTick,

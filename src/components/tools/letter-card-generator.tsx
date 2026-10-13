@@ -78,15 +78,14 @@ export function LetterCardGenerator() {
 
     setPhase("buildup");
     setResult(null);
-    sound.playBuildUp();
+    sound.playClick();
 
     setTimeout(() => {
       setPhase("spinning");
-      sound.playWhoosh();
+      sound.playCardShuffle();
       let ticks = 0;
       spinRef.current = setInterval(() => {
         setLetter(available[Math.floor(Math.random() * available.length)]);
-        sound.playTick(500 + ticks * 20);
         ticks++;
         if (ticks >= 20) {
           if (spinRef.current) clearInterval(spinRef.current);
@@ -97,7 +96,7 @@ export function LetterCardGenerator() {
             setUsedLetters((prev) => [...prev, final]);
           }
           setPhase("result");
-          sound.playReveal();
+          sound.playCardTurn();
           flashFn("rgba(59, 130, 246, 0.6)");
           shake(2);
           burstConfetti(80, 50, 40);

@@ -9,7 +9,7 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.5.16";
+const VERSION = "v1.5.17";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 
@@ -58,6 +58,26 @@ const PRECACHE_URLS = [
   "/sounds/countdown-8.mp3",
   "/sounds/countdown-9.mp3",
   "/sounds/countdown-10.mp3",
+  "/sounds/timer-60.wav",
+  "/sounds/timer-45.wav",
+  "/sounds/timer-30.wav",
+  "/sounds/elapsed-60.wav",
+  "/sounds/elapsed-45.wav",
+  "/sounds/elapsed-30.wav",
+  "/sounds/card-shuffle.wav",
+  "/sounds/card-turn.wav",
+  "/sounds/dice-roll.wav",
+  "/sounds/classic-finish.wav",
+  "/sounds/rocket-finish.wav",
+  "/sounds/bomb-finish.wav",
+  "/sounds/candle-finish.wav",
+  "/sounds/hourglass-finish.wav",
+  "/sounds/circle-finish.wav",
+  "/sounds/traffic-finish.wav",
+  "/sounds/bar-finish.wav",
+  "/sounds/pe-finish.wav",
+  "/sounds/tally-finish.wav",
+  "/sounds/stopwatch-lap.wav",
   // Weather flashcard images
   "/images/weather/sunny.gif",
   "/images/weather/cloudy.gif",

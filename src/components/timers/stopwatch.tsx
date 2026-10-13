@@ -6,7 +6,8 @@ import { TimerThemePicker } from "./timer-theme-picker";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useStopwatch } from "@/hooks/use-timer";
-import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
+import { useElapsedTimerAudio } from "@/hooks/use-timer-audio";
+import { useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatStopwatchTime } from "@/lib/timers";
@@ -14,7 +15,6 @@ import { Pause, Play, RotateCcw, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Stopwatch() {
-  const sound = useDramaticSound();
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
   const { flash, flashFn } = useFlash();
   const { shakeIntensity, shake } = useScreenShake();
@@ -25,12 +25,13 @@ export function Stopwatch() {
   const [justLapped, setJustLapped] = useState(false);
   const [resetArmed, setResetArmed] = useState(false);
   const sw = useStopwatch();
+  const sound = useElapsedTimerAudio(sw.elapsed, sw.running);
   const isSetup = !sw.running && sw.elapsed === 0;
 
   const handleStart = () => {
     sw.start();
     sound.playClick();
-    sound.playWhoosh();
+    sound.playLap();
   };
   const handlePause = () => {
     sw.pause();
@@ -47,7 +48,7 @@ export function Stopwatch() {
   };
   const handleLap = () => {
     sw.lap();
-    sound.playSparkle();
+    sound.playLap();
     flashFn(skin.flashColor);
     shake(0.4);
     setJustLapped(true);

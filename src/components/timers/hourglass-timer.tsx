@@ -51,6 +51,7 @@ export function HourglassTimer() {
       setBurstParticles([0, 1, 2, 3, 4, 5, 6, 7]);
       setTimeout(() => setBurstParticles([]), 2000);
     },
+    timer.status,
   );
 
   // Derived: show big countdown number in last 5 seconds

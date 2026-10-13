@@ -55,6 +55,7 @@ export function BarTimer() {
       burstConfetti(100, 50, 50);
       setTimeout(() => burstConfetti(60, 30, 40), 300);
     },
+    timer.status,
   );
 
   const showCountdown =

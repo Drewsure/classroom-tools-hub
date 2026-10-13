@@ -54,6 +54,7 @@ export function ClassicTimer() {
       flashFn(skin.flashColor);
       shake(2);
     },
+    timer.status,
   );
 
   const showCountdown =

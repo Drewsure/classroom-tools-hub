@@ -83,6 +83,7 @@ export function BombTimer() {
     timer.isRunning,
     timer.isCompleted,
     triggerExplosion,
+    timer.status,
   );
 
   // Derived: show big countdown number in last 5 seconds

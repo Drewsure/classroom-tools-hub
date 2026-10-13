@@ -54,6 +54,7 @@ export function CircleTimer() {
       shake(1.5);
       burstConfetti(100, 50, 50);
     },
+    timer.status,
   );
 
   const showCountdown =

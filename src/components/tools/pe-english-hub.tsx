@@ -2,7 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
+import { useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
+import { useTimerAudio } from "@/hooks/use-timer-audio";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
 import {
   Play, Pause, RotateCcw, Shuffle, Dice5, TrafficCone, Activity,
@@ -310,7 +311,6 @@ function DiceVisual({ option, large = false }: { option: DiceOption | null; larg
 
 // ===== Component =====
 export function PEEnglishHub() {
-  const sound = useDramaticSound();
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
   const { flash, flashFn } = useFlash();
   const { shakeIntensity, shake } = useScreenShake();
@@ -331,6 +331,13 @@ export function PEEnglishHub() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerRemaining, setTimerRemaining] = useState(600);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerStatus = timerRemaining === 0 ? "completed" : timerRunning ? "running" :
+    timerRemaining === timerSeconds ? "idle" : "paused";
+  const sound = useTimerAudio("pe", timerRemaining, timerRunning && timerRemaining > 0,
+    timerRemaining === 0, () => {
+      flashFn("rgba(34, 197, 94, 0.6)");
+      burstConfetti(100, 50, 40);
+    }, timerStatus);
 
   // ===== Popup state — any section can expand to fullscreen =====
   const [popupType, setPopupType] = useState<string | null>(null);
@@ -359,21 +366,15 @@ export function PEEnglishHub() {
   useEffect(() => {
     if (timerRunning && timerRemaining > 0) {
       timerRef.current = setInterval(() => {
-        setTimerRemaining(prev => {
-          if (prev <= 1) {
-            setTimerRunning(false);
-            sound.playReveal();
-            flashFn("rgba(34, 197, 94, 0.6)");
-            burstConfetti(100, 50, 40);
-            return 0;
-          }
-          if (prev <= 11 && prev > 0) sound.playTick(800);
-          return prev - 1;
-        });
+        setTimerRemaining(prev => Math.max(0, prev - 1));
       }, 1000);
       return () => { if (timerRef.current) clearInterval(timerRef.current); };
     }
-  }, [timerRunning, timerRemaining, sound, flashFn, burstConfetti]);
+  }, [timerRunning, timerRemaining]);
+
+  useEffect(() => {
+    if (timerRunning && timerRemaining === 0) setTimerRunning(false);
+  }, [timerRunning, timerRemaining]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -422,7 +423,7 @@ export function PEEnglishHub() {
       setSimonIsTrick(false);
       setUsedSimonCommands(prev => new Set(prev).add(idx));
     }
-    sound.playWhoosh();
+    sound.playCardShuffle();
   };
 
   // Dice roll
@@ -431,7 +432,7 @@ export function PEEnglishHub() {
     const card = RANDOM_PE_FLASHCARDS[Math.floor(Math.random() * RANDOM_PE_FLASHCARDS.length)];
     setRandomCard(card);
     setPopupFlippedCard(null);
-    sound.playWhoosh();
+    sound.playCardShuffle();
   };
 
   const rollDice = () => {
@@ -447,7 +448,7 @@ export function PEEnglishHub() {
         const final = presets[Math.floor(Math.random() * presets.length)];
         setDiceResult(final);
         setDiceRolling(false);
-        sound.playReveal();
+        sound.playResultChime();
         flashFn("rgba(255, 215, 0, 0.5)");
       }
     }, 80);

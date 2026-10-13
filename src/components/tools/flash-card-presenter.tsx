@@ -325,7 +325,7 @@ export function FlashCardPresenter() {
   const drawRandom = useCallback(() => {
     if (phase === "drawing") return;
     setPhase("drawing");
-    sound.playWhoosh();
+    sound.playCardShuffle();
 
     const available = allCardIds.filter((id) => !used.includes(id));
     const finalPool = available.length > 0 ? available : allCardIds;
@@ -344,7 +344,7 @@ export function FlashCardPresenter() {
           setUsed([final]);
         }
         setPhase("result");
-        sound.playReveal();
+        sound.playCardTurn();
         flashFn("rgba(168, 85, 247, 0.5)");
         shake(2);
         burstConfetti(80, 50, 40);
@@ -391,7 +391,7 @@ export function FlashCardPresenter() {
     setPresenting(true);
     setCurrentCardId(Array.from(selected)[0]);
     setPhase("result");
-    sound.playReveal();
+    sound.playCardTurn();
     flashFn("rgba(168, 85, 247, 0.5)");
     burstConfetti(60, 50, 40);
   }, [selected, sound, flashFn, burstConfetti]);
@@ -405,7 +405,7 @@ export function FlashCardPresenter() {
     setPhase("result");
     sound.playTick(800);
     if (next === 0) {
-      sound.playReveal();
+      sound.playCardTurn();
       burstConfetti(100, 50, 40);
     }
   }, [selected, presentIndex, sound, burstConfetti]);

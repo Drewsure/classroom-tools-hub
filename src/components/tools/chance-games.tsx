@@ -117,7 +117,8 @@ export function ChanceGames() {
     setPhase("buildup");
     setResult(null);
     setBallResponse(null);
-    sound.playBuildUp();
+    if (game === "dice") sound.playClick();
+    else sound.playBuildUp();
 
     setTimeout(() => {
       // Phase 2: Spinning/animation
@@ -151,7 +152,6 @@ export function ChanceGames() {
       let ticks = 0;
       spinRef.current = setInterval(() => {
         setDiceValue(pool[Math.floor(Math.random() * pool.length)]);
-        if (ticks % 2 === 0) sound.playTick(400 + ticks * 15);
         ticks++;
         if (ticks >= 18) {
           if (spinRef.current) clearInterval(spinRef.current);
@@ -217,7 +217,7 @@ export function ChanceGames() {
   const finishGame = useCallback(
     (color?: string) => {
       setPhase("result");
-      sound.playReveal();
+      sound.playResultChime();
       flashFn(color ? hexToRgba(color, 0.7) : "rgba(255, 215, 0, 0.7)");
       shake(2);
       burstConfetti(80, 50, 40);

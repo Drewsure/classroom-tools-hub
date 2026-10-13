@@ -64,6 +64,7 @@ export function RocketTimer() {
       setSmokeClouds([0, 1, 2, 3, 4]);
       setTimeout(() => setSmokeClouds([]), 3000);
     },
+    timer.status,
   );
 
   // Derived: show big countdown number in last 5 seconds

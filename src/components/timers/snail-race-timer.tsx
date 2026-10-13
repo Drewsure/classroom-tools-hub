@@ -89,6 +89,7 @@ export function SnailRaceTimer() {
     timer.isRunning,
     timer.isCompleted,
     announceWinner,
+    timer.status,
   );
 
   // Advance snails while running

@@ -107,7 +107,7 @@ export function WeatherFlashcards() {
   const drawRandom = useCallback(() => {
     setPhase("flipping");
     setRevealAnswer(null);
-    sound.playWhoosh();
+    sound.playCardShuffle();
     setTimeout(() => {
       const pool = WEATHER_TYPES.filter((t) => !used.includes(t));
       const available = pool.length > 0 ? pool : WEATHER_TYPES;
@@ -116,7 +116,7 @@ export function WeatherFlashcards() {
       if (pool.length === 0) setUsed([next]);
       else setUsed((prev) => [...prev, next]);
       setPhase("result");
-      sound.playTick(600);
+      sound.playCardTurn();
     }, 600);
   }, [used, sound]);
 
@@ -166,13 +166,13 @@ export function WeatherFlashcards() {
     setMode("present");
     setPresentIdx(0);
     setPhase("result");
-    sound.playWhoosh();
+    sound.playCardShuffle();
     setTimeout(() => { sound.playReveal(); flashFn("rgba(34,197,94,0.4)"); shake(1.5); burstConfetti(60,50,40); }, 400);
   }, [correctTypes, sound, flashFn, shake, burstConfetti]);
 
   const handlePresentNext = useCallback(() => {
     setPhase("flipping");
-    sound.playTick(600);
+    sound.playCardTurn();
     setTimeout(() => {
       setPresentIdx((prev) => (prev + 1) % correctTypes.length);
       setPhase("result");
@@ -182,7 +182,7 @@ export function WeatherFlashcards() {
 
   const handlePresentPrev = useCallback(() => {
     setPhase("flipping");
-    sound.playTick(400);
+    sound.playCardTurn();
     setTimeout(() => {
       setPresentIdx((prev) => (prev - 1 + correctTypes.length) % correctTypes.length);
       setPhase("result");

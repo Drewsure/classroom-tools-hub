@@ -164,12 +164,13 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
   const timer = useTimer(totalInput);
 
   useTimerAudio(
-    "classic", timer.remaining, timer.isRunning, timer.isCompleted,
+    "snail-race", timer.remaining, timer.isRunning, timer.isCompleted,
     useCallback(() => {
       burstConfetti(120, 50, 40);
       flashFn(skin.flashColor);
       shake(2);
     }, [burstConfetti, flashFn, skin.flashColor, shake]),
+    timer.status,
   );
 
   const handlePreset = (s: number) => {
@@ -386,7 +387,6 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
     let ticks = 0;
     spinRef.current = setInterval(() => {
       setCurrent(Math.floor(Math.random() * poolSize) + 1);
-      if (ticks % 2 === 0) sound.playTick(400 + ticks * 15);
       ticks++;
       if (ticks >= 18) {
         if (spinRef.current) clearInterval(spinRef.current);
@@ -400,7 +400,7 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
         if (noRepeat) setUsed((prev) => (prev.length >= poolSize ? [final] : [...prev, final]));
         setCurrent(final);
         setPhase("result");
-        sound.playReveal();
+        sound.playResultChime();
         flashFn("rgba(255, 215, 0, 0.7)");
         shake(2);
         burstConfetti(80, 50, 40);
@@ -690,7 +690,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
   const drawRandom = useCallback(() => {
     if (phase === "drawing" || cards.length === 0) return;
     setPhase("drawing");
-    sound.playWhoosh();
+    sound.playCardShuffle();
     const available = cards.filter((c) => !used.includes(c.id));
     const pool = available.length > 0 ? available : cards;
     let ticks = 0;
@@ -704,7 +704,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
         if (available.length > 0) setUsed((prev) => [...prev, final.id]);
         else setUsed([final.id]);
         setPhase("result");
-        sound.playReveal();
+        sound.playCardTurn();
         flashFn("rgba(168, 85, 247, 0.5)");
         shake(2);
         burstConfetti(60, 50, 40);

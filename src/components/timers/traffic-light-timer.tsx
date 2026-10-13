@@ -50,6 +50,7 @@ export function TrafficLightTimer() {
       shake(3);
       burstConfetti(80, 50, 50);
     },
+    timer.status,
   );
 
   const showCountdown =

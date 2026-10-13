@@ -58,6 +58,7 @@ export function CandleTimer() {
       setSmokeTrail([0, 1, 2, 3, 4, 5]);
       setTimeout(() => setSmokeTrail([]), 3500);
     },
+    timer.status,
   );
 
   // Derived: show big countdown number in last 5 seconds

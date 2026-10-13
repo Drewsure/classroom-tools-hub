@@ -3,13 +3,13 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useDramaticSound } from "@/hooks/use-effects";
 import { useToolSkin } from "@/hooks/use-tool-skin";
 import { useStudentRoster } from "@/hooks/use-student-roster";
 import { useAttendance } from "@/hooks/use-attendance";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { RosterManager } from "./roster-manager";
 import { useTimer } from "@/hooks/use-timer";
+import { useTimerAudio } from "@/hooks/use-timer-audio";
 import { formatTime } from "@/lib/timers";
 import { Plus, Minus, RotateCcw, Trash2, Edit3, Check, X, Clock, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,6 @@ const COUNTER_COLORS = [
 ];
 
 export function TallyCounter() {
-  const sound = useDramaticSound();
   const { skinId, setSkinId, skin } = useToolSkin("tally-counter");
   const { students } = useStudentRoster();
   // ===== Attendance (Stage 3): Load Class uses present students only =====
@@ -54,11 +53,8 @@ export function TallyCounter() {
   const idRef = useRef(100);
 
   // Mini timer
-  const timer = useTimer(timerMinutes * 60, {
-    onComplete: () => {
-      sound.playExplosion();
-    },
-  });
+  const timer = useTimer(timerMinutes * 60);
+  const sound = useTimerAudio("tally", timer.remaining, timer.isRunning, timer.isCompleted, undefined, timer.status);
 
   const increment = useCallback((id: number) => {
     setCounters((prev) =>

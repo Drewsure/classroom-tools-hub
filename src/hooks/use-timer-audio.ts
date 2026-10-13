@@ -2,100 +2,85 @@
 
 import { useEffect, useRef } from "react";
 import { useDramaticSound } from "@/hooks/use-effects";
+import { TimerMilestones } from "@/lib/classroom-cues";
+import type { TimerStatus } from "@/hooks/use-timer";
 
-/**
- * Centralized timer audio hook — handles all countdown sound logic so every
- * timer gets consistent, dramatic audio without duplicating useEffect code.
- *
- * Audio sequence:
- *  - Every second during normal countdown: subtle tick
- *  - At 20 seconds remaining: dramatic build-up drone (one-shot)
- *  - From 10 down to 1: spoken countdown number (TTS MP3)
- *  - At 0 (completion): themed alarm matching the timer type
- *
- * @param timerType  e.g. "classic", "rocket", "bomb", "candle", ...
- * @param remaining   seconds remaining (from useTimer)
- * @param isRunning   whether the timer is actively running
- * @param isCompleted whether the timer just hit zero
- * @param onComplete  optional extra callback (confetti, flash, shake) fired at 0
- */
+const WARNING_PITCH: Record<string, number> = {
+  classic: 880, rocket: 620, bomb: 320, candle: 480, hourglass: 560,
+  circle: 1040, "snail-race": 720, "traffic-light": 660, bar: 800, pe: 960, tally: 840,
+};
+
 export function useTimerAudio(
   timerType: string,
   remaining: number,
   isRunning: boolean,
   isCompleted: boolean,
   onComplete?: () => void,
+  status?: TimerStatus,
 ) {
   const sound = useDramaticSound();
+  const { resume, stopAll, playTimerMilestone, playSpokenNumber, playTick, playThemedAlarm } = sound;
+  const milestones = useRef(new TimerMilestones());
+  const previous = useRef<number | null>(null);
+  const warned = useRef(false);
+  const alarmPlayed = useRef(false);
+  const completion = useRef(onComplete);
 
-  // Track which sounds have already played so we don't repeat them
-  const lastRemainingRef = useRef<number | null>(null);
-  const buildUpPlayedRef = useRef(false);
-  const alarmPlayedRef = useRef(false);
+  useEffect(() => { completion.current = onComplete; }, [onComplete]);
+  useEffect(() => { if (isRunning) void resume(); }, [isRunning, resume]);
 
-  // Reset tracking when a new countdown starts (remaining jumps back up)
   useEffect(() => {
-    if (isRunning && lastRemainingRef.current !== null && remaining > lastRemainingRef.current + 1) {
-      buildUpPlayedRef.current = false;
-      alarmPlayedRef.current = false;
+    if (status === "idle" || (previous.current !== null && remaining > previous.current)) {
+      milestones.current.reset();
+      warned.current = false;
+      alarmPlayed.current = false;
+      previous.current = null;
     }
-  }, [remaining, isRunning]);
-
-  // Warm up the AudioContext when the timer starts running
-  // Critical for mobile (Android/iOS) where AudioContext starts suspended
-  // until a user gesture resumes it. The Start button click is that gesture.
-  useEffect(() => {
-    if (!isRunning) return;
-    // Resume the AudioContext immediately on timer start
-    // so it's ready when the first sound needs to play
-    void sound.resume();
-  }, [isRunning, sound]);
-
-  // Per-tick audio
-  useEffect(() => {
+    const before = previous.current;
+    previous.current = remaining;
+    const milestone = milestones.current.update(remaining, isRunning);
     if (!isRunning) {
-      lastRemainingRef.current = null;
+      stopAll();
       return;
     }
-
-    // Only fire on whole-second changes
-    if (lastRemainingRef.current === remaining) return;
-    const prev = lastRemainingRef.current;
-    lastRemainingRef.current = remaining;
-
-    // Skip the very first tick (timer just started — would double with playClick)
-    if (prev === null) return;
-
-    // 1. Dramatic build-up at exactly 20 seconds (one-shot)
-    if (remaining === 20 && !buildUpPlayedRef.current) {
-      buildUpPlayedRef.current = true;
-      sound.playDramaticBuildUp();
+    if (milestone !== null) {
+      playTimerMilestone(milestone);
+      return;
     }
-
-    // 2. Spoken countdown 10 → 1 (async — plays TTS MP3 via Web Audio API)
-    if (remaining >= 1 && remaining <= 10) {
-      void sound.playSpokenNumber(remaining);
+    if (before === remaining || before === null) return;
+    if (remaining === 20 && !warned.current) {
+      warned.current = true;
+      playTick(WARNING_PITCH[timerType] ?? 880);
+    } else if (remaining >= 1 && remaining <= 10) {
+      void playSpokenNumber(remaining);
     } else if (remaining > 10 && remaining < 20) {
-      // 3. Subtle tick during 11-19 (fills the gap between build-up and spoken)
-      sound.playTick(600 + (20 - remaining) * 20);
-    } else if (remaining > 20 && remaining % 60 === 0) {
-      // 4. Minute chime for long countdowns (every minute)
-      sound.playTick(880);
+      playTick((WARNING_PITCH[timerType] ?? 880) + (20 - remaining) * 10);
     }
-  }, [remaining, isRunning, sound]);
+  }, [remaining, isRunning, status, timerType, stopAll, playTimerMilestone, playTick, playSpokenNumber]);
 
-  // Completion alarm
   useEffect(() => {
-    if (isCompleted && !alarmPlayedRef.current) {
-      alarmPlayedRef.current = true;
-      sound.playThemedAlarm(timerType);
-      onComplete?.();
+    if (isCompleted && !alarmPlayed.current) {
+      alarmPlayed.current = true;
+      playThemedAlarm(timerType);
+      completion.current?.();
     }
-    // Reset alarm flag when timer is no longer completed (reset/restart)
-    if (!isCompleted) {
-      alarmPlayedRef.current = false;
-    }
-  }, [isCompleted, timerType, sound, onComplete]);
+    if (!isCompleted) alarmPlayed.current = false;
+  }, [isCompleted, timerType, playThemedAlarm]);
 
+  return sound;
+}
+
+export function useElapsedTimerAudio(elapsedMs: number, running: boolean) {
+  const sound = useDramaticSound();
+  const { resume, stopAll, playTimerMilestone } = sound;
+  const milestones = useRef(new TimerMilestones());
+  const seconds = Math.floor(elapsedMs / 1000);
+  useEffect(() => {
+    if (seconds === 0 && !running) milestones.current.reset();
+    const milestone = milestones.current.update(seconds, running, "up");
+    if (!running) stopAll();
+    if (running) void resume();
+    if (milestone !== null) playTimerMilestone(milestone, true);
+  }, [seconds, running, resume, stopAll, playTimerMilestone]);
   return sound;
 }

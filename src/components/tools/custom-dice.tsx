@@ -66,7 +66,7 @@ export function CustomDice() {
 
     setPhase("buildup");
     setCurrentIdx(null);
-    sound.playBuildUp();
+    sound.playClick();
 
     setTimeout(() => {
       setPhase("rolling");
@@ -75,7 +75,6 @@ export function CustomDice() {
       let ticks = 0;
       spinRef.current = setInterval(() => {
         setCurrentIdx(Math.floor(Math.random() * sides));
-        if (ticks % 2 === 0) sound.playTick(400 + ticks * 15);
         ticks++;
         if (ticks >= 18) {
           if (spinRef.current) clearInterval(spinRef.current);
@@ -94,7 +93,7 @@ export function CustomDice() {
           }
           setCurrentIdx(final);
           setPhase("result");
-          sound.playReveal();
+          sound.playResultChime();
           flashFn("rgba(255, 215, 0, 0.7)");
           shake(2);
           burstConfetti(80, 50, 40);
