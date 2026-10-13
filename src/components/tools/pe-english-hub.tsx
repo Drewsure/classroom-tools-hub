@@ -902,12 +902,21 @@ export function PEEnglishHub() {
       </div>
 
       {/* Teacher tips */}
-      <div className="w-full max-w-6xl p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30">
-        <p className="text-xs font-bold text-amber-200 uppercase tracking-wider mb-2">💡 Teacher Tips:</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-white/70">
-          <div>✅ <b>Demonstrate first</b> — model the movement visually while speaking English</div>
-          <div>✅ <b>Whistle & gesture</b> — 1 whistle = "Freeze & Listen"</div>
-          <div>✅ <b>Peer assistance</b> — pair stronger English speakers with quieter students</div>
+      <div className="w-full max-w-6xl rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-xl shadow-black/20">
+        <p className="mb-3 text-sm font-black uppercase tracking-wider text-amber-900">💡 Teacher Tips</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-amber-200 bg-white p-3 text-sm font-semibold leading-snug text-slate-900 shadow-sm">
+            <b className="block text-base font-black text-slate-950">✅ Demonstrate first</b>
+            Model the movement visually while speaking English.
+          </div>
+          <div className="rounded-xl border border-amber-200 bg-white p-3 text-sm font-semibold leading-snug text-slate-900 shadow-sm">
+            <b className="block text-base font-black text-slate-950">✅ Whistle & gesture</b>
+            1 whistle = "Freeze & Listen".
+          </div>
+          <div className="rounded-xl border border-amber-200 bg-white p-3 text-sm font-semibold leading-snug text-slate-900 shadow-sm">
+            <b className="block text-base font-black text-slate-950">✅ Peer assistance</b>
+            Pair stronger English speakers with quieter students.
+          </div>
         </div>
       </div>
 
