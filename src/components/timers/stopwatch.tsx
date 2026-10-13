@@ -1,11 +1,14 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useStopwatch } from "@/hooks/use-timer";
 import { useDramaticSound, useConfetti, useFlash, useScreenShake } from "@/hooks/use-effects";
 import { ConfettiOverlay, FlashOverlay, ShakeWrapper } from "@/components/effects/effect-overlays";
-import { SKINS, SkinPicker, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
+import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatStopwatchTime } from "@/lib/timers";
 import { Pause, Play, RotateCcw, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,16 +63,15 @@ export function Stopwatch() {
   const formatted = formatStopwatchTime(sw.elapsed);
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="stopwatch" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="stopwatch" />}
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
             "relative mx-auto flex items-center justify-center overflow-hidden rounded-full border-4 bg-gradient-to-br shadow-2xl backdrop-blur-sm",
-            isSetup
-              ? "h-[min(58dvh,40rem)] w-[min(58dvh,40rem)] min-h-[22rem] min-w-[22rem]"
-              : "h-[min(82dvh,62rem)] w-[min(82dvh,62rem)] min-h-[32rem] min-w-[32rem]",
+            styles.round,
+            isSetup && styles.setup,
             skin.bgGradient,
             sw.running ? "border-white/40" : "border-white/20",
           )}
@@ -103,7 +105,7 @@ export function Stopwatch() {
           )}
 
           <div className="relative text-center z-10">
-            <div className="font-mono font-black tabular-nums text-white text-5xl sm:text-7xl drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">
+            <div className={cn("font-mono font-black tabular-nums text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]", styles.digits)}>
               {formatted}
             </div>
             <p className="mt-3 text-sm font-bold uppercase tracking-widest text-white/80">
@@ -112,7 +114,7 @@ export function Stopwatch() {
           </div>
 
           {/* Start/Pause button — INSIDE the container */}
-          <div className="relative z-10 mt-2">
+          <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
             {!sw.running ? (
               <Button
                 onClick={handleStart}
@@ -160,7 +162,7 @@ export function Stopwatch() {
           variant="outline"
           className={cn(
             "rounded-full border-white/25 px-6 py-5 text-white hover:text-white",
-            resetArmed ? "bg-rose-500/85 hover:bg-rose-500" : "bg-white/10 hover:bg-white/20",
+            resetArmed ? "bg-rose-600 hover:bg-rose-700" : "bg-zinc-950 hover:bg-zinc-800",
           )}
         >
           <RotateCcw className="mr-2 h-5 w-5" />
@@ -175,7 +177,7 @@ export function Stopwatch() {
               <span>Lap</span>
               <span>Time</span>
             </div>
-            <div className="max-h-60 overflow-y-auto">
+            <div className="max-h-[16dvh] overflow-y-auto">
               {[...sw.laps].reverse().map((lap, idx) => {
                 const lapNum = sw.laps.length - idx;
                 const isBest = lap === Math.min(...sw.laps);

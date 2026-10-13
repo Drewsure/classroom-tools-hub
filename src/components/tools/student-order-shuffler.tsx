@@ -182,7 +182,7 @@ export function StudentOrderShuffler() {
                       <span className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center font-black text-white text-sm shrink-0">
                         {i + 1}
                       </span>
-                      <span className="font-bold text-white text-base sm:text-lg flex-1 break-words">
+                      <span className="min-w-0 rounded-lg bg-slate-950 px-2 py-1 font-bold text-white text-base sm:text-lg flex-1 break-words">
                         {name}
                       </span>
                       {phase === "result" && i === 0 && (

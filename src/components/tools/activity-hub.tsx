@@ -126,7 +126,7 @@ function PanelShell({
       aria-label={ariaLabel}
       className={cn(
         "flex flex-col min-h-[420px] lg:min-h-0 rounded-3xl border-2 border-white/20 bg-gradient-to-br from-white/[0.16] via-slate-900/74 to-cyan-950/28 p-3 sm:p-4 shadow-xl shadow-black/25 overflow-hidden",
-        expanded && "fixed inset-3 z-[60] m-0 min-h-0 rounded-[2rem] border-cyan-200/40 bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.25),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(216,180,254,0.2),transparent_30%),rgba(15,23,42,0.96)] p-4 shadow-2xl shadow-black/45 sm:inset-5 sm:p-6",
+        expanded && "fixed inset-3 z-[60] m-0 min-h-0 rounded-[2rem] border-cyan-200/40 bg-none bg-slate-950 p-4 shadow-2xl shadow-black/45 sm:inset-5 sm:p-6",
       )}
     >
       <div className={cn("flex items-center justify-between gap-2 shrink-0", expanded && "rounded-2xl border border-white/15 bg-white/10 px-3 py-2")}>
@@ -143,7 +143,7 @@ function PanelShell({
           {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </button>
       </div>
-      <div className={cn("flex-1 min-h-0 flex flex-col gap-2 mt-2", expanded && "mt-4")}>{children}</div>
+      <div className={cn("flex-1 min-h-0 flex flex-col gap-2 mt-2 overflow-y-auto overscroll-contain", expanded && "mt-4")}>{children}</div>
     </section>
   );
 }
@@ -190,12 +190,12 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
 
   return (
     <PanelShell icon={<Clock className="h-4 w-4" />} label="Timer" accent="text-cyan-300" expanded={expanded} onToggleExpand={onToggleExpand} ariaLabel="Timer panel">
-      <ShakeWrapper intensity={shakeIntensity}>
+      <ShakeWrapper intensity={shakeIntensity} className={cn(expanded && "flex flex-1 min-h-[22rem] flex-col")}>
         <div
           className={cn(
             "relative shrink-0 rounded-2xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br p-4 flex flex-col items-center justify-center gap-2",
             skin.bgGradient,
-            expanded && "flex-1 min-h-0",
+            expanded && "flex-1 min-h-[22rem]",
             veryLow && "border-red-500/80 animate-[strobeUrgent_0.4s_ease-in-out_infinite]",
             isFinished && "border-white/80",
           )}
@@ -204,7 +204,7 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
           <SkinParticleField skin={skin} seed={3} />
           <SkinSceneDecorator skin={skin} />
 
-          <div className="relative z-10 w-full">
+          <div className={cn("relative z-10 w-full", expanded && "flex flex-1 min-h-0 flex-col")}>
             <div className="text-center">
               {isFinished ? (
                 <p className="text-xl font-black drop-shadow-[0_0_20px_currentColor]" style={{ color: skin.accent }}>
@@ -212,7 +212,8 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
                 </p>
               ) : (
                 <div className={cn(
-                  "font-mono font-black tabular-nums text-white drop-shadow-2xl text-4xl",
+                  "inline-block rounded-lg bg-slate-950 px-3 py-2 font-mono font-black tabular-nums text-white text-4xl",
+                  expanded && "text-5xl sm:text-7xl",
                   lowTime && "text-red-300",
                   veryLow && "animate-[dramaticPulse_0.5s_ease-in-out_infinite] text-red-400",
                 )}>
@@ -222,15 +223,15 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
             </div>
 
             {/* Snail race track */}
-            <div className="relative w-full h-20 sm:h-24 mt-2 rounded-xl bg-black/20 border border-white/10 overflow-hidden">
+            <div className={cn("relative w-full h-20 sm:h-24 mt-2 rounded-xl bg-slate-950 border border-white/20 overflow-hidden", expanded && "flex-1 min-h-56 h-auto sm:h-auto")}>
               <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-b from-yellow-300 via-white to-yellow-300 opacity-80" />
               {RACE_SNAILS.map((snail, idx) => {
                 const baseProgress = isFinished ? 100 : (1 - timer.remaining / Math.max(totalInput, 1)) * 100;
                 const offset = idx === 0 ? 0 : idx === 1 ? -3 : 2;
                 const progress = Math.max(0, Math.min(95, baseProgress + offset));
                 return (
-                  <div key={snail.id} className="absolute left-0 transition-all duration-1000 ease-linear" style={{ top: `${12 + idx * 28}%`, left: `${progress}%` }}>
-                    <span className="text-xl sm:text-2xl drop-shadow-lg" style={{ filter: `hue-rotate(${snail.hue}deg)` }}>{snail.emoji}</span>
+                  <div key={snail.id} className="absolute inset-x-3 transition-transform duration-1000 ease-linear" style={{ top: `${expanded ? 5 + idx * 30 : 12 + idx * 28}%`, transform: `translateX(calc(${progress}% - ${progress / 100 * (expanded ? 5 : 2)}rem))` }}>
+                    <span className={cn("inline-block text-xl sm:text-2xl drop-shadow-lg leading-none", expanded && "text-5xl sm:text-7xl")} style={{ filter: `hue-rotate(${snail.hue}deg)` }}>{snail.emoji}</span>
                   </div>
                 );
               })}
@@ -243,7 +244,7 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
           </div>
 
           {/* Start/Pause/Resume/Reset */}
-          <div className="relative z-10">
+          <div className="relative z-10 shrink-0 flex flex-wrap items-center justify-center gap-2">
             {isEditable && (
               <Button onClick={handleStart} className="rounded-full px-5 bg-white text-slate-900 hover:bg-white/90 shadow-lg font-bold" size="lg">
                 <Play className="mr-2 h-4 w-4 fill-current" /> Start Race!
@@ -278,9 +279,9 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
 
       {/* Scrollable config */}
       {isEditable && (
-        <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2">
+        <div className={cn("min-h-0 flex flex-col gap-2", expanded ? "shrink-0 rounded-xl bg-slate-950 p-3" : "flex-1 overflow-y-auto pr-1")}>
           <div>
-            <p className="classroom-muted-label mb-1 text-[10px] uppercase tracking-wider">Quick presets</p>
+            <p className="mb-1 text-xs font-bold text-slate-200 uppercase tracking-wider">Quick presets</p>
             <div className="flex flex-wrap gap-1.5">
               {TIMER_PRESETS.map((preset) => (
                 <button
@@ -299,7 +300,7 @@ function TimerPanel({ skin, expanded, onToggleExpand }: PanelProps) {
             </div>
           </div>
           <div>
-            <p className="classroom-muted-label mb-1 text-[10px] uppercase tracking-wider">Custom time</p>
+            <p className="mb-1 text-xs font-bold text-slate-200 uppercase tracking-wider">Custom time</p>
             <div className="flex items-center justify-center gap-2">
               <TimeInputMini label="Hours" value={hours} onChange={setHours} max={23} />
               <span className="pb-4 text-xl font-black text-white">:</span>
@@ -428,7 +429,7 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
   return (
     <PanelShell icon={<Dices className="h-4 w-4" />} label="Dice" accent="text-rose-300" expanded={expanded} onToggleExpand={onToggleExpand} ariaLabel="Dice panel">
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative shrink-0 rounded-2xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br p-4 flex flex-col items-center justify-center gap-2", skin.bgGradient, expanded && "flex-1 min-h-0")}>
+        <div className={cn("relative shrink-0 rounded-2xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br p-4 flex flex-col items-center justify-center gap-2", skin.bgGradient, expanded && "flex-1 min-h-[24rem]")}>
           <SkinParticleField skin={skin} seed={7} />
           <SkinSceneDecorator skin={skin} />
 
@@ -444,7 +445,7 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
             </span>
           </div>
 
-          <p className="relative z-10 text-center text-xl sm:text-2xl font-black text-white drop-shadow-lg break-words px-2">
+          <p className="relative z-10 max-w-full rounded-lg bg-slate-950 px-3 py-2 text-center text-xl sm:text-2xl font-black text-white break-words">
             {exhausted ? "🎉 All rolled! Rolling again from the start"
               : phase === "result" && studentName ? `${studentName}!`
               : phase === "result" ? `${displayValue}!`
@@ -470,7 +471,7 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
           </div>
 
           {mode === "students" && noRepeat && !exhausted && poolSize > 0 && (
-            <p className="relative z-10 text-xs text-white/60">{poolSize - used.length} of {poolSize} not yet picked</p>
+            <p className="relative z-10 rounded-lg bg-slate-950 px-3 py-1 text-sm text-slate-200">{poolSize - used.length} of {poolSize} not yet picked</p>
           )}
 
           <ConfettiOverlay pieces={confetti} />
@@ -743,7 +744,7 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
       </div>
 
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative flex-1 min-h-0 rounded-2xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br flex flex-col items-center justify-center p-3 gap-2", skin.bgGradient)}>
+        <div className={cn("relative flex-1 min-h-[18rem] rounded-2xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br flex flex-col items-center justify-center p-3 gap-2", skin.bgGradient)}>
           <SkinParticleField skin={skin} seed={11} />
           <SkinSceneDecorator skin={skin} />
 
@@ -760,9 +761,9 @@ function FlashCardPanel({ skin, expanded, onToggleExpand }: PanelProps) {
               </div>
 
               <div className="relative z-10 text-center shrink-0">
-                <p className="text-xl sm:text-2xl font-black text-white drop-shadow-lg">{card.label}</p>
-                {card.word && <p className="text-sm text-white/80">{card.word} · {used.length} of {cards.length} drawn</p>}
-                {!card.word && <p className="text-xs text-white/50">{used.length} of {cards.length} drawn</p>}
+                <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-xl sm:text-2xl font-black text-white break-words">{card.label}</p>
+                {card.word && <p className="rounded-lg bg-slate-950 px-3 py-1 text-sm text-slate-200">{card.word} · {used.length} of {cards.length} drawn</p>}
+                {!card.word && <p className="rounded-lg bg-slate-950 px-3 py-1 text-sm text-slate-200">{used.length} of {cards.length} drawn</p>}
               </div>
             </>
           )}

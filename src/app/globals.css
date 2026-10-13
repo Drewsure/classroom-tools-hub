@@ -364,6 +364,17 @@
 
 /* Shared opened-tool projector sizing. The launcher gives every tool this shell;
    individual tools opt their main visual area into the stage/asset classes. */
+.tool-launcher {
+  background-color: #17343b;
+  color: #f8fafc;
+  overscroll-behavior: contain;
+}
+
+.active-tool-shell :is(button, input, select, textarea):focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+
 .active-tool-shell {
   min-height: calc(100dvh - 6.5rem);
 }
@@ -380,16 +391,16 @@
 .tool-projector-stage {
   width: 100% !important;
   max-width: none !important;
-  min-height: min(72dvh, 52rem);
+  min-height: min(56dvh, 42rem);
 }
 
 .tool-projector-asset-square {
-  width: min(58dvh, 46rem) !important;
-  height: min(58dvh, 46rem) !important;
+  width: min(58dvh, 90vw, 46rem) !important;
+  height: min(58dvh, 90vw, 46rem) !important;
 }
 
 .tool-projector-asset-card {
-  width: min(48dvh, 34rem) !important;
+  width: min(48dvh, 90vw, 34rem) !important;
   height: min(66dvh, 48rem) !important;
 }
 
@@ -401,7 +412,7 @@
   }
 
   .tool-projector-stage {
-    min-height: min(66dvh, 40rem);
+    min-height: min(50dvh, 32rem);
   }
 
   .tool-projector-asset-square {

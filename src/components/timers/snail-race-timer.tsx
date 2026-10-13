@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useEffect, useRef, useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -14,7 +17,7 @@ import {
   FlashOverlay,
   ShakeWrapper,
 } from "@/components/effects/effect-overlays";
-import { SKINS, SkinPicker, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
+import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatTime } from "@/lib/timers";
 import { cn } from "@/lib/utils";
 
@@ -144,12 +147,13 @@ export function SnailRaceTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="snail-race" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="snail-race" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn(
           "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
-          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          styles.stage,
+          isSetup && styles.setup,
           skin.bgGradient,
         )}>
           {/* Themed ambient particles */}
@@ -158,7 +162,7 @@ export function SnailRaceTimer() {
           <SkinSceneDecorator skin={skin} />
 
           {/* Winner banner */}
-          <div className="absolute top-4 left-0 right-0 text-center z-20 pointer-events-none">
+          <div className={cn("absolute top-4 left-0 right-0 text-center z-20 pointer-events-none", styles.raceClock)}>
             {winner !== null ? (
               <div className="inline-block px-6 py-3 rounded-2xl bg-emerald-500/40 backdrop-blur-sm border-2 border-emerald-300/70 animate-[winnerBounce_0.5s_ease-in-out_infinite]">
                 <div className="text-2xl sm:text-3xl font-black text-emerald-100 drop-shadow-[0_0_20px_rgba(16,185,129,0.9)]">
@@ -177,7 +181,8 @@ export function SnailRaceTimer() {
               >
                 <div
                   className={cn(
-                    "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
+                    "font-mono font-black text-white tabular-nums drop-shadow-lg",
+                    styles.digits,
                     veryLow && "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]",
                   )}
                 >
@@ -188,7 +193,7 @@ export function SnailRaceTimer() {
           </div>
 
           {/* Race track */}
-          <div className="absolute top-24 left-0 right-0 bottom-4 px-4 sm:px-8">
+          <div className={cn("absolute left-0 right-0 px-4 sm:px-8", styles.raceTrack)}>
             {/* Finish line — checkered */}
             <div className="absolute right-2 sm:right-4 top-0 bottom-0 w-4 flex flex-col z-10">
               {Array.from({ length: 24 }).map((_, i) => (
@@ -217,7 +222,8 @@ export function SnailRaceTimer() {
               <div
                 key={snail.id}
                 className={cn(
-                  "relative h-28 border-b border-white/10",
+                  "relative border-b border-white/10",
+                  styles.lane,
                   winner === i && "bg-emerald-500/20",
                 )}
               >
@@ -232,10 +238,11 @@ export function SnailRaceTimer() {
                 <div
                   className={cn(
                     "absolute top-1/2 -translate-y-1/2 transition-all duration-200 ease-linear",
+                    styles.racer,
                     winner === i && "animate-[winnerBounce_0.5s_ease-in-out_infinite]",
                   )}
                   style={{
-                    left: `calc(40px + ${positions[i] * 78}%)`,
+                    left: `calc(2rem + (100% - 7rem - min(18cqi, 8rem)) * ${positions[i]})`,
                   }}
                 >
                   <Snail color={snail.color} shell={snail.shell} />
@@ -292,7 +299,7 @@ export function SnailRaceTimer() {
 
 function Snail({ color, shell }: { color: string; shell: string }) {
   return (
-    <svg width="128" height="86" viewBox="0 0 48 32" className="drop-shadow-lg">
+    <svg width="128" height="86" viewBox="0 0 48 32" className={cn("drop-shadow-lg", styles.snail)}>
       <path d="M4 28 H0 M8 22 H2 M9 17 H4" stroke="white" strokeOpacity="0.55" strokeWidth="1.2" strokeLinecap="round" />
       {/* Body */}
       <ellipse cx="20" cy="24" rx="18" ry="6" fill={color} stroke="#111827" strokeWidth="1.2" />

@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useEffect, useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -15,7 +18,7 @@ import {
   ShakeWrapper,
   DramaticCountdown,
 } from "@/components/effects/effect-overlays";
-import { SKINS, SkinPicker, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
+import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatTime } from "@/lib/timers";
 import { cn } from "@/lib/utils";
 
@@ -96,13 +99,14 @@ export function TrafficLightTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="traffic-light" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="traffic-light" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
             "relative w-full overflow-hidden rounded-3xl border-2 bg-gradient-to-b shadow-2xl transition-colors duration-500",
-            isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+            styles.stage,
+            isSetup && styles.setup,
             skin.bgGradient,
             isRed
               ? "border-red-500/40"
@@ -132,16 +136,16 @@ export function TrafficLightTimer() {
           )}
 
           {/* Main content: two-column layout — traffic light on left, time + progress on right */}
-          <div className="absolute inset-0 z-10 flex items-center justify-center gap-6 px-4 sm:gap-10">
+          <div className={cn("absolute inset-0 z-10 flex items-center justify-center", styles.traffic)}>
             {/* LEFT: Traffic light housing (horizontal on mobile, vertical on desktop) */}
-            <div className="flex shrink-0 items-center gap-3 rounded-3xl border-4 border-zinc-700 bg-zinc-950/90 p-4 shadow-2xl backdrop-blur-sm sm:flex-col sm:gap-5 sm:p-5">
+            <div className={cn("flex shrink-0 items-center rounded-3xl border-4 border-zinc-700 bg-zinc-950 shadow-2xl", styles.housing)}>
               <Light color="green" active={isGreen} size="md" />
               <Light color="yellow" active={isYellow} size="md" />
               <Light color="red" active={isRed} size="md" />
             </div>
 
             {/* RIGHT: Time display + visual time decline indicator */}
-            <div className="flex max-w-3xl flex-1 flex-col items-center gap-4">
+            <div className={cn("flex max-w-3xl flex-1 flex-col items-center", styles.trafficReadout)}>
               {/* Status label */}
               <div
                 className={cn(
@@ -160,6 +164,7 @@ export function TrafficLightTimer() {
               <div
                 className={cn(
                   "inline-block px-5 py-2 rounded-2xl backdrop-blur-sm border",
+                  styles.clockPanel,
                   isRed
                     ? "bg-red-900/70 border-red-400/60 animate-[strobeUrgent_0.4s_ease-in-out_infinite]"
                     : isYellow
@@ -169,7 +174,8 @@ export function TrafficLightTimer() {
               >
                 <div
                   className={cn(
-                    "font-mono font-black tabular-nums drop-shadow-lg text-5xl sm:text-7xl lg:text-8xl xl:text-[9rem]",
+                    "font-mono font-black tabular-nums drop-shadow-lg",
+                    styles.digits,
                     isRed
                       ? "text-red-300 animate-[dramaticPulse_0.4s_ease-in-out_infinite]"
                       : isYellow
@@ -189,7 +195,7 @@ export function TrafficLightTimer() {
                   <span>Empty</span>
                 </div>
                 {/* Vertical bar container */}
-                <div className="relative h-24 overflow-hidden rounded-xl border-2 border-white/15 bg-black/50 shadow-inner sm:h-32">
+                <div className={cn("relative overflow-hidden rounded-xl border-2 border-white/15 bg-black/50 shadow-inner", styles.trafficTrack)}>
                   {/* Fill — shrinks from top to bottom as time runs out */}
                   <div
                     className={cn(
@@ -292,6 +298,7 @@ function Light({
       className={cn(
         "rounded-full transition-all duration-300 border-2 relative overflow-hidden",
         sizeClass,
+        styles.light,
         active
           ? cn(colorMap[color].on, "border-white/50 scale-110")
           : cn(colorMap[color].off, "border-zinc-800"),

@@ -72,16 +72,16 @@ export function ClassSelect({
       <select
         value={activeId}
         onChange={(e) => handleChange(e.target.value)}
-        className="classroom-input flex-1 rounded-xl px-3 py-2 text-sm font-black"
+        className="classroom-input min-w-0 flex-1 rounded-xl px-3 py-2 text-sm font-black"
         title="Classes come from the Attendance registry"
       >
-        <option value="" className="bg-slate-900">- select a class -</option>
+        <option value="" className="bg-white text-slate-950">- select a class -</option>
         {att.classes.map((c) => (
-          <option key={c.id} value={c.id} className="bg-slate-900">
+          <option key={c.id} value={c.id} className="bg-white text-slate-950">
             {c.name} ({c.students.length})
           </option>
         ))}
-        <option value="__new__" className="bg-slate-900">+ New / custom list...</option>
+        <option value="__new__" className="bg-white text-slate-950">+ New / custom list...</option>
       </select>
       {currentNames && currentNames.filter(Boolean).length > 0 && (
         <button

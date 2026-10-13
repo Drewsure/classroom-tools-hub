@@ -103,12 +103,14 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     } else {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen?.().catch(() => {});
     }
   };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const target = e.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest("input, textarea, select, [role='dialog']"))) return;
       if (e.key === "Escape") {
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(() => {});
@@ -116,7 +118,7 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
           onClose();
         }
       }
-      if (e.key === "f" || e.key === "F") {
+      if ((e.key === "f" || e.key === "F") && tool.id !== "sound-pad") {
         toggleFullscreen();
       }
     };
@@ -129,20 +131,20 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
-  }, [onClose]);
+  }, [onClose, tool.id]);
 
   return (
     <SoundEnabledContext.Provider value={soundEnabled}>
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(251,113,133,0.16),transparent_30%),#060416] backdrop-blur-2xl">
+      <div className="tool-launcher fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-screen flex-col">
-          <header className="sticky top-0 z-20 overflow-hidden border-b border-white/10 bg-slate-950/90 px-4 py-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:px-6">
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950 px-4 py-3 shadow-2xl shadow-black/20 sm:px-6">
             <img
               src={mangaIcon}
               alt=""
-              className="pointer-events-none absolute -left-6 -top-12 h-40 w-40 rotate-[-10deg] object-contain opacity-20 sm:h-48 sm:w-48"
+              className="pointer-events-none absolute left-0 top-0 h-full w-32 object-contain opacity-20"
             />
-            <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3">
-              <div className="flex min-w-0 flex-1 items-center gap-3 text-white">
+            <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 sm:gap-3">
+              <div className="flex min-w-0 basis-full items-center gap-3 text-white sm:flex-1 sm:basis-auto">
                 <span className="relative z-10 grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white text-3xl shadow-lg shadow-black/30 ring-2 ring-white/25 sm:h-20 sm:w-20 sm:text-4xl">
                   <img src={mangaIcon} alt="" className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
                 </span>
@@ -153,13 +155,13 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
                   <h1 className="truncate text-lg font-black drop-shadow sm:text-2xl">
                     {tool.name}
                   </h1>
-                  <p className="truncate text-xs font-medium text-white/70 sm:text-sm">
+                  <p className="hidden text-sm font-medium text-slate-200 sm:block">
                     {tool.description}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <AttendanceButton />
                 <Button
                   onClick={() => setSoundEnabled((s) => !s)}
@@ -182,7 +184,7 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
                   size="icon"
                   className="h-11 w-11 rounded-2xl border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
                   aria-label="Toggle fullscreen"
-                  title="Fullscreen (F)"
+                  title={tool.id === "sound-pad" ? "Fullscreen" : "Fullscreen (F)"}
                 >
                   {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
                 </Button>
@@ -201,11 +203,11 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
           </header>
 
           <main className={cn(
-            "flex flex-1 items-stretch justify-center px-2 py-2 sm:px-3 lg:px-4",
+            "flex min-w-0 flex-1 items-stretch justify-center px-2 py-2 sm:px-3 lg:px-4",
             !isTimerTool && !isProjectorTool && "sm:py-3",
           )}>
             <div className={cn(
-              "active-tool-shell w-full",
+              "active-tool-shell min-w-0 w-full",
               WIDE_TOOL_IDS.has(tool.id) ? "max-w-7xl" : "max-w-6xl",
               "max-w-none",
             )}>

@@ -11,8 +11,9 @@
     "lint": "eslint .",
     "verify:registry": "node scripts/verify-tool-registry.mjs",
     "verify:sounds": "node scripts/verify-sound-assets.mjs",
+    "test:sound-pad": "node --test scripts/test-sound-pad-engine.mjs",
     "verify:assets": "node scripts/verify-public-assets.mjs",
-    "doctor": "npm run verify:registry && npm run verify:sounds && npm run verify:assets && npx tsc --noEmit && npm run lint && npm run build",
+    "doctor": "npm run verify:registry && npm run verify:sounds && npm run test:sound-pad && npm run verify:assets && npx tsc --noEmit && npm run lint && npm run build",
     "icons": "python3 scripts/generate-pwa-icons.py"
   },
   "dependencies": {

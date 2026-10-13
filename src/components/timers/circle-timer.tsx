@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -17,7 +20,6 @@ import {
 } from "@/components/effects/effect-overlays";
 import {
   SKINS,
-  SkinPicker,
   SkinParticleField,
   SkinSceneDecorator,
   useSavedSkin,
@@ -96,14 +98,15 @@ export function CircleTimer() {
   const glowId = `glow-${skin.id}`;
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="circle" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="circle" />}
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
             "relative flex w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
-            isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+            styles.stage,
+            isSetup && styles.setup,
             skin.bgGradient,
           )}
         >
@@ -150,6 +153,7 @@ export function CircleTimer() {
             viewBox="0 0 320 320"
             className={cn(
               "relative z-10 h-full w-full drop-shadow-2xl",
+              styles.ring,
               isSetup ? "max-h-[38rem] max-w-[38rem]" : "max-h-[58rem] max-w-[58rem]",
             )}
           >
@@ -262,7 +266,7 @@ export function CircleTimer() {
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={veryLow ? "#fda4af" : lowTime ? "#fdba74" : "white"}
-                fontSize="48"
+                fontSize={display.length > 5 ? "34" : "48"}
                 fontWeight="900"
                 fontFamily="monospace"
                 className={cn(veryLow && "animate-[dramaticPulse_0.5s_ease-in-out_infinite]")}

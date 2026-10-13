@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { PRESET_TIMES } from "@/lib/timers";
 import type { TimerStatus } from "@/hooks/use-timer";
 import { ChevronDown, ChevronUp, Pause, Play, RotateCcw } from "lucide-react";
+import styles from "./timer-layout.module.css";
 
 interface TimerControlsProps {
   status: TimerStatus;
@@ -48,7 +49,7 @@ export function TimerStartButton({
   const resumeKeyProps = getKeyboardActivationProps(onResume);
 
   return (
-    <div className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2">
+    <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2">
       {status === "idle" && (
         <Button
           ref={getNativeActivationRef(onStart)}
@@ -68,7 +69,7 @@ export function TimerStartButton({
           ref={getNativeActivationRef(onPause)}
           {...pauseKeyProps}
           size="lg"
-          className="rounded-2xl border-2 border-white/60 bg-amber-500 px-10 py-7 text-xl font-black text-white shadow-xl shadow-amber-950/25 transition hover:-translate-y-0.5 hover:bg-amber-600 active:scale-95"
+          className="rounded-2xl border-2 border-amber-200 bg-amber-300 px-8 py-6 text-xl font-black text-zinc-950 shadow-xl transition hover:-translate-y-0.5 hover:bg-amber-400 active:scale-95"
         >
           <Pause className="mr-2 h-5 w-5 fill-current" />
           Pause
@@ -152,18 +153,19 @@ export function TimerControls({
   const showReset = status !== "idle";
 
   return (
-    <div className="grid w-full max-w-7xl grid-cols-1 gap-2 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
+    <div className="grid w-full max-w-7xl grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
       {showPresets && isEditable && (
-        <div className="rounded-2xl border border-white/18 bg-slate-950/55 p-2.5 shadow-xl backdrop-blur-md">
-          <p className="mb-2 text-[0.65rem] font-black uppercase tracking-wider text-white/70">
+        <div className="min-w-0 rounded-lg border border-zinc-500 bg-zinc-950 p-2 shadow-xl">
+          <p className="mb-1 text-xs font-black uppercase tracking-wider text-white">
             Quick presets
           </p>
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="grid grid-cols-5 gap-1 sm:grid-cols-8 md:grid-cols-5 lg:grid-cols-8">
             {PRESET_TIMES.map((preset) => (
               <button
                 key={preset.label}
+                type="button"
                 onClick={() => onPreset(preset.seconds)}
-                className="rounded-xl border border-white/25 bg-white/12 px-3 py-1.5 text-xs font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white/20 active:scale-95"
+                className="min-h-7 rounded-md border border-zinc-300 bg-white px-1 py-1 text-sm font-black text-zinc-950 shadow-sm transition hover:bg-cyan-100 focus-visible:outline-2 focus-visible:outline-yellow-300 active:scale-95"
               >
                 {preset.label}
               </button>
@@ -173,8 +175,8 @@ export function TimerControls({
       )}
 
       {isEditable && (
-        <div className="rounded-2xl border border-white/18 bg-slate-950/55 p-2.5 shadow-xl backdrop-blur-md lg:col-start-2">
-          <p className="mb-2 text-center text-[0.65rem] font-black uppercase tracking-wider text-white/70">
+        <div className="min-w-0 rounded-lg border border-zinc-500 bg-zinc-950 p-2 shadow-xl">
+          <p className="mb-1 text-center text-xs font-black uppercase tracking-wider text-white">
             Custom time
           </p>
           <div className="flex items-center justify-center gap-2">
@@ -207,7 +209,7 @@ export function TimerControls({
 
       {/* Reset button — guarded and outside the main action area */}
       {showReset && (
-        <div className="fixed bottom-4 right-4 z-[90] flex items-center justify-center gap-3 lg:col-span-3">
+        <div className="flex justify-end md:col-span-2">
           <GuardedResetButton onReset={onReset} />
         </div>
       )}
@@ -237,10 +239,10 @@ function GuardedResetButton({ onReset }: { onReset: () => void }) {
       size="lg"
       variant="outline"
       className={cn(
-        "rounded-2xl border-2 px-5 py-5 text-white shadow-2xl transition-all backdrop-blur-md",
+        "rounded-lg border-2 px-5 py-5 text-white shadow-2xl transition-all",
         armed
           ? "border-rose-200 bg-rose-600 hover:bg-rose-500 hover:text-white"
-          : "border-amber-200 bg-slate-950/90 hover:bg-slate-900 hover:text-white",
+          : "border-amber-200 bg-zinc-950 hover:bg-zinc-800 hover:text-white",
       )}
     >
       <RotateCcw className="mr-2 h-5 w-5" />
@@ -262,19 +264,22 @@ function TimeInput({
   max: number;
   step: number;
 }) {
+  const inputId = useId();
   const update = (nextValue: number) => onChange(Math.max(0, Math.min(max, nextValue)));
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className={styles.timeInput}>
       <button
         type="button"
         onClick={() => update(value + step)}
         aria-label={`Increase ${label}`}
-        className="grid h-8 w-16 place-items-center rounded-xl border border-white/20 bg-white/15 text-white shadow-sm transition hover:bg-white/25 active:scale-95"
+        className="grid h-7 w-16 place-items-center rounded-md border border-zinc-300 bg-zinc-800 text-white shadow-sm transition hover:bg-zinc-700 active:scale-95"
       >
         <ChevronUp className="h-5 w-5" />
       </button>
       <Input
+        id={inputId}
+        aria-label={label}
         type="number"
         min={0}
         max={max}
@@ -284,19 +289,19 @@ function TimeInput({
           if (isNaN(v)) onChange(0);
           else update(v);
         }}
-        className="h-14 w-16 rounded-2xl border-white/25 bg-white/12 text-center text-2xl font-black text-white shadow-inner [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="h-10 w-16 rounded-md border-zinc-400 bg-white text-center text-2xl font-black text-zinc-950 shadow-inner md:text-2xl [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <button
         type="button"
         onClick={() => update(value - step)}
         aria-label={`Decrease ${label}`}
-        className="grid h-8 w-16 place-items-center rounded-xl border border-white/20 bg-white/15 text-white shadow-sm transition hover:bg-white/25 active:scale-95"
+        className="grid h-7 w-16 place-items-center rounded-md border border-zinc-300 bg-zinc-800 text-white shadow-sm transition hover:bg-zinc-700 active:scale-95"
       >
         <ChevronDown className="h-5 w-5" />
       </button>
-      <span className="mt-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60">
+      <label htmlFor={inputId} className="text-xs font-bold uppercase tracking-wide text-white">
         {label}
-      </span>
+      </label>
     </div>
   );
 }

@@ -230,7 +230,7 @@ export function LetterCardGenerator() {
           <p className="text-xs text-slate-700 mb-3 font-black uppercase tracking-wider">
             Select letters to include ({selectedLetters.size}/26)
           </p>
-          <div className="grid grid-cols-7 sm:grid-cols-9 gap-1.5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(2.25rem,1fr))] gap-1.5">
             {ALPHABET_UPPER.map((l) => (
               <button
                 key={l}
@@ -348,7 +348,7 @@ export function LetterCardGenerator() {
                       <div className="absolute top-6 left-8 w-16 h-8 rounded-full bg-white/50 blur-sm" />
                     </div>
                     <p className={cn(
-                      "text-3xl sm:text-4xl font-black text-white drop-shadow-lg",
+                      "max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words",
                       "animate-[revealPulse_0.6s_ease-out]",
                     )}>
                       Letter {letter}!
@@ -448,7 +448,7 @@ export function LetterCardGenerator() {
                     <div className="absolute top-6 left-8 w-16 h-8 rounded-full bg-white/50 blur-sm" />
                   </div>
                   <p className={cn(
-                    "text-3xl sm:text-4xl font-black text-white drop-shadow-lg",
+                    "max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words",
                     phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
                   )}>
                     {phase === "result" ? `Letter ${letter}!` : "Flipping..."}

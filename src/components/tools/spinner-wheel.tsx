@@ -266,10 +266,10 @@ export function SpinnerWheel() {
           <div className="relative z-10 text-center">
             {winner && phase === "result" ? (
               <div className="animate-[revealPulse_0.6s_ease-out]">
-                <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
+                <p className="inline-block rounded-lg bg-slate-950 px-3 py-1 text-sm font-bold uppercase tracking-widest text-slate-200 mb-2">
                   🏆 Winner 🏆
                 </p>
-                <div className="text-4xl sm:text-6xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] break-words px-4">
+                <div className="max-w-full rounded-lg bg-slate-950 text-4xl sm:text-6xl font-black text-white break-words px-4 py-3">
                   {winner}
                 </div>
               </div>
@@ -321,7 +321,7 @@ export function SpinnerWheel() {
                     🎯
                   </div>
                 </div>
-                <p className="text-2xl font-black text-white drop-shadow-lg">
+                <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-2xl font-black text-white break-words">
                   {phase === "buildup" ? "Get ready..." : phase === "spinning" ? "Spinning..." : "Ready?"}
                 </p>
               </>

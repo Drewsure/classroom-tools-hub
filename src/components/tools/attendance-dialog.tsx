@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAttendance, type CardLevel } from "@/hooks/use-attendance";
@@ -36,6 +37,18 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
   const [importText, setImportText] = useState("");
   const [importMode, setImportMode] = useState<"merge" | "replace">("merge");
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape, true);
+    return () => window.removeEventListener("keydown", closeOnEscape, true);
+  }, [open, onClose]);
 
   useEffect(() => {
     if (!toast) return;
@@ -83,12 +96,12 @@ if (!open) return null;
   const dayList = cls ? att.yearDates(cls.id) : [];
   const stats = cls ? att.yearStats(cls.id) : [];
 
-  return (
-    <div className="fixed inset-0 z-[70] glass-bg overflow-y-auto">
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-labelledby="attendance-title" className="fixed inset-0 z-[110] glass-bg overflow-y-auto">
       <div className="min-h-screen flex flex-col max-w-4xl mx-auto w-full px-3 sm:px-6 py-4">
 
         <div className="flex items-center justify-between gap-2 mb-3">
-          <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2 flex-wrap">
+          <h2 id="attendance-title" className="text-lg sm:text-xl font-black text-white flex items-center gap-2 flex-wrap">
             <ClipboardList className="h-5 w-5 text-emerald-300" />
             Attendance しゅっせき
             {cls && (
@@ -97,9 +110,9 @@ if (!open) return null;
                 {activeCount}/{total}
               </span>
             )}
-            {cls && <span className="text-xs text-white/40 font-normal">{att.today}</span>}
+            {cls && <span className="text-sm text-slate-300 font-normal">{att.today}</span>}
           </h2>
-          <Button onClick={onClose} variant="outline" size="icon"
+          <Button onClick={onClose} variant="outline" size="icon" aria-label="Close attendance"
             className="h-10 w-10 rounded-full border-white bg-white text-slate-900 hover:bg-cyan-100">
             <X className="h-5 w-5" />
           </Button>
@@ -108,8 +121,8 @@ if (!open) return null;
         {!cls ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 py-16 text-center">
             <ClipboardList className="h-12 w-12 text-white/20" />
-            <p className="text-white/60 font-bold">No classes yet</p>
-            <p className="text-white/40 text-xs max-w-md">
+            <p className="text-slate-200 font-bold">No classes yet</p>
+            <p className="text-slate-300 text-sm max-w-md">
               Click Import and paste your weekly schedule — days, class lines with times, one student per line.
               Cards like &quot;B card&quot; are auto-detected. Data stays in this browser only.
             </p>
@@ -198,7 +211,7 @@ if (!open) return null;
                 );
               })}
             </div>
-            <p className="text-xs text-white/40 mt-2">
+            <p className="text-sm text-slate-300 mt-2">
               Present ON by default · Homework OFF · Bag ON · Active {activeCount}/{total}
               — absent students get excluded from pickers in the next stage
             </p>
@@ -208,7 +221,7 @@ if (!open) return null;
                 <div className="flex items-center gap-2 mb-2">
                   <CalendarDays className="h-4 w-4 text-sky-300" />
                   <h3 className="text-sm font-bold text-white">Year View — {cls.name}</h3>
-                  <span className="text-xs text-white/40">{dayList.length}/40 lessons recorded</span>
+                  <span className="text-sm text-slate-300">{dayList.length}/40 lessons recorded</span>
                 </div>
                 <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 mb-3">
                   {Array.from({ length: 40 }, (_, i) => {
@@ -224,7 +237,7 @@ if (!open) return null;
                   })}
                 </div>
                 <div className="flex flex-col gap-1 max-h-56 overflow-y-auto pr-1">
-                  {stats.length === 0 && <p className="text-xs text-white/40">No students.</p>}
+                  {stats.length === 0 && <p className="text-sm text-slate-300">No students.</p>}
                   {stats.map((st) => (
                     <div key={st.name} className="flex items-center gap-2 text-xs text-white/70">
                       <span className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 border-2",
@@ -246,7 +259,7 @@ if (!open) return null;
             <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
               <Upload className="h-4 w-4" /> Import classes
             </h3>
-            <p className="text-xs text-white/50 mb-2">
+            <p className="text-sm text-slate-300 mb-2">
               Paste your weekly schedule: day headers (MONDAYS…), class lines with times, one student per line.
               Cards auto-detected: P card = pink · B card = blue · G card = green.
               Saved to this browser only — never uploaded anywhere.
@@ -281,7 +294,8 @@ if (!open) return null;
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

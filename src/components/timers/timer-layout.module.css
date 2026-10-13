@@ -1,0 +1,186 @@
+.root.root {
+  min-height: 0;
+  min-width: 0;
+}
+
+:global(.active-tool-shell):has(> .root) {
+  min-height: 0;
+}
+
+.stage {
+  container-type: size;
+  height: max(12rem, calc(100dvh - 17rem));
+  min-width: 0;
+}
+
+.setup {
+  height: max(12rem, calc(100dvh - 33rem));
+}
+
+.round {
+  aspect-ratio: 1;
+  width: min(100%, max(12rem, calc(100dvh - 17rem)));
+  height: auto;
+  margin-inline: auto;
+  container-type: inline-size;
+}
+
+.round.setup {
+  width: min(100%, max(12rem, calc(100dvh - 33rem)));
+}
+
+.digits {
+  font-size: min(10cqi, 8rem);
+  line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+.round .digits {
+  font-size: min(10cqi, 8rem);
+}
+
+.clock {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  text-align: center;
+}
+
+.clockPanel.clockPanel {
+  max-width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: #18181b;
+}
+
+/* Reserve the readout and action rows; keep artwork at its original cap. */
+.asset {
+  position: absolute;
+  left: 50%;
+  bottom: 4.25rem;
+  transform: translateX(-50%);
+}
+
+.asset svg {
+  display: block;
+  width: auto;
+  height: max(2rem, min(calc(100cqh - 9rem), 38rem));
+  max-width: 78cqi;
+}
+
+.rocket svg { max-height: 41.625rem; }
+.bomb svg { max-height: 32.5rem; }
+.hourglass svg { max-height: 38.3125rem; }
+
+.candle {
+  --candle-space: max(1rem, min(calc(100cqh - 11rem), 35rem));
+}
+
+.candleBody.candleBody { width: min(20cqi, 10rem); }
+.flame.flame { height: min(12cqh, 7rem); width: min(6cqh, 3.5rem); }
+
+.ring.ring {
+  height: calc(100% - 5rem);
+  margin-bottom: 5rem;
+}
+
+.bar.bar {
+  padding-bottom: 5rem;
+  padding-inline: 1rem;
+}
+
+.barReadout.barReadout { margin-bottom: 1rem; }
+.barTrack.barTrack { height: min(18cqh, 8rem); }
+
+.traffic.traffic {
+  flex-direction: row;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 5rem;
+}
+
+.housing.housing {
+  flex-direction: column;
+  padding: 0.75rem;
+  gap: 1rem;
+}
+
+.light.light { width: 2rem; height: 2rem; }
+.trafficReadout.trafficReadout { flex: 0 1 auto; min-width: 0; width: 100%; gap: 0.5rem; }
+.trafficTrack.trafficTrack { height: min(12cqh, 6rem); }
+
+.raceTrack.raceTrack {
+  top: 6.5rem;
+  bottom: 5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.lane.lane { flex: 1; height: auto; min-height: 0; }
+.snail.snail { width: min(18cqi, 8rem); height: min(calc((100cqh - 13rem) / 4), 5.375rem); }
+.raceClock .digits { font-size: min(10cqi, 3rem); }
+
+@container (max-height: 26rem) {
+  .raceClock.raceClock { top: 0.5rem; }
+  .raceClock > div { padding: 0.25rem 0.75rem; }
+  .raceClock .digits { font-size: min(8cqi, 2rem); }
+  .raceTrack.raceTrack { top: 3.5rem; bottom: 4.75rem; }
+  .snail.snail { height: max(0.5rem, calc((100cqh - 9rem) / 4)); width: min(12cqi, 5rem); }
+  .racer > span { top: 50%; left: 100%; transform: translateY(-50%); }
+}
+
+.theme {
+  width: 100%;
+  color: #18181b;
+  background: #fff;
+  border: 1px solid #a1a1aa;
+  border-radius: 0.5rem;
+}
+
+.theme summary { cursor: pointer; padding: 0.5rem 0.75rem; font-weight: 700; }
+
+.timeInput {
+  display: grid;
+  grid-template-columns: 2.5rem 2.75rem;
+  grid-template-rows: 2.75rem 2.75rem auto;
+  gap: 0.125rem;
+  align-items: center;
+}
+
+.timeInput button { width: 2.75rem; height: 2.75rem; grid-column: 2; }
+.timeInput button:first-child { grid-row: 1; }
+.timeInput button:nth-of-type(2) { grid-row: 2; }
+.timeInput input { width: 2.5rem; height: 5.625rem; padding-inline: 0.25rem; grid-column: 1; grid-row: 1 / 3; }
+.timeInput label { grid-column: 1 / 3; text-align: center; }
+
+@container (max-height: 18rem) {
+  .clock { left: 44%; right: 2%; top: 35%; transform: translateY(-50%); }
+  .clock .digits { font-size: min(7cqi, 2.5rem); }
+  .asset { left: 22%; }
+  .asset svg { height: max(2rem, calc(100cqh - 7rem)); max-width: 38cqi; }
+  .housing.housing { gap: 0.5rem; padding: 0.5rem; }
+  .light.light { width: 1.5rem; height: 1.5rem; }
+  .traffic.traffic { gap: 0.5rem; padding-top: 0.25rem; padding-bottom: 4.25rem; }
+  .trafficTrack.trafficTrack { height: 1rem; }
+  .trafficReadout.trafficReadout { gap: 0; }
+  .barReadout.barReadout { margin-bottom: 0.25rem; }
+}
+
+@media (min-width: 768px) {
+  .stage { height: max(12rem, calc(100dvh - 14rem)); }
+  .setup { height: max(12rem, calc(100dvh - 21rem)); }
+  .round { width: min(100%, max(12rem, calc(100dvh - 14rem))); }
+  .round.setup { width: min(100%, max(12rem, calc(100dvh - 21rem))); }
+}
+
+@container (min-width: 900px) {
+  .clock { left: 48%; right: 2%; top: 50%; transform: translateY(-50%); }
+  .clock .digits { font-size: min(8cqi, 10rem); }
+  .asset { left: 25%; bottom: 5rem; }
+  .asset svg { height: min(calc(100cqh - 7rem), 41.625rem); max-width: 44cqi; }
+  .candle { --candle-space: max(1rem, min(calc(100cqh - 14rem), 35rem)); }
+  .traffic.traffic { flex-direction: row; gap: 3rem; }
+  .housing.housing { flex-direction: column; gap: 1.25rem; padding: 1.25rem; }
+  .light.light { width: min(15cqh, 6rem); height: min(15cqh, 6rem); }
+}

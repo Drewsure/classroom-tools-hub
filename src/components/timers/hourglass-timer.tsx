@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -15,7 +18,7 @@ import {
   ShakeWrapper,
   DramaticCountdown,
 } from "@/components/effects/effect-overlays";
-import { SKINS, SkinPicker, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
+import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatTime } from "@/lib/timers";
 import { cn } from "@/lib/utils";
 
@@ -86,12 +89,13 @@ export function HourglassTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="hourglass" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="hourglass" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn(
           "relative flex w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
-          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          styles.stage,
+          isSetup && styles.setup,
           skin.bgGradient,
         )}>
           {/* Themed ambient particles */}
@@ -120,13 +124,14 @@ export function HourglassTimer() {
           {/* Time display */}
           <div
             className={cn(
-              "absolute pointer-events-none z-10 text-center",
-              isSetup ? "left-0 right-0 top-4" : "right-[6%] top-1/2 -translate-y-1/2",
+              "pointer-events-none",
+              styles.clock,
             )}
           >
             <div
               className={cn(
                 "inline-block rounded-2xl border px-6 py-3 backdrop-blur-sm",
+                styles.clockPanel,
                 !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(250,204,21,0.35)]",
                 done
                   ? "bg-stone-900/60 border-stone-600/50"
@@ -140,7 +145,7 @@ export function HourglassTimer() {
               <div
                 className={cn(
                   "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
-                  !isSetup && "lg:text-[8rem] xl:text-[10rem]",
+                  styles.digits,
                   done ? "text-stone-400" : veryLow ? "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]" : lowTime ? "text-orange-300" : "text-yellow-100",
                 )}
               >
@@ -162,8 +167,9 @@ export function HourglassTimer() {
           {/* Hourglass */}
           <div
             className={cn(
-              "relative transition-all duration-500",
-              !isSetup && "absolute left-[34%] top-1/2 -translate-x-1/2 -translate-y-1/2",
+              "transition-all duration-500",
+              styles.asset,
+              styles.hourglass,
             )}
           >
             <svg width={isSetup ? 330 : 460} height={isSetup ? 440 : 613} viewBox="0 0 180 240" className="drop-shadow-2xl">

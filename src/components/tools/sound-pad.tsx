@@ -1,47 +1,49 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useSoundPad, SOUNDS } from "@/hooks/use-sound-pad";
-import { Volume2, VolumeX, Square } from "lucide-react";
+import { useSoundEnabled } from "@/components/timers/timer-launcher";
+import { Heart, LoaderCircle, Square, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const FAVOURITES = new Set(["drumroll", "cowbell", "laugh", "cheer"]);
 const CATEGORIES = [
-  { id: "positive", label: "Positive & Encouraging", emoji: "🎉" },
-  { id: "funny", label: "Game Show", emoji: "🎬" },
-  { id: "attention", label: "Attention & Fun", emoji: "🛎️" },
-  { id: "answers", label: "Classroom Answers", emoji: "📝" },
+  { id: "favourites", label: "Class favourites" },
+  { id: "positive", label: "Celebrate" },
+  { id: "funny", label: "Game show" },
+  { id: "attention", label: "Attention" },
+  { id: "answers", label: "Answers" },
+  { id: "all", label: "All sounds" },
 ] as const;
 
 export function SoundPad() {
-  const { play, stopAll, volume, setVolume, lastPlayed } = useSoundPad();
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [muted, setMuted] = useState(false);
+  const { play, stopAll, volume, setVolume, playingId, loadingId, error } = useSoundPad();
+  const soundEnabled = useSoundEnabled();
+  const previousVolume = useRef(0.5);
+  const [category, setCategory] = useState<string>("favourites");
+  const sounds = SOUNDS.filter((sound) => category === "all" ||
+    (category === "favourites" ? FAVOURITES.has(sound.id) : sound.category === category));
+  const activeSound = SOUNDS.find((sound) => sound.id === (playingId ?? loadingId));
+  const muted = volume === 0;
 
-  const handlePlay = useCallback(
-    (soundId: string) => {
-      if (muted) return;
-      play(soundId);
-      setActiveId(soundId);
-      setTimeout(() => {
-        setActiveId((prev) => (prev === soundId ? null : prev));
-      }, 400);
-    },
-    [muted, play],
-  );
+  const handlePlay = useCallback((id: string) => {
+    if (soundEnabled && !muted) play(id);
+  }, [soundEnabled, muted, play]);
 
-  // Keyboard shortcuts
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      const key = e.key.toLowerCase();
-      const sound = SOUNDS.find((s) => s.key === key);
-      if (sound) {
-        e.preventDefault();
-        handlePlay(sound.id);
-      }
-      if (e.key === " ") {
-        e.preventDefault();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest("input, textarea, select, [role='dialog']"))) return;
+      if (event.key === " " && !(target instanceof HTMLElement && target.closest("button"))) {
+        event.preventDefault();
         stopAll();
+        return;
+      }
+      const sound = SOUNDS.find((item) => item.key === event.key.toLowerCase());
+      if (sound) {
+        event.preventDefault();
+        handlePlay(sound.id);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -49,152 +51,124 @@ export function SoundPad() {
   }, [handlePlay, stopAll]);
 
   const toggleMute = () => {
-    if (muted) {
-      setMuted(false);
-      setVolume(0.7);
-    } else {
-      setMuted(true);
+    if (muted) setVolume(previousVolume.current || 0.5);
+    else {
+      previousVolume.current = volume;
       setVolume(0);
     }
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 py-2 w-full min-h-[calc(100vh-200px)]">
-      {/* Glassmorphism control bar */}
-      <div className="w-full max-w-5xl flex items-center justify-between gap-3 px-5 py-3 rounded-3xl border border-pink-200/40 bg-gradient-to-r from-fuchsia-500/22 via-slate-900/88 to-cyan-500/18 shadow-2xl shadow-fuchsia-950/30">
-        <div className="flex items-center gap-3">
-          <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white shadow-lg">
-            <img src="/images/manga-icons/sound-pad.png" alt="" className="h-16 w-16 object-contain" />
-          </span>
+    <div className="w-full min-w-0 pb-28">
+      <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <img src="/images/manga-icons/sound-pad.png" alt="" className="h-16 w-16 shrink-0 rounded-lg bg-white object-contain" />
           <div>
-            <h2 className="text-xl font-black text-white">Sound Pad</h2>
-            <p className="text-xs text-white/50">
-              {lastPlayed
-                ? `Last: ${SOUNDS.find((s) => s.id === lastPlayed)?.emoji} ${SOUNDS.find((s) => s.id === lastPlayed)?.label}`
-                : "Tap a sound or use keyboard!"}
+            <h2 className="text-2xl font-black text-white">Sound Pad</h2>
+            <p role="status" className="mt-1 text-base font-semibold text-white">
+              {!soundEnabled ? "Sound is muted in the teacher toolbar" : muted ? "Muted" :
+                loadingId ? `Loading: ${activeSound?.label ?? ""}` :
+                playingId ? `Playing: ${activeSound?.label ?? ""}` : "Ready"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Volume slider — always visible on iPad */}
-          <div className="flex items-center gap-2">
-            <button onClick={toggleMute} className="text-white/70 hover:text-white p-1" aria-label="Toggle mute">
-              {muted || volume === 0 ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={Math.round(volume * 100)}
-              onChange={(e) => {
-                const v = parseInt(e.target.value) / 100;
-                setVolume(v);
-                setMuted(v === 0);
-              }}
-              className="w-28 h-2 rounded-full appearance-none bg-white/20 cursor-pointer"
-            />
-          </div>
-
-          {/* Mute toggle */}
-          <button
-            onClick={toggleMute}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-bold border transition-all",
-              muted
-                ? "bg-red-500/30 text-red-200 border-red-400/50"
-                : "classroom-control-button",
-            )}
-          >
-            {muted ? "🔇 Muted" : "🔊 Sound On"}
-          </button>
-
-          {/* Stop / Panic button — large for iPad */}
-          <button
-            onClick={stopAll}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-red-500 hover:bg-red-600 text-white border border-red-400 shadow-lg transition-all"
-            title="Stop all sounds (Space)"
-          >
-            <Square className="h-4 w-4 fill-current" />
-            STOP ALL
-          </button>
-        </div>
+        {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 font-semibold text-red-900">{error}</p>}
       </div>
 
-      {/* Sound pad grid — iPad-optimized large buttons */}
-      <div className="w-full max-w-5xl space-y-5 flex-1">
-        {CATEGORIES.map((cat) => {
-          const catSounds = SOUNDS.filter((s) => s.category === cat.id);
+      <div role="tablist" aria-label="Sound collections" className="mb-4 flex flex-wrap gap-2">
+        {CATEGORIES.map((item) => (
+          <button
+            key={item.id}
+            id={`sound-tab-${item.id}`}
+            role="tab"
+            aria-selected={category === item.id}
+            tabIndex={category === item.id ? 0 : -1}
+            aria-controls="sound-pad-grid"
+            onClick={() => setCategory(item.id)}
+            onKeyDown={(event) => {
+              const index = CATEGORIES.findIndex((entry) => entry.id === item.id);
+              let next = index;
+              if (event.key === "ArrowRight") next = (index + 1) % CATEGORIES.length;
+              else if (event.key === "ArrowLeft") next = (index + CATEGORIES.length - 1) % CATEGORIES.length;
+              else if (event.key === "Home") next = 0;
+              else if (event.key === "End") next = CATEGORIES.length - 1;
+              else return;
+              event.preventDefault();
+              setCategory(CATEGORIES[next].id);
+              document.getElementById(`sound-tab-${CATEGORIES[next].id}`)?.focus();
+            }}
+            className={cn("flex min-h-11 items-center gap-2 rounded-lg border-2 px-3 py-2 text-sm font-black",
+              category === item.id ? "border-yellow-400 bg-yellow-300 text-slate-950" : "border-slate-300 bg-white text-slate-900 hover:bg-cyan-50")}
+          >
+            {item.id === "favourites" && <Heart className="h-4 w-4" />}
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="sound-pad-grid"
+        role="tabpanel"
+        aria-labelledby={`sound-tab-${category}`}
+        className={cn("grid gap-3 sm:gap-4",
+          category === "favourites" ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6")}
+      >
+        {sounds.map((sound) => {
+          const active = playingId === sound.id;
+          const loading = loadingId === sound.id;
           return (
-            <div key={cat.id}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl">{cat.emoji}</span>
-                <h3 className="text-sm font-bold text-white/80 uppercase tracking-wider">
-                  {cat.label}
-                </h3>
-              </div>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
-                {catSounds.map((sound) => {
-                  const isActive = activeId === sound.id;
-                  return (
-                    <button
-                      key={sound.id}
-                      onClick={() => handlePlay(sound.id)}
-                      className={cn(
-                        "relative overflow-hidden rounded-[1.4rem] border-2 border-white/35 p-3 text-white shadow-xl shadow-black/20 transition-all duration-150 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/40 bg-gradient-to-br group",
-                        "min-h-[110px] sm:min-h-[130px]",
-                        sound.color,
-                        isActive && "scale-95 ring-4 ring-white/60",
-                      )}
-                    >
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.32),transparent_24%)] opacity-80" />
-
-                      {/* Key shortcut badge */}
-                      {sound.key && (
-                        <span className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/30 text-white text-xs font-bold flex items-center justify-center backdrop-blur-sm uppercase">
-                          {sound.key}
-                        </span>
-                      )}
-
-                      {/* Ripple effect when active */}
-                      {isActive && (
-                        <div className="absolute inset-0 bg-white/30 animate-[flashFade_0.4s_ease-out]" />
-                      )}
-
-                      <div className="relative flex flex-col items-center gap-2">
-                        <span className={cn(
-                          "grid h-14 w-14 place-items-center rounded-2xl bg-white/90 text-4xl shadow-lg transition-transform sm:h-16 sm:w-16 sm:text-5xl",
-                          isActive && "scale-110",
-                        )}>
-                          {sound.emoji}
-                        </span>
-                        <span className="rounded-full bg-black/20 px-2 py-1 text-center text-xs font-black drop-shadow sm:text-sm">
-                          {sound.label}
-                        </span>
-                      </div>
-
-                      {/* Active glow */}
-                      {isActive && (
-                        <div className="absolute inset-0 rounded-2xl border-4 border-white animate-[pulseRing_0.5s_ease-out]" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <button
+              key={sound.id}
+              onClick={() => handlePlay(sound.id)}
+              disabled={!soundEnabled || muted}
+              aria-label={sound.label}
+              aria-pressed={active}
+              title={sound.key ? `${sound.label} (${sound.key.toUpperCase()})` : sound.label}
+              className={cn("relative flex min-w-0 flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border-4 bg-gradient-to-br p-3 shadow-lg transition active:scale-95 disabled:opacity-60",
+                category === "favourites" ? "aspect-square" : "min-h-36",
+                sound.color,
+                active ? "border-yellow-300 ring-4 ring-yellow-300" : "border-white")}
+            >
+              <span aria-hidden="true" className={cn("grid place-items-center rounded-lg bg-white leading-none",
+                category === "favourites" ? "h-20 w-20 text-6xl sm:h-28 sm:w-28 sm:text-7xl" : "h-16 w-16 text-5xl")}>
+                {sound.emoji}
+              </span>
+              <span className="w-full rounded-lg bg-white px-2 py-2 text-center text-base font-black leading-snug text-slate-950">
+                {sound.label}
+              </span>
+              {(active || loading) && (
+                <span className="flex items-center gap-1 rounded-lg bg-slate-950 px-2 py-1 text-sm font-bold text-white">
+                  {loading && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                  {loading ? "Loading" : "Playing"}
+                </span>
+              )}
+            </button>
           );
         })}
       </div>
 
-      {/* Keyboard shortcuts help — bottom bar */}
-      <div className="w-full max-w-5xl mt-2 p-3 rounded-2xl glass">
-        <p className="text-xs text-white/50 text-center">
-          ⌨️ <span className="font-bold text-white/70">Keyboard:</span>{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-white/80">1-6</kbd> Positive ·{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-white/80">Q-Y</kbd> Game Show ·{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-white/80">A-H</kbd> Attention ·{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-white/80">Z-N</kbd> Answers ·{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-white/80">Space</kbd> Stop All
-        </p>
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div className="pointer-events-auto mx-auto flex w-full max-w-5xl items-center gap-2 rounded-lg border-2 border-slate-300 bg-white p-2 text-slate-950 shadow-xl sm:gap-4">
+          <button onClick={toggleMute} aria-label={muted ? "Unmute sound pad" : "Mute sound pad"} title={muted ? "Unmute" : "Mute"}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-slate-100 text-slate-950">
+            {muted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+          </button>
+          <label className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="hidden text-sm font-bold sm:inline">Volume</span>
+            <input type="range" aria-label="Sound pad volume" min="0" max="100" value={Math.round(volume * 100)}
+              onChange={(event) => {
+                const next = Number(event.target.value) / 100;
+                if (next > 0) previousVolume.current = next;
+                setVolume(next);
+              }}
+              className="h-11 w-full min-w-0 cursor-pointer accent-cyan-700" />
+            <span className="w-10 shrink-0 text-right text-sm font-black tabular-nums">{Math.round(volume * 100)}%</span>
+          </label>
+          <button onClick={stopAll} title="Stop all sounds (Space)"
+            className="flex min-h-12 shrink-0 items-center gap-2 rounded-lg bg-red-700 px-3 py-3 text-base font-black text-white hover:bg-red-800 sm:px-6">
+            <Square className="h-5 w-5 fill-current" /> Stop All
+          </button>
+        </div>
       </div>
     </div>
   );

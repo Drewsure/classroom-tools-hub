@@ -153,7 +153,7 @@ export const TOOLS: ToolDef[] = [
   { id: "pe-english-hub", name: "PE English Hub", description: "50-min PE-in-English lesson: Simon Says, Red Light Green Light, Fruit Salad Tag", emoji: "🏃", icon: Dumbbell, gradient: "from-orange-600 via-red-600 to-pink-600", accent: "#ea580c", category: "dashboard" },
 
   // Sounds
-  { id: "sound-pad", name: "Sound Pad", description: "Instant sound effects: cheer, buzzer, animals & more", emoji: "🔊", icon: Volume2, gradient: "from-fuchsia-600 via-purple-600 to-indigo-700", accent: "#d946ef", category: "sounds" },
+  { id: "sound-pad", name: "Sound Pad", description: "Class favourites, game-show effects and spoken classroom cues", emoji: "🔊", icon: Volume2, gradient: "from-fuchsia-600 via-purple-600 to-indigo-700", accent: "#d946ef", category: "sounds" },
 
   // Audio Player
   { id: "audio-player", name: "Audio Player", description: "Offline MP3 player with 12-level curriculum structure", emoji: "🎵", icon: Headphones, gradient: "from-indigo-600 via-purple-600 to-fuchsia-600", accent: "#8b5cf6", category: "audio" },

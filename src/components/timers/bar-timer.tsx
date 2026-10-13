@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -17,7 +20,6 @@ import {
 } from "@/components/effects/effect-overlays";
 import {
   SKINS,
-  SkinPicker,
   SkinParticleField,
   SkinSceneDecorator,
   useSavedSkin,
@@ -87,15 +89,17 @@ export function BarTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="bar" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="bar" />}
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div
           className={cn(
             "relative flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b px-6 shadow-2xl sm:px-10",
-            isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+            styles.stage,
+            isSetup && styles.setup,
             skin.bgGradient,
+            styles.bar,
           )}
         >
           {/* Themed particles */}
@@ -115,7 +119,7 @@ export function BarTimer() {
           )}
 
           {/* Time display */}
-          <div className="text-center mb-12 z-10">
+          <div className={cn("text-center z-10", styles.barReadout)}>
             {done ? (
               <div className="text-7xl mb-2 animate-[winnerBounce_0.6s_ease-in-out_infinite]">
                 {skin.completionEmoji}
@@ -123,7 +127,8 @@ export function BarTimer() {
             ) : (
               <div
                 className={cn(
-                  "font-mono font-black tabular-nums drop-shadow-2xl text-6xl sm:text-7xl lg:text-9xl xl:text-[12rem] transition-all text-white",
+                  "font-mono font-black tabular-nums drop-shadow-2xl transition-all text-white",
+                  styles.digits,
                   veryLow && "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]",
                   lowTime && "text-orange-300",
                 )}
@@ -156,7 +161,7 @@ export function BarTimer() {
               </span>
               <span>End</span>
             </div>
-            <div className="relative h-24 overflow-hidden rounded-full border-2 border-white/10 bg-black/40 shadow-inner sm:h-32">
+            <div className={cn("relative overflow-hidden rounded-full border-2 border-white/10 bg-black/40 shadow-inner", styles.barTrack)}>
               {/* Progress fill */}
               <div
                 className={cn(

@@ -273,7 +273,7 @@ export function WeatherFlashcards() {
                 </div>
 
                 {/* Question / Answer */}
-                <p className={cn("text-2xl sm:text-3xl font-black text-white drop-shadow-lg text-center", revealAnswer === "yes" && "text-emerald-300")}>
+                <p className={cn("max-w-full rounded-lg bg-slate-950 px-3 py-2 text-2xl sm:text-3xl font-black text-white text-center break-words", revealAnswer === "yes" && "text-emerald-300")}>
                   {revealAnswer === "yes" ? `Yes! It's ${WEATHER_META[current].label} today!` : `Is it ${WEATHER_META[current].label} today?`}
                 </p>
 
@@ -366,8 +366,8 @@ export function WeatherFlashcards() {
                     <img src={weatherGif(presentCard)} alt={WEATHER_META[presentCard].label} className="h-full w-full bg-black/15 object-contain" />
                     <div className="absolute top-2 right-2 bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg"><Check className="h-5 w-5" /></div>
                   </div>
-                  <p className="text-xl sm:text-2xl font-black text-emerald-300 text-center">Yes, it is. It&apos;s {WEATHER_META[presentCard].label} today.</p>
-                  <p className="text-sm text-emerald-300/70">Card {presentIdx + 1} of {correctTypes.length}</p>
+                  <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-xl sm:text-2xl font-black text-emerald-300 text-center break-words">Yes, it is. It&apos;s {WEATHER_META[presentCard].label} today.</p>
+                  <p className="rounded-lg bg-slate-950 px-3 py-1 text-sm text-slate-200">Card {presentIdx + 1} of {correctTypes.length}</p>
                 </div>
               )}
 

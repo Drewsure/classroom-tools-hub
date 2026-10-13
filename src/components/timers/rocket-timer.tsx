@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -15,7 +18,7 @@ import {
   ShakeWrapper,
   DramaticCountdown,
 } from "@/components/effects/effect-overlays";
-import { SKINS, SkinPicker, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
+import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatTime } from "@/lib/timers";
 import { cn } from "@/lib/utils";
 
@@ -96,12 +99,13 @@ export function RocketTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="rocket" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="rocket" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn(
           "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
-          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          styles.stage,
+          isSetup && styles.setup,
           skin.bgGradient,
         )}>
           {/* Themed ambient particles */}
@@ -127,7 +131,7 @@ export function RocketTimer() {
           <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-b from-slate-700 to-slate-900 border-t-2 border-slate-500" />
           <div className={cn(
             "absolute bottom-14 h-5 w-72 -translate-x-1/2 rounded-t-md bg-slate-500 shadow-[0_0_35px_rgba(148,163,184,0.45)]",
-            isSetup ? "left-1/2" : "left-[34%]",
+            "left-1/2 @min-[900px]:left-1/4",
           )} />
 
           {/* Smoke clouds at base when launching */}
@@ -146,8 +150,9 @@ export function RocketTimer() {
           {/* Rocket */}
           <div
             className={cn(
-              "absolute bottom-16 -translate-x-1/2 transition-all duration-200 ease-out",
-              isSetup ? "left-1/2" : "left-[34%]",
+              "transition-all duration-200 ease-out",
+              styles.asset,
+              styles.rocket,
               blastoff && "animate-[rocketLaunch_3s_ease-out_forwards]",
             )}
             style={{
@@ -231,17 +236,18 @@ export function RocketTimer() {
           {/* Time display */}
           {!countdown && !blastoff && (
             <div className={cn(
-              "pointer-events-none absolute z-10 text-center",
-              isSetup ? "left-0 right-0 top-4" : "right-[8%] top-1/2 -translate-y-1/2",
+              "pointer-events-none",
+              styles.clock,
             )}>
               <div className={cn(
                 "inline-block rounded-2xl border border-white/20 bg-black/50 px-6 py-3 backdrop-blur-sm",
+                styles.clockPanel,
                 !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(56,189,248,0.35)]",
               )}>
                 <div
                   className={cn(
                     "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl text-white tabular-nums drop-shadow-lg",
-                    !isSetup && "lg:text-[8rem] xl:text-[10rem]",
+                    styles.digits,
                     countdown && "animate-[dramaticPulse_0.5s_ease-in-out_infinite] text-red-300",
                   )}
                 >

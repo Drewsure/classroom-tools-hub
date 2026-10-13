@@ -930,18 +930,19 @@ export function PEEnglishHub() {
       {/* ===== Fullscreen Popup Modal — content rendered dynamically so state changes work ===== */}
       {popupType && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center gap-2 p-3 sm:p-4"
           onClick={closePopup}
         >
           <button
             onClick={closePopup}
-            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-10"
+            className="self-end shrink-0 w-12 h-12 rounded-full bg-white hover:bg-cyan-100 text-slate-950 flex items-center justify-center transition-all"
             title="Close (Esc)"
+            aria-label="Close popup"
           >
             <X className="h-6 w-6" />
           </button>
           <div
-            className="w-full h-full max-w-6xl max-h-[90vh] overflow-y-auto p-6 sm:p-8"
+            className="w-full min-h-0 flex-1 max-w-6xl overflow-y-auto overscroll-contain p-3 sm:p-8"
             onClick={(e) => e.stopPropagation()}
           >
             {/* ===== SIMON SAYS POPUP ===== */}

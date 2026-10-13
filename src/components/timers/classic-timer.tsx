@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -17,7 +20,6 @@ import {
 } from "@/components/effects/effect-overlays";
 import {
   SKINS,
-  SkinPicker,
   SkinParticleField,
   SkinSceneDecorator,
   useSavedSkin,
@@ -83,16 +85,15 @@ export function ClassicTimer() {
   const isSetup = timer.status === "idle";
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="classic" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="classic" />}
 
       <ShakeWrapper intensity={shakeIntensity} className="flex justify-center">
         <div
           className={cn(
             "relative flex items-center justify-center rounded-full transition-all duration-300 shrink-0",
-            isSetup
-              ? "h-[min(58dvh,40rem)] w-[min(58dvh,40rem)] min-h-[22rem] min-w-[22rem]"
-              : "h-[min(82dvh,62rem)] w-[min(82dvh,62rem)] min-h-[32rem] min-w-[32rem]",
+            styles.round,
+            isSetup && styles.setup,
             "border-4 shadow-2xl backdrop-blur-sm bg-gradient-to-br",
             skin.bgGradient,
             lowTime && "border-red-400/80",
@@ -161,7 +162,7 @@ export function ClassicTimer() {
               <div
                 className={cn(
                   "font-mono font-black tabular-nums text-white drop-shadow-2xl transition-all",
-                  "text-6xl sm:text-8xl lg:text-9xl xl:text-[12rem]",
+                  styles.digits,
                   lowTime && "text-red-300",
                   veryLow && "animate-[dramaticPulse_0.5s_ease-in-out_infinite] text-red-400",
                 )}

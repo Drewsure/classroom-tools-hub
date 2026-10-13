@@ -255,10 +255,10 @@ export function RandomNamePicker() {
 
           {winner !== null ? (
             <div className="relative z-10 text-center">
-              <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
+              <p className="inline-block rounded-lg bg-slate-950 px-3 py-1 text-sm font-bold uppercase tracking-widest text-slate-200 mb-2">
                 🏆 Winner 🏆
               </p>
-              <div className="text-5xl sm:text-7xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] animate-[winnerBounce_0.6s_ease-in-out_infinite] break-words px-4">
+              <div className="max-w-full rounded-lg bg-slate-950 text-4xl sm:text-7xl font-black text-white animate-[winnerBounce_0.6s_ease-in-out_infinite] break-words px-4 py-3">
                 {winner}
               </div>
               <Button
@@ -281,7 +281,7 @@ export function RandomNamePicker() {
                       "px-5 py-3 rounded-2xl font-bold text-lg transition-all duration-100 border-2",
                       i === highlightIdx
                         ? "bg-white text-purple-700 border-yellow-300 scale-110 shadow-[0_0_30px_rgba(255,255,255,0.8)]"
-                        : "bg-white/10 text-white border-white/20",
+                        : "bg-slate-950 text-white border-slate-700",
                     )}
                   >
                     {name.text || `Player ${i + 1}`}

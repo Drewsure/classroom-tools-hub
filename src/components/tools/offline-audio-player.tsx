@@ -776,17 +776,17 @@ export function OfflineAudioPlayer() {
   return (
     <div className="flex flex-col items-center gap-4 py-2 w-full">
       {/* Header */}
-      <div className="w-full max-w-5xl flex items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 border border-white/10 shadow-lg">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">🎵</span>
-          <div>
+      <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 border border-white/10 shadow-lg">
+        <div className="flex min-w-0 max-w-full items-center gap-3">
+          <span className="shrink-0 text-3xl">🎵</span>
+          <div className="min-w-0 break-words">
             <h2 className="text-xl font-bold text-white">Offline Audio Player</h2>
             <p className="text-xs text-white/70">
               {tracks.length} tracks · {formatSize(totalSize)} stored offline
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
           {/* Playlists button */}
           {tracks.length > 0 && (
             <Button

@@ -25,8 +25,16 @@ export function UniversalSkinPicker({
       <p className="mb-2 text-center text-xs font-black uppercase tracking-wider text-slate-700">
         Theme
       </p>
+      <select
+        aria-label="Theme"
+        value={current}
+        onChange={(event) => onChange(event.target.value as SkinId)}
+        className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base font-bold text-slate-950 sm:hidden"
+      >
+        {SKINS.map((skin) => <option key={skin.id} value={skin.id}>{skin.name}</option>)}
+      </select>
       <div className={cn(
-        "flex justify-center gap-1.5 overflow-y-auto pb-1 flex-wrap",
+        "hidden sm:flex justify-center gap-1.5 overflow-y-auto pb-1 flex-wrap",
         compact ? "max-h-16" : "max-h-28",
       )}>
         {SKINS.map((skin) => (
@@ -40,10 +48,11 @@ export function UniversalSkinPicker({
                 : "border-slate-300 bg-white text-slate-800 hover:border-cyan-500 hover:bg-cyan-50",
             )}
             title={skin.name}
+            aria-label={skin.name}
+            aria-pressed={current === skin.id}
           >
             <span className="mr-0.5">{skin.emoji}</span>
-            <span className="hidden sm:inline">{skin.name}</span>
-            <span className="sm:hidden">{skin.emoji}</span>
+            <span>{skin.name}</span>
           </button>
         ))}
       </div>

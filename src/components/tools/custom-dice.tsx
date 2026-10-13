@@ -412,11 +412,11 @@ export function CustomDice() {
                 {displayValue}
               </span>
             </div>
-            <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg">
+            <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words">
               {allExhausted ? "🎉 All sides rolled!" : phase === "result" ? `${displayValue}!` : phase === "buildup" ? "Get ready..." : phase === "rolling" ? "Rolling..." : "Ready?"}
             </p>
             {noRepeat && !allExhausted && phase === "idle" && (
-              <p className="text-base text-white/70 mt-2">{sides - usedIndices.length} of {sides} remaining</p>
+              <p className="rounded-lg bg-slate-950 px-3 py-1 text-base text-slate-200 mt-2">{sides - usedIndices.length} of {sides} remaining</p>
             )}
 
             {/* ===== Roll / Next Roll button — INSIDE the dice container border ===== */}

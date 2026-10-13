@@ -509,7 +509,7 @@ function CoinDisplay({ face, phase, result }: { face: "heads" | "tails"; phase: 
         <div className="absolute top-4 left-6 w-12 h-6 rounded-full bg-white/40 blur-sm" />
         <span className="relative drop-shadow-lg">{face === "heads" ? "H" : "T"}</span>
       </div>
-      <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg">
+      <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words">
         {result ? result : phase === "buildup" ? "Get ready..." : phase === "spinning" ? "Flipping..." : "Ready?"}
       </p>
     </>
@@ -548,7 +548,7 @@ function DiceDisplay({
         {/* Shine overlay */}
         <div className="absolute top-4 left-6 w-16 h-8 rounded-full bg-white/50 blur-sm pointer-events-none" />
       </div>
-      <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg">
+      <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words">
         {allExhausted
           ? "🎉 All numbers rolled! Reset to continue"
           : result
@@ -560,7 +560,7 @@ function DiceDisplay({
                 : "Ready?"}
       </p>
       {noRepeatMode && !allExhausted && (
-        <p className="text-base text-white/70 mt-2">
+        <p className="rounded-lg bg-slate-950 px-3 py-1 text-base text-slate-200 mt-2">
           {6 - usedNumbers.length} numbers remaining
         </p>
       )}
@@ -629,7 +629,7 @@ function WheelDisplay({
         </div>
       </div>
       <p className={cn(
-        "text-3xl sm:text-4xl font-black text-white drop-shadow-lg",
+        "max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words",
         phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
       )}>
         {result ? `${result}!` : phase === "buildup" ? "Get ready..." : spinning ? "Spinning..." : "Ready?"}
@@ -670,7 +670,7 @@ function BallDisplay({
         </div>
       </div>
       <p className={cn(
-        "text-2xl sm:text-3xl font-black text-white drop-shadow-lg",
+        "max-w-full rounded-lg bg-slate-950 px-3 py-2 text-2xl sm:text-3xl font-black text-white break-words",
         phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
       )}>
         {result ? result : phase === "buildup" ? "Concentrate..." : phase === "spinning" ? "Shaking..." : "Ask a question!"}
@@ -715,7 +715,7 @@ function LetterDisplay({
         <div className="absolute top-6 left-8 w-16 h-8 rounded-full bg-white/50 blur-sm" />
       </div>
       <p className={cn(
-        "text-3xl sm:text-4xl font-black text-white drop-shadow-lg",
+        "max-w-full rounded-lg bg-slate-950 px-3 py-2 text-3xl sm:text-4xl font-black text-white break-words",
         phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
       )}>
         {result ? `Letter ${result}!` : phase === "buildup" ? "Get ready..." : phase === "spinning" ? "Flipping..." : "Ready?"}

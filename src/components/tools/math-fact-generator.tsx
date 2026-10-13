@@ -258,7 +258,7 @@ export function MathFactGenerator() {
               {/* Math problem */}
               <div className="mb-6">
                 <div className={cn(
-                  "text-6xl sm:text-7xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]",
+                  "rounded-lg bg-slate-950 px-3 py-3 text-3xl sm:text-7xl font-black text-white tabular-nums break-words",
                   phase === "correct" && "animate-[revealPulse_0.6s_ease-out] text-emerald-300",
                   phase === "wrong" && "animate-[vibrate_0.2s_linear]",
                 )}>
@@ -279,10 +279,10 @@ export function MathFactGenerator() {
                       disabled={showResult}
                       className={cn(
                         "py-4 rounded-2xl text-3xl font-black border-2 transition-all",
-                        !showResult && "bg-white/15 text-white border-white/30 hover:bg-white/25 hover:scale-105",
-                        showResult && isCorrect && "bg-emerald-500 text-white border-emerald-300 scale-105 animate-[revealPulse_0.5s_ease-out]",
-                        showResult && isSelected && !isCorrect && "bg-red-500 text-white border-red-300",
-                        showResult && !isCorrect && !isSelected && "bg-white/5 text-white/40 border-white/10",
+                        !showResult && "bg-slate-950 text-white border-slate-600 hover:bg-slate-800 hover:scale-105",
+                        showResult && isCorrect && "bg-emerald-800 text-white border-emerald-300 scale-105 animate-[revealPulse_0.5s_ease-out]",
+                        showResult && isSelected && !isCorrect && "bg-red-800 text-white border-red-300",
+                        showResult && !isCorrect && !isSelected && "bg-slate-950 text-slate-300 border-slate-600",
                       )}
                     >
                       {option}

@@ -2,272 +2,58 @@
 
 import { useCallback, useRef, useEffect, useState } from "react";
 import { useSoundEnabled } from "@/components/timers/timer-launcher";
-
-/**
- * Classroom Sound Pad Engine
- *
- * FIXES (vs old version):
- *  - Uses Web Audio API + AudioBuffer caching (NOT cloneNode)
- *    → Eliminates the 1+ minute delay when clicking buttons
- *  - Audio files are decoded once and cached for quick replay
- *  - Spoken-word buttons ("Correct!", "Great Job!", "Wow!", etc.)
- *    now use TTS audio matching their labels
- *  - Gentle loading fallback instead of harsh oscillator/noise sounds
- *
- * Audio files are fetched once, decoded once, then played via
- * AudioBufferSourceNode — no re-fetching, no cloneNode, no delays.
- */
+import { SoundPadEngine, type PadStatus } from "@/lib/sound-pad-engine";
 
 export function useSoundPad() {
   const soundEnabled = useSoundEnabled();
-
-  // AudioBuffer cache — decoded audio ready to play instantly
-  const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
-  const loadingRef = useRef<Map<string, Promise<AudioBuffer | null>>>(new Map());
-  const activeSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
-
-  // Shared AudioContext (lazy-initialized on first user gesture)
-  const ctxRef = useRef<AudioContext | null>(null);
-  const masterGainRef = useRef<GainNode | null>(null);
-  const compressorRef = useRef<DynamicsCompressorNode | null>(null);
-
-  const [volume, setVolume] = useState(0.5);
+  const [volume, setVolumeState] = useState(0.5);
   const volumeRef = useRef(0.5);
   const [lastPlayed, setLastPlayed] = useState<string | null>(null);
-  const [loadedCount, setLoadedCount] = useState(0);
+  const [status, setStatus] = useState<PadStatus>({
+    playingId: null, loadingId: null, error: null, loadedCount: 0,
+  });
+  const engineRef = useRef<SoundPadEngine | null>(null);
 
-  // Update volume ref when state changes
-  useEffect(() => {
-    volumeRef.current = volume;
-  }, [volume]);
-
-  // ===== AudioContext accessor =====
-  const getCtx = useCallback(() => {
-    if (typeof window === "undefined") return null;
-    if (!ctxRef.current) {
-      const Ctor =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext })
-          .webkitAudioContext;
-      if (!Ctor) return null;
-      ctxRef.current = new Ctor();
-    }
-    return ctxRef.current;
-  }, []);
-
-  const getOutput = useCallback(() => {
-    const ctx = getCtx();
-    if (!ctx) return null;
-
-    if (!masterGainRef.current || !compressorRef.current) {
-      const compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.value = -18;
-      compressor.knee.value = 24;
-      compressor.ratio.value = 8;
-      compressor.attack.value = 0.005;
-      compressor.release.value = 0.16;
-
-      const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.82;
-
-      compressor.connect(masterGain);
-      masterGain.connect(ctx.destination);
-
-      compressorRef.current = compressor;
-      masterGainRef.current = masterGain;
-    }
-
-    return { ctx, input: compressorRef.current };
-  }, [getCtx]);
-
-  const loadSound = useCallback(
-    async (id: string) => {
-      const existing = audioBufferCacheRef.current.get(id);
-      if (existing) return existing;
-
-      const soundFile = SOUND_FILES.find((sound) => sound.id === id);
-      if (!soundFile) return null;
-
-      const loading = loadingRef.current.get(id);
-      if (loading) return loading;
-
-      const promise = (async () => {
-        const ctx = getCtx();
-        if (!ctx) return null;
-
-        try {
-          const response = await fetch(`/sounds/${soundFile.file}`);
-          if (!response.ok) {
-            console.warn(`[sound-pad] Failed to fetch ${soundFile.file}: ${response.status}`);
-            return null;
-          }
-
-          const arrayBuffer = await response.arrayBuffer();
-          const buffer = await ctx.decodeAudioData(arrayBuffer);
-          audioBufferCacheRef.current.set(id, buffer);
-          setLoadedCount((n) => n + 1);
-          return buffer;
-        } catch (e) {
-          console.warn(`[sound-pad] Failed to load ${id} (${soundFile.file}):`, e);
-          return null;
-        } finally {
-          loadingRef.current.delete(id);
-        }
-      })();
-
-      loadingRef.current.set(id, promise);
-      return promise;
-    },
-    [getCtx],
-  );
-
-  // ===== Preload: fetch + decode ALL sounds on mount (background, non-blocking) =====
-  useEffect(() => {
-    const ctx = getCtx();
-    if (!ctx) return;
-
-    let cancelled = false;
-
-    SOUND_FILES.forEach(async ({ id }) => {
-      const buffer = await loadSound(id);
-      if (cancelled || !buffer) return;
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [getCtx, loadSound]);
-
-  // Cleanup AudioContext on unmount
-  useEffect(() => {
-    return () => {
-      const ctx = ctxRef.current;
-      ctxRef.current = null;
-      masterGainRef.current = null;
-      compressorRef.current = null;
-      if (ctx && ctx.state !== "closed") {
-        void ctx.close().catch(() => undefined);
-      }
-    };
-  }, []);
-
-  const playSoftNotice = useCallback(() => {
-    if (!soundEnabled) return;
-    const output = getOutput();
-    if (!output) return;
-    const { ctx, input } = output;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(660, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.08 * volumeRef.current, ctx.currentTime + 0.012);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
-    osc.connect(gain);
-    gain.connect(input);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
-  }, [getOutput, soundEnabled]);
-
-  // ===== Main play function — INSTANT playback from AudioBuffer cache =====
-  const play = useCallback(
-    (soundId: string, volumeOverride?: number) => {
-      if (!soundEnabled) return;
-      setLastPlayed(soundId);
-
-      const output = getOutput();
-      if (!output) return;
-      const { ctx, input } = output;
-
-      // Resume AudioContext if suspended (required on mobile after user gesture)
-      if (ctx.state === "suspended") {
-        void ctx.resume().catch(() => {});
-      }
-
-      const buffer = audioBufferCacheRef.current.get(soundId);
-      if (!buffer) {
-        // Still loading: give a tiny clean cue, then play the real file when ready.
-        playSoftNotice();
-        void loadSound(soundId).then((loadedBuffer) => {
-          if (loadedBuffer) play(soundId, volumeOverride);
-        });
-        return;
-      }
-
-      activeSourcesRef.current.forEach((src) => {
-        try { src.stop(); } catch { /* already stopped */ }
+  const getEngine = useCallback(() => {
+    if (!engineRef.current) {
+      engineRef.current = new SoundPadEngine({
+        files: SOUND_FILES, gains: SOUND_GAIN, filters: SOUND_FILTER, onStatus: setStatus,
       });
-      activeSourcesRef.current.clear();
-
-      // Create a new source node for instant playback (no re-fetch needed!)
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-
-      // Volume control via GainNode, trimmed per sound to avoid classroom blasts.
-      const gain = ctx.createGain();
-      const effectiveVolume = volumeOverride ?? volumeRef.current;
-      const trimmedVolume = effectiveVolume * (SOUND_GAIN[soundId] ?? 0.72);
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(trimmedVolume, ctx.currentTime + 0.012);
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = SOUND_FILTER[soundId] ?? 8400;
-      filter.Q.value = 0.2;
-
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(input);
-
-      // Track for STOP
-      activeSourcesRef.current.add(source);
-      source.onended = () => {
-        activeSourcesRef.current.delete(source);
-      };
-
-      // START PLAYBACK — this is now instant
-      try {
-        source.start();
-      } catch (e) {
-        console.warn(`[sound-pad] Failed to start ${soundId}:`, e);
-      }
-    },
-    [soundEnabled, getOutput, loadSound, playSoftNotice],
-  );
-
-  // ===== STOP ALL — immediately stops every active source =====
-  const stopAll = useCallback(() => {
-    // Stop all active BufferSource nodes instantly
-    activeSourcesRef.current.forEach((src) => {
-      try { src.stop(); } catch { /* already stopped */ }
-    });
-    activeSourcesRef.current.clear();
-
-    // Close and recreate AudioContext to kill any synth fallbacks
-    const ctx = ctxRef.current;
-    ctxRef.current = null;
-    masterGainRef.current = null;
-    compressorRef.current = null;
-    if (ctx && ctx.state !== "closed") {
-      void ctx.close().catch(() => undefined);
+      engineRef.current.setVolume(volumeRef.current);
     }
+    return engineRef.current;
   }, []);
 
-  return { play, stopAll, volume, setVolume, lastPlayed, loadedCount, totalSounds: SOUND_FILES.length };
-}
+  useEffect(() => {
+    const engine = getEngine();
+    void engine.preload();
+    return () => {
+      engine.dispose();
+      if (engineRef.current === engine) engineRef.current = null;
+    };
+  }, [getEngine]);
 
-/* ============================================================
-   SOUND DEFINITIONS — mapped to local audio files
-   ============================================================
-   UPDATES:
-   - "Correct!"     → spoken-correct.mp3 (was tada.mp3 SFX)
-   - "Great Job!"   → spoken-great-job.mp3 (was ding.mp3 SFX)
-   - "Wow!"         → spoken-wow.mp3 (was wow.mp3 SFX)
-   - "Wrong"        → spoken-wrong.mp3 (was wrong.mp3 SFX)
-   - "Time's Up!"   → spoken-times-up.mp3 (was timeup.mp3)
-   - "Let's Play!"  → spoken-lets-play.mp3 (was drumroll.mp3)
-   ============================================================ */
+  useEffect(() => {
+    if (!soundEnabled) engineRef.current?.stopAll();
+  }, [soundEnabled]);
+
+  const setVolume = useCallback((value: number) => {
+    const next = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
+    volumeRef.current = next;
+    setVolumeState(next);
+    engineRef.current?.setVolume(next);
+  }, []);
+
+  const play = useCallback((id: string, volumeOverride?: number) => {
+    if (!soundEnabled || (volumeOverride ?? volumeRef.current) <= 0) return;
+    setLastPlayed(id);
+    void getEngine().play(id, volumeOverride);
+  }, [soundEnabled, getEngine]);
+
+  const stopAll = useCallback(() => engineRef.current?.stopAll(), []);
+
+  return { play, stopAll, volume, setVolume, lastPlayed, ...status, totalSounds: SOUND_FILES.length };
+}
 export interface SoundDef {
   id: string;
   label: string;
@@ -347,10 +133,10 @@ export const SOUND_FILES: { id: string; file: string }[] = [
 
 export const SOUNDS: SoundDef[] = [
   // Positive & Encouraging
-  { id: "cheer", label: "Cheer", emoji: "🎉", color: "from-yellow-400 to-orange-500", category: "positive", key: "1", file: "cheer.mp3" },
+  { id: "cheer", label: "Crowd Cheer", emoji: "🎉", color: "from-yellow-400 to-orange-500", category: "positive", key: "1", file: "cheer.mp3" },
   { id: "clap", label: "Clap", emoji: "👏", color: "from-pink-400 to-rose-500", category: "positive", key: "2", file: "clap.mp3" },
   { id: "tada", label: "Correct!", emoji: "✅", color: "from-green-400 to-emerald-500", category: "positive", key: "3", file: "spoken-correct.mp3" },
-  { id: "laugh", label: "Laugh", emoji: "😂", color: "from-lime-400 to-green-500", category: "positive", key: "4", file: "laugh.mp3" },
+  { id: "laugh", label: "Giggle", emoji: "😂", color: "from-lime-400 to-green-500", category: "positive", key: "4", file: "laugh.mp3" },
   { id: "ding", label: "Great Job!", emoji: "🌟", color: "from-violet-400 to-purple-500", category: "positive", key: "5", file: "spoken-great-job.mp3" },
   { id: "wow", label: "Wow!", emoji: "😮", color: "from-cyan-400 to-blue-500", category: "positive", key: "6", file: "spoken-wow.mp3" },
 
@@ -358,8 +144,8 @@ export const SOUNDS: SoundDef[] = [
   { id: "boop", label: "Let's Play!", emoji: "🥁", color: "from-amber-500 to-orange-600", category: "funny", key: "q", file: "spoken-lets-play.mp3" },
   { id: "buzzer", label: "Buzzer", emoji: "🚨", color: "from-red-500 to-rose-600", category: "funny", key: "w", file: "buzzer.mp3" },
   { id: "fanfare", label: "Wrong!", emoji: "❌", color: "from-red-400 to-red-500", category: "funny", key: "e", file: "spoken-wrong.mp3" },
-  { id: "drumroll", label: "Heart Beat", emoji: "❤️", color: "from-rose-500 to-red-600", category: "funny", key: "r", file: "heartbeat.mp3" },
-  { id: "cowbell", label: "Game Show - Think!", emoji: "🎬", color: "from-indigo-500 to-purple-600", category: "funny", key: "t", file: "gameshow.mp3" },
+  { id: "drumroll", label: "Heartbeat", emoji: "❤️", color: "from-rose-500 to-red-600", category: "funny", key: "r", file: "heartbeat.mp3" },
+  { id: "cowbell", label: "Thinking", emoji: "🎬", color: "from-indigo-500 to-purple-600", category: "funny", key: "t", file: "gameshow.mp3" },
   { id: "gong", label: "Time's Up!", emoji: "⏰", color: "from-red-500 to-orange-600", category: "funny", key: "y", file: "spoken-times-up.mp3" },
 
   // Attention & Fun

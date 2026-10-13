@@ -811,27 +811,27 @@ export function FlashCardPresenter() {
               </div>
 
               {/* Card info */}
-              <div className="relative z-10 mt-4 text-center">
-                <p className="text-2xl sm:text-3xl font-black text-white drop-shadow-lg">
+              <div className="relative z-10 mt-4 max-w-full rounded-lg bg-slate-950 px-4 py-3 text-center break-words">
+                <p className="text-2xl sm:text-3xl font-black text-white">
                   {currentCard.label}
                 </p>
                 {currentCard.word && (
-                  <p className="text-base text-white/80">
+                  <p className="text-base text-slate-200">
                     {currentCard.word}
                     {mode === "select" && presenting && (
-                      <span className="text-white/50 text-sm">
+                      <span className="text-slate-300 text-sm">
                         {" "}· {presentIndex + 1} / {selected.size}
                       </span>
                     )}
                   </p>
                 )}
                 {mode === "shuffle" && (
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-sm text-slate-300 mt-1">
                     {used.length} of {allCards.length} drawn
                   </p>
                 )}
                 {mode === "browse" && (
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-sm text-slate-300 mt-1">
                     Card {browseIndex + 1} of {allCards.length}
                   </p>
                 )}

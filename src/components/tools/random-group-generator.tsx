@@ -286,7 +286,7 @@ export function RandomGroupGenerator() {
                     )}
                     style={{ animationDelay: `${i * 0.1}s` }}
                   >
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex flex-wrap items-center gap-2 mb-2 rounded-lg bg-slate-950 px-2 py-1">
                       <span className="w-7 h-7 rounded-full bg-white/30 flex items-center justify-center font-black text-white text-sm">
                         {i + 1}
                       </span>
@@ -301,7 +301,7 @@ export function RandomGroupGenerator() {
                       {group.map((name, j) => (
                         <span
                           key={j}
-                          className="px-2 py-1 rounded-lg bg-white/20 text-white text-sm font-medium"
+                          className="max-w-full break-words px-2 py-1 rounded-lg bg-slate-950 text-white text-base font-medium"
                         >
                           {name}
                         </span>

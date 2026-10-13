@@ -75,8 +75,8 @@ export function TimerLauncher({ type, onClose }: TimerLauncherProps) {
           config.gradient,
         )}
       >
-        <div className="min-h-screen flex flex-col">
-          <header className="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 gap-2">
+        <div className="min-h-dvh flex flex-col">
+          <header className="flex flex-wrap items-center justify-between px-4 sm:px-8 py-3 gap-2">
             <div className="flex items-center gap-3 text-white min-w-0">
               <span className="text-3xl sm:text-4xl drop-shadow-lg shrink-0">
                 {config.emoji}
@@ -137,13 +137,13 @@ export function TimerLauncher({ type, onClose }: TimerLauncherProps) {
             </div>
           </header>
 
-          <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8">
-            <div className="w-full max-w-3xl">
+          <main className="min-w-0 flex-1 flex items-center justify-center px-2 py-2 sm:px-4">
+            <div className="min-w-0 w-full">
               <TimerRenderer type={type} />
             </div>
           </main>
 
-          <footer className="px-4 sm:px-8 py-4 text-center text-xs text-white/50">
+          <footer className="hidden px-4 sm:px-8 py-2 text-center text-xs text-white/80">
             <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">Esc</kbd> close ·{" "}
             <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">F</kbd> fullscreen ·{" "}
             <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">M</kbd> mute

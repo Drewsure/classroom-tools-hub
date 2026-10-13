@@ -127,7 +127,7 @@ export function RandomColorGenerator() {
         {showPalette && (
           <div className="mb-4 p-4 rounded-2xl bg-black/30 border border-white/10">
             <p className="text-xs text-white/60 mb-3">Click colors to include/exclude from the random pool:</p>
-            <div className="grid grid-cols-10 gap-2">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(2rem,1fr))] gap-2">
               {COLOR_PALETTE.map((color) => (
                 <button
                   key={color}
@@ -232,7 +232,7 @@ export function RandomColorGenerator() {
                     </p>
                   </div>
                 </div>
-                <p className="text-xl font-black text-white">
+                <p className="max-w-full rounded-lg bg-slate-950 px-3 py-2 text-xl font-black text-white break-words">
                   {phase === "result" ? "Your Color!" : "Spinning..."}
                 </p>
               </div>

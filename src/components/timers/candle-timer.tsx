@@ -1,5 +1,8 @@
 "use client";
 
+import styles from "./timer-layout.module.css";
+import { TimerThemePicker } from "./timer-theme-picker";
+
 import { useState } from "react";
 import { TimerControls, TimerStartButton } from "./timer-controls";
 import { useTimer } from "@/hooks/use-timer";
@@ -15,7 +18,7 @@ import {
   ShakeWrapper,
   DramaticCountdown,
 } from "@/components/effects/effect-overlays";
-import { SKINS, SkinPicker, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
+import { SKINS, SkinParticleField, SkinSceneDecorator, useSavedSkin } from "@/lib/skins";
 import { formatTime } from "@/lib/timers";
 import { cn } from "@/lib/utils";
 
@@ -88,15 +91,16 @@ export function CandleTimer() {
   const veryLow = timer.remaining <= 5 && timer.remaining > 0;
   const isSetup = timer.status === "idle";
 
-  const candleHeight = Math.max(isSetup ? 110 : 150, (isSetup ? 360 : 560) - progress * (isSetup ? 250 : 410));
+  const candleRemaining = Math.max(0.27, 1 - progress * 0.73);
 
   return (
-    <div className="flex min-h-[calc(100vh-7.5rem)] w-full flex-col items-center justify-center gap-3 py-1">
-      {isSetup && <SkinPicker current={skinId} onChange={setSkinId} timerKey="candle" />}
+    <div className={cn(styles.root, "flex w-full flex-col items-center justify-center gap-2 py-1")}>
+      {isSetup && <TimerThemePicker current={skinId} onChange={setSkinId} timerKey="candle" />}
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn(
           "relative w-full overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-b shadow-2xl",
-          isSetup ? "h-[calc(100vh-34rem)] min-h-[22rem]" : "h-[calc(100vh-9rem)] min-h-[40rem]",
+          styles.stage,
+          isSetup && styles.setup,
           skin.bgGradient,
         )}>
           {/* Themed ambient particles */}
@@ -144,13 +148,14 @@ export function CandleTimer() {
           {/* Time display */}
           <div
             className={cn(
-              "absolute pointer-events-none z-10 text-center",
-              isSetup ? "left-0 right-0 top-4" : "right-[6%] top-1/2 -translate-y-1/2",
+              "pointer-events-none",
+              styles.clock,
             )}
           >
             <div
               className={cn(
                 "inline-block rounded-2xl border px-6 py-3 backdrop-blur-sm",
+                styles.clockPanel,
                 !isSetup && "rounded-[2rem] px-10 py-7 shadow-[0_0_70px_rgba(251,146,60,0.35)]",
                 isOut
                   ? "bg-stone-900/60 border-stone-600/50"
@@ -164,7 +169,7 @@ export function CandleTimer() {
               <div
                 className={cn(
                   "font-mono font-black text-4xl sm:text-5xl lg:text-7xl xl:text-8xl tabular-nums drop-shadow-lg",
-                  !isSetup && "lg:text-[8rem] xl:text-[10rem]",
+                  styles.digits,
                   isOut ? "text-stone-400" : veryLow ? "text-red-300 animate-[dramaticPulse_0.5s_ease-in-out_infinite]" : lowTime ? "text-orange-300" : "text-amber-100",
                 )}
               >
@@ -186,8 +191,9 @@ export function CandleTimer() {
           {/* Candle */}
           <div
             className={cn(
-              "absolute bottom-10 z-10 flex -translate-x-1/2 flex-col items-center transition-all duration-500",
-              isSetup ? "left-1/2" : "left-[34%]",
+              "z-10 flex flex-col items-center transition-all duration-500",
+              styles.asset,
+              styles.candle,
             )}
           >
             {/* Flame */}
@@ -200,6 +206,7 @@ export function CandleTimer() {
                 <div
                   className={cn(
                     "relative transition-all",
+                    styles.flame,
                     isSetup ? "h-20 w-10" : "h-28 w-14",
                     veryLow
                       ? "animate-[flicker_0.15s_ease-in-out_infinite]"
@@ -243,8 +250,8 @@ export function CandleTimer() {
 
             {/* Candle body */}
             <div
-              className={cn("relative transition-all duration-500 ease-linear", isSetup ? "w-28" : "w-40")}
-              style={{ height: `${candleHeight}px` }}
+              className={cn("relative transition-all duration-500 ease-linear", styles.candleBody)}
+              style={{ height: `calc(var(--candle-space) * ${candleRemaining})` }}
             >
               <div
                 className="absolute inset-0 rounded-md border border-amber-300/50 shadow-inner"
