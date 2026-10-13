@@ -74,18 +74,18 @@ const SIMON_TRICKS = [
 
 // ===== Body part visuals =====
 const BODY_PARTS = [
-  { id: "head", en: "Head", jp: "あたま", emoji: "HEAD", top: "11%", left: "50%", calloutX: "67%", calloutY: "12%" },
-  { id: "shoulders", en: "Shoulders", jp: "かた", emoji: "SHOULDERS", top: "27%", left: "50%", calloutX: "72%", calloutY: "25%" },
-  { id: "knees", en: "Knees", jp: "ひざ", emoji: "KNEES", top: "70%", left: "37%", calloutX: "72%", calloutY: "66%" },
-  { id: "toes", en: "Toes", jp: "つまさき", emoji: "TOES", top: "92%", left: "64%", calloutX: "74%", calloutY: "86%" },
-  { id: "elbows", en: "Elbows", jp: "ひじ", emoji: "ELBOWS", top: "44%", left: "25%", calloutX: "72%", calloutY: "42%" },
-  { id: "legs", en: "Legs", jp: "あし", emoji: "LEGS", top: "68%", left: "50%", calloutX: "72%", calloutY: "72%" },
-  { id: "arms", en: "Arms", jp: "うで", emoji: "ARMS", top: "41%", left: "50%", calloutX: "72%", calloutY: "38%" },
-  { id: "hands", en: "Hands", jp: "て", emoji: "HANDS", top: "56%", left: "18%", calloutX: "72%", calloutY: "52%" },
-  { id: "fingers", en: "Fingers", jp: "ゆび", emoji: "FINGERS", top: "53%", left: "83%", calloutX: "66%", calloutY: "48%" },
-  { id: "back", en: "Back", jp: "せなか", emoji: "BACK", top: "39%", left: "58%", calloutX: "72%", calloutY: "34%" },
-  { id: "backside", en: "Backside", jp: "おしり", emoji: "BACKSIDE", top: "58%", left: "56%", calloutX: "76%", calloutY: "58%" },
-  { id: "ankle", en: "Ankle", jp: "あしくび", emoji: "ANKLE", top: "86%", left: "39%", calloutX: "72%", calloutY: "82%" },
+  { id: "head", en: "Head", jp: "あたま", emoji: "HEAD", top: "29%", left: "50%", calloutX: "76%", calloutY: "18%" },
+  { id: "shoulders", en: "Shoulders", jp: "かた", emoji: "SHOULDERS", top: "46%", left: "50%", calloutX: "76%", calloutY: "38%" },
+  { id: "knees", en: "Knees", jp: "ひざ", emoji: "KNEES", top: "79%", left: "34%", calloutX: "78%", calloutY: "70%" },
+  { id: "toes", en: "Toes", jp: "つまさき", emoji: "TOES", top: "90%", left: "75%", calloutX: "77%", calloutY: "78%" },
+  { id: "elbows", en: "Elbows", jp: "ひじ", emoji: "ELBOWS", top: "68%", left: "18%", calloutX: "76%", calloutY: "58%" },
+  { id: "legs", en: "Legs", jp: "あし", emoji: "LEGS", top: "75%", left: "50%", calloutX: "78%", calloutY: "66%" },
+  { id: "arms", en: "Arms", jp: "うで", emoji: "ARMS", top: "58%", left: "35%", calloutX: "76%", calloutY: "48%" },
+  { id: "hands", en: "Hands", jp: "て", emoji: "HANDS", top: "76%", left: "12%", calloutX: "76%", calloutY: "66%" },
+  { id: "fingers", en: "Fingers", jp: "ゆび", emoji: "FINGERS", top: "75%", left: "90%", calloutX: "72%", calloutY: "64%" },
+  { id: "back", en: "Back", jp: "せなか", emoji: "BACK", top: "54%", left: "50%", calloutX: "78%", calloutY: "42%" },
+  { id: "backside", en: "Backside", jp: "おしり", emoji: "BACKSIDE", top: "70%", left: "50%", calloutX: "78%", calloutY: "60%" },
+  { id: "ankle", en: "Ankle", jp: "あしくび", emoji: "ANKLE", top: "89%", left: "67%", calloutX: "78%", calloutY: "78%" },
 ] as const;
 
 // ===== PE Flashcards (20 cards) =====
@@ -165,18 +165,29 @@ const STATIONS = [
 ];
 
 function BodyPartVisual({ part }: { part: (typeof BODY_PARTS)[number] }) {
+  const isBackView = part.id === "back" || part.id === "backside";
+
   return (
     <div className="relative h-52 w-full overflow-hidden rounded-2xl border-4 border-slate-900 bg-gradient-to-b from-sky-100 via-white to-amber-50 shadow-inner">
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_20%_18%,#38bdf8_0_7px,transparent_8px),radial-gradient(circle_at_84%_28%,#facc15_0_8px,transparent_9px)]" />
       <svg viewBox="0 0 220 260" className="absolute inset-0 h-full w-full" aria-hidden="true">
         <path d="M110 43c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32z" fill="#fff7ed" stroke="#0f172a" strokeWidth="8" />
-        <path d="M80 128c8-28 52-28 60 0l10 58H70z" fill="#f97316" stroke="#0f172a" strokeWidth="8" strokeLinejoin="round" />
+        {isBackView ? (
+          <path d="M82 72c4-26 52-36 62 0v20c-16-10-52-10-64 2z" fill="#0f172a" />
+        ) : (
+          <>
+            <path d="M86 72h12M122 72h12" stroke="#0f172a" strokeWidth="6" strokeLinecap="round" />
+            <path d="M94 90c10 9 22 9 32 0" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
+          </>
+        )}
+        <path d="M80 128c8-28 52-28 60 0l10 58H70z" fill={isBackView ? "#38bdf8" : "#f97316"} stroke="#0f172a" strokeWidth="8" strokeLinejoin="round" />
+        {isBackView ? (
+          <path d="M110 126v52M92 136h36" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" opacity=".45" />
+        ) : null}
         <path d="M78 132L38 176M142 132l40 44" fill="none" stroke="#0f172a" strokeWidth="13" strokeLinecap="round" />
         <path d="M40 176l-14 22M180 176l18 20" fill="none" stroke="#0f172a" strokeWidth="11" strokeLinecap="round" />
         <path d="M88 186L74 242M132 186l14 56" fill="none" stroke="#0f172a" strokeWidth="14" strokeLinecap="round" />
         <path d="M74 242H48M146 242h26" fill="none" stroke="#0f172a" strokeWidth="12" strokeLinecap="round" />
-        <path d="M86 72h12M122 72h12" stroke="#0f172a" strokeWidth="6" strokeLinecap="round" />
-        <path d="M94 90c10 9 22 9 32 0" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
         <path d="M66 118h88" stroke="#0f172a" strokeWidth="8" strokeLinecap="round" />
         <circle cx="38" cy="176" r="9" fill="#fff" stroke="#0f172a" strokeWidth="5" />
         <circle cx="182" cy="176" r="9" fill="#fff" stroke="#0f172a" strokeWidth="5" />
