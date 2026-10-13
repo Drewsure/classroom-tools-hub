@@ -211,7 +211,7 @@ export function WeatherFlashcards() {
   }, [mode, phase, presentCard]);
 
   return (
-    <div className={cn("flex flex-col items-center gap-4 py-2", fullscreen && "fixed inset-0 z-50 bg-black/95 p-4 overflow-y-auto")}>
+    <div className={cn("tool-projector-root flex flex-col items-center gap-4 py-1", fullscreen && "fixed inset-0 z-50 overflow-y-auto bg-black/95 p-4")}>
       {!fullscreen && <UniversalSkinPicker current={skinId} onChange={setSkinId} />}
 
       {/* Title */}
@@ -245,7 +245,7 @@ export function WeatherFlashcards() {
       {/* ===== FLASHCARD MODE ===== */}
       {mode === "flashcard" && (
         <ShakeWrapper intensity={shakeIntensity}>
-          <div className={cn("relative rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-7xl min-h-[calc(100vh-9rem)]" : "w-full max-w-7xl min-h-[min(78vh,52rem)]")}>
+          <div className={cn("tool-projector-stage relative flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-4 shadow-2xl sm:p-6", skin.bgGradient, fullscreen ? "min-h-[calc(100vh-9rem)]" : "")}>
             <SkinParticleField skin={skin} seed={7} />
             <SkinSceneDecorator skin={skin} />
 
@@ -306,7 +306,7 @@ export function WeatherFlashcards() {
 
       {/* ===== SELECTION PANEL MODE ===== */}
       {mode === "selection" && (
-        <div className="w-full max-w-7xl flex flex-col items-center gap-4">
+          <div className="flex w-full max-w-7xl flex-col items-center gap-4">
           {/* Summary bar */}
           <div className="w-full flex items-center justify-between gap-3 px-4 py-2 rounded-2xl bg-white/90 border border-white/70 flex-wrap shadow-xl shadow-slate-950/15 backdrop-blur-md">
             <div className="flex items-center gap-4 text-sm">
@@ -354,7 +354,7 @@ export function WeatherFlashcards() {
       {mode === "present" && presentCard && (
         <>
           <ShakeWrapper intensity={shakeIntensity}>
-            <div className={cn("relative rounded-3xl overflow-hidden border-2 border-emerald-400/30 shadow-2xl flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br", skin.bgGradient, fullscreen ? "w-full max-w-7xl min-h-[calc(100vh-9rem)]" : "w-full max-w-7xl min-h-[min(78vh,52rem)]")}>
+            <div className={cn("tool-projector-stage relative flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-emerald-400/30 bg-gradient-to-br p-4 shadow-2xl sm:p-6", skin.bgGradient, fullscreen ? "min-h-[calc(100vh-9rem)]" : "")}>
               <SkinParticleField skin={skin} seed={9} />
               <SkinSceneDecorator skin={skin} />
 

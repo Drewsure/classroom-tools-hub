@@ -166,7 +166,7 @@ export function SpinnerWheel() {
   const isBusy = phase === "buildup" || phase === "spinning";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <ClassSelect
         currentNames={segments}
         onPick={(s) => {
@@ -234,7 +234,7 @@ export function SpinnerWheel() {
       )}
 
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full max-w-md mx-auto h-80 sm:h-96 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient)}>
+        <div className={cn("tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl", skin.bgGradient)}>
           {/* Themed particles */}
           <SkinParticleField skin={skin} seed={9} />
           {/* Scene decorator */}
@@ -276,7 +276,7 @@ export function SpinnerWheel() {
             ) : (
               <>
                 {/* Wheel */}
-                <div className={cn("relative mx-auto mb-4 w-52 h-52", phase === "buildup" && "animate-[buildUpPulse_0.6s_ease-in-out_infinite]")}>
+                <div className={cn("tool-projector-asset-square relative mx-auto mb-4 h-52 w-52", phase === "buildup" && "animate-[buildUpPulse_0.6s_ease-in-out_infinite]")}>
                   {/* Pointer */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10 text-4xl drop-shadow-lg">
                     🔻

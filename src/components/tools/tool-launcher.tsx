@@ -59,6 +59,18 @@ const WIDE_TOOL_IDS = new Set([
   "stopwatch",
   "traffic-light",
   "weather-cards",
+  "chance-games",
+  "color-generator",
+  "custom-dice",
+  "flash-card-presenter",
+  "group-generator",
+  "letter-cards",
+  "math-facts",
+  "name-picker",
+  "spinner-wheel",
+  "stopwatch-splits",
+  "student-shuffler",
+  "tally-counter",
 ]);
 
 const TIMER_TOOL_IDS = new Set([
@@ -197,21 +209,19 @@ export function ToolLauncher({ tool, onClose }: ToolLauncherProps) {
           </header>
 
           <main className={cn(
-            "flex flex-1 items-center justify-center px-3 py-4 sm:px-5 lg:px-8",
-            isTimerTool && "items-stretch px-2 py-2 sm:px-3 lg:px-4",
-            isProjectorTool && "items-stretch px-2 py-2 sm:px-3 lg:px-4",
+            "flex flex-1 items-stretch justify-center px-2 py-2 sm:px-3 lg:px-4",
+            !isTimerTool && !isProjectorTool && "sm:py-3",
           )}>
             <div className={cn(
-              "w-full",
+              "active-tool-shell w-full",
               WIDE_TOOL_IDS.has(tool.id) ? "max-w-7xl" : "max-w-6xl",
-              isTimerTool && "max-w-none",
-              isProjectorTool && "max-w-none",
+              "max-w-none",
             )}>
               <ToolRenderer toolId={tool.id} />
             </div>
           </main>
 
-          <footer className={cn("px-4 py-3 text-center text-xs text-white/45 sm:px-8", (isTimerTool || isProjectorTool) && "hidden")}>
+          <footer className="hidden px-4 py-3 text-center text-xs text-white/45 sm:px-8">
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">Esc</kbd> close ·{" "}
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono ring-1 ring-white/15">F</kbd> fullscreen
           </footer>

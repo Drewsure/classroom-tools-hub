@@ -131,7 +131,7 @@ export function LetterCardGenerator() {
   const usedUpper = new Set(usedLetters.map((l) => l.toUpperCase()));
 
   return (
-    <div className="flex flex-col items-center gap-6 pb-28 pt-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 pb-28 pt-1">
       {/* Title area */}
       <div className="w-full max-w-md text-center px-6 py-4 rounded-3xl bg-gradient-to-r from-sky-300 via-blue-500 to-violet-600 border border-white/20 shadow-lg">
         <h2 className="text-2xl font-black text-white flex items-center justify-center gap-3 drop-shadow">
@@ -302,7 +302,7 @@ export function LetterCardGenerator() {
           <div className="w-full lg:w-1/2 max-w-md">
             <ShakeWrapper intensity={shakeIntensity}>
               <div className={cn(
-                "relative w-full h-[28rem] sm:h-[34rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br",
+                "tool-projector-stage relative flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl",
                 skin.bgGradient,
               )}>
                 <SkinParticleField skin={skin} seed={12} />
@@ -327,7 +327,7 @@ export function LetterCardGenerator() {
                     {/* Flash card with Aa style */}
                     <div
                       className={cn(
-                        "w-56 h-72 sm:w-72 sm:h-96 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white relative",
+                        "tool-projector-asset-card relative flex h-72 w-56 flex-col items-center justify-center rounded-3xl border-4 border-white bg-gradient-to-br from-white to-slate-100 shadow-2xl sm:h-96 sm:w-72",
                         "animate-[revealPulse_0.6s_ease-out]",
                       )}
                     >
@@ -393,7 +393,7 @@ export function LetterCardGenerator() {
       ) : (
         <ShakeWrapper intensity={shakeIntensity}>
           <div className={cn(
-            "relative w-full max-w-md mx-auto h-[28rem] sm:h-[34rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br",
+            "tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl",
             skin.bgGradient,
           )}>
             <SkinParticleField skin={skin} seed={12} />
@@ -426,7 +426,7 @@ export function LetterCardGenerator() {
                   {/* Flash card with Aa style */}
                   <div
                     className={cn(
-                      "w-56 h-72 sm:w-72 sm:h-96 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center shadow-2xl border-4 border-white relative",
+                      "tool-projector-asset-card relative flex h-72 w-56 flex-col items-center justify-center rounded-3xl border-4 border-white bg-gradient-to-br from-white to-slate-100 shadow-2xl sm:h-96 sm:w-72",
                       phase === "spinning" && "animate-[vibrate_0.08s_linear_infinite]",
                       phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
                     )}

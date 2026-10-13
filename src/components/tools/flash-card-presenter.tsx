@@ -441,7 +441,7 @@ export function FlashCardPresenter() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       {/* Title + fullscreen */}
       <div className="w-full max-w-5xl flex items-center justify-between gap-3">
         <div className="px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 border border-white/10 shadow-lg flex-1">
@@ -783,7 +783,7 @@ export function FlashCardPresenter() {
           <ShakeWrapper intensity={shakeIntensity}>
             <div
               className={cn(
-                "relative w-full max-w-2xl mx-auto rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br flex flex-col items-center justify-center p-6",
+                "tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl",
                 skin.bgGradient,
               )}
               style={{ minHeight: isFullscreen ? "70vh" : "32rem" }}
@@ -795,7 +795,7 @@ export function FlashCardPresenter() {
               <div className="relative z-10">
                 <div
                   className={cn(
-                    "rounded-2xl bg-white shadow-2xl border-4 border-white/40 overflow-hidden",
+                    "tool-projector-asset-card overflow-hidden rounded-2xl border-4 border-white/40 bg-white shadow-2xl",
                     isFullscreen ? "w-[28rem] h-[40rem]" : "w-72 h-96 sm:w-80 sm:h-[28rem]",
                     phase === "drawing" && "animate-[diceTumble_0.2s_linear_infinite]",
                     phase === "result" && "animate-[revealPulse_0.6s_ease-out]",

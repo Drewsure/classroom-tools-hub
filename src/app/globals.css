@@ -348,6 +348,59 @@
   color: #0f172a;
 }
 
+/* Shared opened-tool projector sizing. The launcher gives every tool this shell;
+   individual tools opt their main visual area into the stage/asset classes. */
+.active-tool-shell {
+  min-height: calc(100dvh - 6.5rem);
+}
+
+.active-tool-shell > div {
+  min-height: calc(100dvh - 7rem);
+  width: 100%;
+}
+
+.tool-projector-root {
+  min-height: calc(100dvh - 7rem);
+}
+
+.tool-projector-stage {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: min(72dvh, 52rem);
+}
+
+.tool-projector-asset-square {
+  width: min(58dvh, 46rem) !important;
+  height: min(58dvh, 46rem) !important;
+}
+
+.tool-projector-asset-card {
+  width: min(48dvh, 34rem) !important;
+  height: min(66dvh, 48rem) !important;
+}
+
+@media (max-width: 640px) {
+  .active-tool-shell,
+  .active-tool-shell > div,
+  .tool-projector-root {
+    min-height: calc(100dvh - 5.75rem);
+  }
+
+  .tool-projector-stage {
+    min-height: min(66dvh, 40rem);
+  }
+
+  .tool-projector-asset-square {
+    width: min(76vw, 24rem) !important;
+    height: min(76vw, 24rem) !important;
+  }
+
+  .tool-projector-asset-card {
+    width: min(76vw, 22rem) !important;
+    height: min(58dvh, 34rem) !important;
+  }
+}
+
 /* Glass input */
 .glass-input {
   background: color-mix(in oklab, var(--brand-card) 40%, transparent);

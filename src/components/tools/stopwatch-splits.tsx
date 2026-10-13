@@ -86,10 +86,10 @@ export function StopwatchSplits() {
   const worstLap = lapTimes.length > 0 ? Math.max(...lapTimes) : null;
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
       <ShakeWrapper intensity={0}>
-        <div className={cn("relative w-full max-w-md mx-auto h-72 sm:h-80 rounded-3xl overflow-hidden border-4 border-white/15 shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br", skin.bgGradient)}>
+        <div className={cn("tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-4 border-white/15 bg-gradient-to-br shadow-2xl", skin.bgGradient)}>
           {/* Themed particles */}
           <SkinParticleField skin={skin} seed={11} />
           {/* Scene decorator */}

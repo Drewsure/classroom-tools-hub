@@ -258,7 +258,7 @@ export function ChanceGames() {
   ];
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Game selector */}
@@ -358,7 +358,7 @@ export function ChanceGames() {
       )}
 
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className="relative w-full max-w-2xl mx-auto h-[28rem] sm:h-[34rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br">
+        <div className="tool-projector-stage relative mx-auto flex min-h-[min(72dvh,52rem)] w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl">
           <div className={cn("absolute inset-0 bg-gradient-to-br", skin.bgGradient)} />
           {/* Themed particles */}
           <SkinParticleField skin={skin} seed={7} />
@@ -492,7 +492,7 @@ function CoinDisplay({ face, phase, result }: { face: "heads" | "tails"; phase: 
     <>
       <div
         className={cn(
-          "mx-auto mb-6 w-52 h-52 sm:w-64 sm:h-64 rounded-full flex items-center justify-center text-8xl sm:text-9xl font-black shadow-2xl border-4 relative",
+          "tool-projector-asset-square mx-auto mb-6 flex h-52 w-52 items-center justify-center rounded-full border-4 text-8xl font-black shadow-2xl sm:h-64 sm:w-64 sm:text-9xl relative",
           phase === "spinning" && "animate-[coinFlip3D_1.8s_linear]",
           phase === "buildup" && "animate-[buildUpPulse_0.5s_ease-in-out_infinite] scale-90",
           phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
@@ -537,7 +537,7 @@ function DiceDisplay({
     <>
       <div
         className={cn(
-          "mx-auto mb-6 w-52 h-52 sm:w-64 sm:h-64 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white relative overflow-hidden",
+          "tool-projector-asset-square mx-auto mb-6 flex h-52 w-52 items-center justify-center overflow-hidden rounded-3xl border-4 border-white shadow-2xl sm:h-64 sm:w-64 relative",
           phase === "spinning" && "animate-[diceTumble_0.3s_linear_infinite]",
           phase === "buildup" && "animate-[vibrate_0.1s_linear_infinite] scale-90",
           phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
@@ -584,7 +584,7 @@ function WheelDisplay({
 }) {
   return (
     <>
-      <div className={cn("relative mx-auto mb-6 w-72 h-72 sm:w-80 sm:h-80", phase === "buildup" && "animate-[buildUpPulse_0.6s_ease-in-out_infinite]")}>
+      <div className={cn("tool-projector-asset-square relative mx-auto mb-6 h-72 w-72 sm:h-80 sm:w-80", phase === "buildup" && "animate-[buildUpPulse_0.6s_ease-in-out_infinite]")}>
         {/* Pointer */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10 text-5xl drop-shadow-lg">
           🔻
@@ -654,7 +654,7 @@ function BallDisplay({
     <>
       <div
         className={cn(
-          "mx-auto mb-4 w-[18rem] h-[18rem] sm:w-[26rem] sm:h-[26rem] rounded-full bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center shadow-2xl border-4 border-slate-600 relative",
+          "tool-projector-asset-square mx-auto mb-4 flex h-[18rem] w-[18rem] items-center justify-center rounded-full border-4 border-slate-600 bg-gradient-to-br from-slate-800 via-slate-900 to-black shadow-2xl sm:h-[26rem] sm:w-[26rem] relative",
           phase === "spinning" && "animate-[ballShake_0.15s_ease-in-out_infinite]",
           phase === "buildup" && "animate-[buildUpPulse_0.5s_ease-in-out_infinite] scale-90",
           phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
@@ -663,7 +663,7 @@ function BallDisplay({
         {/* Shine */}
         <div className="absolute top-8 left-12 w-24 h-12 rounded-full bg-white/20 blur-sm" />
         {/* Blue answer window — large, fills most of the ball */}
-        <div className="w-[14rem] h-[14rem] sm:w-[20rem] sm:h-[20rem] rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-6 border-4 border-blue-300/40 shadow-inner">
+        <div className="flex h-[72%] w-[72%] items-center justify-center rounded-full border-4 border-blue-300/40 bg-gradient-to-br from-blue-500 to-blue-700 p-6 shadow-inner">
           <span className="text-white text-3xl sm:text-5xl font-bold text-center leading-tight drop-shadow-lg">
             {response ?? "8"}
           </span>
@@ -695,7 +695,7 @@ function LetterDisplay({
     <>
       <div
         className={cn(
-          "mx-auto mb-6 w-56 h-72 sm:w-72 sm:h-96 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex items-center justify-center shadow-2xl border-4 border-white relative",
+          "tool-projector-asset-card mx-auto mb-6 flex h-72 w-56 items-center justify-center rounded-3xl border-4 border-white bg-gradient-to-br from-white to-slate-100 shadow-2xl sm:h-96 sm:w-72 relative",
           phase === "spinning" && "animate-[vibrate_0.08s_linear_infinite]",
           phase === "buildup" && "animate-[buildUpPulse_0.5s_ease-in-out_infinite] scale-90",
           phase === "result" && "animate-[revealPulse_0.6s_ease-out]",

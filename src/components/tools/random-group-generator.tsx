@@ -175,7 +175,7 @@ export function RandomGroupGenerator() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
       {attExcluded > 0 && (
         <span className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-bold" title="Absent students are excluded - change in Attendance">
@@ -264,7 +264,7 @@ export function RandomGroupGenerator() {
       </div>
 
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full max-w-2xl min-h-80 sm:min-h-96 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-gradient-to-br flex flex-col items-center justify-center p-6", skin.bgGradient)}>
+        <div className={cn("tool-projector-stage relative flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl", skin.bgGradient)}>
           {/* Themed particles */}
           <SkinParticleField skin={skin} seed={8} />
           {/* Scene decorator */}

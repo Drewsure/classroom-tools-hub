@@ -160,7 +160,7 @@ export function MathFactGenerator() {
   const showResult = phase === "correct" || phase === "wrong";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Operation + difficulty selector */}
@@ -235,7 +235,7 @@ export function MathFactGenerator() {
 
       <ShakeWrapper intensity={shakeIntensity}>
         <div className={cn(
-          "relative w-full max-w-md mx-auto min-h-72 sm:h-80 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br",
+          "tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl",
           skin.bgGradient,
         )}>
           {/* Sparkles */}

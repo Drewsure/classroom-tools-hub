@@ -232,7 +232,7 @@ export function CustomDice() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Configuration */}
@@ -385,7 +385,7 @@ export function CustomDice() {
       )}
 
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full max-w-md mx-auto h-[28rem] sm:h-[34rem] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient)}>
+        <div className={cn("tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl", skin.bgGradient)}>
           {/* Themed particles */}
           <SkinParticleField skin={skin} seed={5} />
           {/* Scene decorator */}
@@ -406,7 +406,7 @@ export function CustomDice() {
           </div>
 
           <div className="relative z-10 text-center flex flex-col items-center gap-4">
-            <div className={cn("mx-auto w-56 h-56 sm:w-72 sm:h-72 rounded-3xl bg-gradient-to-br from-white to-slate-100 flex items-center justify-center shadow-2xl border-4 border-white relative overflow-hidden", phase === "rolling" && "animate-[diceTumble_0.3s_linear_infinite]", phase === "buildup" && "animate-[vibrate_0.1s_linear_infinite] scale-90", phase === "result" && "animate-[revealPulse_0.6s_ease-out]")}>
+            <div className={cn("tool-projector-asset-square mx-auto flex h-56 w-56 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-gradient-to-br from-white to-slate-100 shadow-2xl sm:h-72 sm:w-72 relative", phase === "rolling" && "animate-[diceTumble_0.3s_linear_infinite]", phase === "buildup" && "animate-[vibrate_0.1s_linear_infinite] scale-90", phase === "result" && "animate-[revealPulse_0.6s_ease-out]")}>
               <div className="absolute top-4 left-6 w-14 h-7 rounded-full bg-white/60 blur-sm pointer-events-none" />
               <span className={cn("relative text-slate-800 font-black drop-shadow-2xl break-words px-3 text-center leading-none", getFontSize())}>
                 {displayValue}

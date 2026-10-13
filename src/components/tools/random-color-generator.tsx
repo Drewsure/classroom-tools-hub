@@ -104,7 +104,7 @@ export function RandomColorGenerator() {
   const isBusy = phase === "buildup" || phase === "spinning";
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       <UniversalSkinPicker current={skinId} onChange={setSkinId} />
 
       {/* Color palette selector */}
@@ -185,7 +185,7 @@ export function RandomColorGenerator() {
       </div>
 
       <ShakeWrapper intensity={shakeIntensity}>
-        <div className={cn("relative w-full max-w-md mx-auto h-80 sm:h-96 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center p-6 bg-gradient-to-br", skin.bgGradient)}>
+        <div className={cn("tool-projector-stage relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/15 bg-gradient-to-br p-6 shadow-2xl", skin.bgGradient)}>
           {/* Themed particles */}
           <SkinParticleField skin={skin} seed={11} />
           {/* Scene decorator */}
@@ -220,7 +220,7 @@ export function RandomColorGenerator() {
                 {/* Color display */}
                 <div
                   className={cn(
-                    "w-48 h-48 sm:w-64 sm:h-64 rounded-3xl shadow-2xl border-4 border-white/30 flex items-center justify-center",
+                    "tool-projector-asset-square flex h-48 w-48 items-center justify-center rounded-3xl border-4 border-white/30 shadow-2xl sm:h-64 sm:w-64",
                     phase === "result" && "animate-[revealPulse_0.6s_ease-out]",
                   )}
                   style={{ background: currentColor }}
