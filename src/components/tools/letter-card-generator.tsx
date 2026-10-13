@@ -296,7 +296,7 @@ export function LetterCardGenerator() {
 
       {/* ===== SIDE-BY-SIDE LAYOUT: Flash card on LEFT, Card Image + Q&A on RIGHT =====
            No scrolling — both fit on one screen side-by-side */}
-      {showPhonicCard && phase === "result" && currentPhonicCard ? (
+      {showPhonicCard && currentPhonicCard ? (
         <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-5 items-start justify-center">
           {/* LEFT: Flash card (the Aa letter card) */}
           <div className="w-full lg:w-1/2 max-w-md">
@@ -357,6 +357,17 @@ export function LetterCardGenerator() {
                       <p className="text-sm text-white/70">
                         {getPool().length - usedLetters.length} letters remaining
                       </p>
+                    )}
+                    {phase === "idle" && (
+                      <Button
+                        onClick={handleGenerate}
+                        disabled={allExhausted || (customMode && selectedLetters.size === 0)}
+                        size="lg"
+                        className="rounded-full px-8 bg-white text-slate-900 hover:bg-white/90 shadow-lg text-lg"
+                      >
+                        <Play className="mr-2 h-5 w-5 fill-current" />
+                        Draw a Card!
+                      </Button>
                     )}
                   </div>
                 </div>

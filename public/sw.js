@@ -9,7 +9,7 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.5.2";
+const VERSION = "v1.5.3";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 
@@ -67,6 +67,33 @@ const PRECACHE_URLS = [
   "/images/weather/stormy.gif",
   "/images/weather/hot.gif",
   "/images/weather/cold.gif",
+  // Letter Card Generator physical card images
+  "/images/cards/card-a.png",
+  "/images/cards/card-b.png",
+  "/images/cards/card-c.png",
+  "/images/cards/card-d.png",
+  "/images/cards/card-e.png",
+  "/images/cards/card-f.png",
+  "/images/cards/card-g.png",
+  "/images/cards/card-h.png",
+  "/images/cards/card-i.png",
+  "/images/cards/card-j.png",
+  "/images/cards/card-k.png",
+  "/images/cards/card-l.png",
+  "/images/cards/card-m.png",
+  "/images/cards/card-n.png",
+  "/images/cards/card-o.png",
+  "/images/cards/card-p.png",
+  "/images/cards/card-q.png",
+  "/images/cards/card-r.png",
+  "/images/cards/card-s.png",
+  "/images/cards/card-t.png",
+  "/images/cards/card-u.png",
+  "/images/cards/card-v.png",
+  "/images/cards/card-w.png",
+  "/images/cards/card-x.png",
+  "/images/cards/card-y.png",
+  "/images/cards/card-z.png",
 ];
 
 // Install — pre-cache the app shell
