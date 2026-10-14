@@ -10,9 +10,10 @@ const code = ts.transpileModule(source, {
 }).outputText;
 const { DISPLAY_COMPATIBILITY_SCRIPT } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
 
-function mode({ userAgent = "Chrome desktop", search = "", supports = true, cssMissing = false, attributes = {} } = {}) {
+function mode({ userAgent = "Chrome desktop", search = "", supports = true, cssMissing = false, attributes = {}, coarsePointer = false } = {}) {
   let result;
   const window = { location: { search } };
+  window.matchMedia = () => ({ matches: coarsePointer });
   if (!cssMissing) window.CSS = { supports: () => supports };
   runInNewContext(DISPLAY_COMPATIBILITY_SCRIPT, {
     window,
@@ -30,6 +31,9 @@ test("Android uses compatible display without a storage API", () => {
 });
 test("modern desktop retains the standard display", () => {
   assert.equal(mode(), "standard");
+});
+test("touch tablets using a desktop user-agent still receive the illustrated compatible board", () => {
+  assert.equal(mode({ userAgent: "Mozilla/5.0 (X11; Linux x86_64) Chrome/155", coarsePointer: true }), "compatible");
 });
 test("the safe link works alongside other query parameters", () => {
   assert.equal(mode({ search: "?class=1&safe=1&other=2" }), "compatible");

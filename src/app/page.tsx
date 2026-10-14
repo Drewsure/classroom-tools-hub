@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import {
   TOOLS,
@@ -11,6 +11,7 @@ import {
   type ToolDef,
 } from "@/lib/tools";
 import { ToolLauncher } from "@/components/tools/tool-launcher";
+import { TabletAdventureBoard } from "@/components/tools/tablet-adventure-board";
 import { useFavorites } from "@/hooks/use-favorites";
 import { AttendanceButton } from "@/components/tools/attendance-dialog";
 import { getMangaToolIcon } from "@/lib/tool-art.generated";
@@ -27,6 +28,8 @@ import {
 } from "lucide-react";
 
 type FilterKey = "all" | "favorites" | ToolCategory;
+const subscribeDisplay = () => () => {};
+const isCompatibleDisplay = () => document.documentElement.getAttribute("data-display-mode") === "compatible";
 
 const CATEGORY_ORDER: ToolCategory[] = [
   "dashboard",
@@ -111,6 +114,7 @@ const PATHWAY_STYLES: Record<
 };
 
 export default function Home() {
+  const compatibleBoard = useSyncExternalStore(subscribeDisplay, isCompatibleDisplay, () => false);
   const [activeTool, setActiveTool] = useState<ToolDef | null>(null);
   const [activeCategory, setActiveCategory] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
@@ -177,7 +181,7 @@ export default function Home() {
     <main className="relative h-screen overflow-hidden bg-[#f7fbff] text-slate-950">
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(125,211,252,0.42),rgba(254,240,138,0.5)_44%,rgba(251,207,232,0.42))]" />
       <div className="absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.95),transparent_34%),radial-gradient(circle_at_78%_10%,rgba(34,197,94,0.24),transparent_24%)]" />
-      <div className="adventure-board relative z-10 mx-auto flex h-screen w-full max-w-[96rem] flex-col gap-2.5 px-3 py-3 sm:px-4">
+      {!compatibleBoard && <div className="adventure-board relative z-10 mx-auto flex h-screen w-full max-w-[96rem] flex-col gap-2.5 px-3 py-3 sm:px-4">
         <header className="rounded-[1.4rem] border border-white/80 bg-white/[0.86] p-3 shadow-xl shadow-sky-900/10 backdrop-blur-xl">
           <div className="grid gap-3 lg:grid-cols-[auto_minmax(18rem,1fr)_auto] lg:items-center">
             <div className="flex min-w-0 items-center gap-3">
@@ -340,7 +344,9 @@ export default function Home() {
             ) : null}
           </section>
         </section>
-      </div>
+      </div>}
+
+      {compatibleBoard && <TabletAdventureBoard categories={CATEGORY_ORDER} category={activeCategory} onCategory={setActiveCategory} query={query} onQuery={setQuery} tools={filteredTools} onOpen={setActiveTool} isFavorite={isFavorite} onFavorite={toggleFavorite} />}
 
       <section className="plain-launch" aria-label="Plain classroom launch">
         <h1>Classroom Tools Hub</h1>

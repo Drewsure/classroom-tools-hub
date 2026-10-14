@@ -19,6 +19,53 @@ html[data-display-mode="compatible"] *::after {
 }
 
 .plain-launch { display: none; }
+/* The touch board uses one document scroller and opaque picture tiles. */
+html[data-display-mode="compatible"] .adventure-board,
+html[data-display-mode="compatible"] body > main > div.absolute {
+  display: none;
+}
+html[data-display-mode="compatible"] body > main {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+  background: #f0f8ff;
+  color: #111827;
+}
+.tablet-adventure {
+  position: relative;
+  max-width: 1400px;
+  margin: auto;
+  padding: 14px;
+  font-family: Arial, sans-serif;
+}
+.tablet-board-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 2px solid #94a3b8; }
+.tablet-board-header h1 { font-size: 24px; font-weight: 800; line-height: 1.2; }
+.tablet-board-header p { color: #075985; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.tablet-teacher-dock { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tablet-teacher-dock > span { font-size: 13px; color: #334155; font-weight: bold; }
+.tablet-teacher-dock > button { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px; color: #064e3b; background: #fff; border: 1px solid #047857; border-radius: 6px; font-weight: bold; }
+.tablet-board-search { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #64748b; border-radius: 6px; margin: 12px 0; padding: 0 10px; }
+.tablet-board-search input { min-width: 0; width: 100%; min-height: 44px; background: #fff; color: #111827; font-size: 17px; outline: none; }
+.tablet-board-search input::placeholder { color: #475569; }
+.tablet-board-search button { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; }
+.tablet-mobile-zone { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-weight: bold; }
+.tablet-mobile-zone select { min-width: 0; flex: 1; min-height: 44px; padding: 8px; background: #fff; color: #111827; border: 1px solid #64748b; border-radius: 6px; font-size: 16px; }
+.tablet-tool-zones { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.tablet-tool-zones button { display: flex; align-items: center; gap: 5px; min-height: 44px; padding: 7px 10px; background: #fff; color: #1e293b; border: 1px solid #64748b; border-radius: 6px; font-size: 14px; font-weight: bold; }
+.tablet-tool-zones button[aria-pressed="true"] { color: #fff; background: #075985; border-color: #075985; }
+.tablet-picture-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tablet-picture-tools article { position: relative; background: #fff; border: 2px solid; border-radius: 8px; min-width: 0; }
+.tablet-picture-open { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; min-height: 158px; padding: 8px 6px; background: #fff; color: #111827; border-radius: 6px; cursor: pointer; }
+.tablet-picture-open img { width: 100px; height: 100px; object-fit: contain; }
+.tablet-picture-open span { display: flex; align-items: center; justify-content: center; min-height: 40px; font-size: 16px; font-weight: 800; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+.tablet-picture-star { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 36px; height: 36px; background: #fff; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; }
+.tablet-adventure button:focus-visible, .tablet-board-search:focus-within { outline: 3px solid #0284c7; outline-offset: 2px; }
+.tablet-board-empty { padding: 24px 0; color: #334155; }
+@media (max-width: 599px) { .tablet-tool-zones { display: none; } }
+@media (min-width: 600px) { .tablet-mobile-zone { display: none; } .tablet-picture-tools { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .tablet-picture-tools { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .tablet-picture-tools { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+html[data-plain-launch="true"] .tablet-adventure { display: none; }
 html[data-plain-launch="true"] .adventure-board,
 html[data-plain-launch="true"] body > main > div.absolute {
   display: none;

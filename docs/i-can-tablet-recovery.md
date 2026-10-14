@@ -26,7 +26,7 @@ These observations show deployment differences, not proof of the tablet's flashi
 The tablet model/OS and an on-device retest are still required.
 
 ## Loading safeguards
-The new service worker is v1.5.23. Updates retain the previous build's caches for existing
+The new service worker is v1.5.24. Updates retain the previous build's caches for existing
 tabs, do not delete unrelated caches, require a healthy offline shell before activation,
 and do not replace it with server-error responses. RSC responses are not cached as HTML.
 Safari-style media Range requests receive correct 206 responses from offline audio.
@@ -70,3 +70,18 @@ Compatibility mode also removes text/box shadows and fixed background attachment
 diagnostic/recovery option, not a replacement for the normal illustrated board.
 Closing a tool preserves the safe query parameter. Local browser checks verified
 launching, starting, pausing and closing a timer; on-device verification is pending.
+
+## Student-facing tablet board
+After the user confirmed plain mode tools worked, compatible display now has its own
+illustrated student board, not a permanent text-only menu. It preserves the 29 manga
+tool icons, shared search/category/favorites state, roster access and attendance.
+The original layered board is not mounted after compatible-display hydration. The
+tablet board uses a single normal document scroller, opaque picture tiles, fixed
+image dimensions, lazy image decoding and no decorative filters or blend layers.
+Touch-pointer detection also handles Android's desktop-style user-agent. The explicit
+/?safe=1 link selects this illustrated board, while /?safe=2 keeps the plain fallback.
+Phone screens use a native category menu to avoid burying the illustrations under
+rows of category buttons. Desktop non-touch screens retain the existing board.
+Production-browser checks at the tablet's reported 686px width confirmed ten timer
+cards fit vertically, all ten images loaded and no horizontal overflow. Search and
+timer start/pause/close worked. Physical-tablet testing of v1.5.24 is still required.
