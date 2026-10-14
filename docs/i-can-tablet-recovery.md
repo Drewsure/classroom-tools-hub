@@ -26,7 +26,7 @@ These observations show deployment differences, not proof of the tablet's flashi
 The tablet model/OS and an on-device retest are still required.
 
 ## Loading safeguards
-The new service worker is v1.5.21. Updates retain the previous build's caches for existing
+The new service worker is v1.5.22. Updates retain the previous build's caches for existing
 tabs, do not delete unrelated caches, require a healthy offline shell before activation,
 and do not replace it with server-error responses. RSC responses are not cached as HTML.
 Safari-style media Range requests receive correct 206 responses from offline audio.
@@ -36,6 +36,14 @@ Recovery UI offers manual retry/reload, never automatic reload loops or deletion
 Object.hasOwn calls in attendance were replaced with a compatible own-property check.
 
 ## Verification
+Android now defaults to a lower-compositing display before first paint. The URL
+/?safe=1 enables the same mode on any device. Blur, filters, blend layers and decorative
+confetti/flash/particles are removed; real images, layout transforms and functional
+timer motion are preserved. No classroom storage is read or changed by this mode.
+The reported black screen with working audio suggests rendering may be involved,
+but does not identify the root cause. A current Chrome browser and physical-device
+retest of the deployed build are still needed; this is not a legacy-browser polyfill.
+
 npm run doctor includes lyric ordering, all 11 image signatures, original audio checksum,
 offline media ranges, cache version retention, server-failure fallback and install failure.
 Browser checks verified native MP3 playback (174.96 seconds), navigation, image loading and

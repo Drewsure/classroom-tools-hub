@@ -20,6 +20,7 @@ export function ConfettiOverlay({
         className,
       )}
       aria-hidden
+      data-decorative-effect="confetti"
     >
       {pieces.map((p) => (
         <div
@@ -95,6 +96,7 @@ export function FlashOverlay({
       )}
       style={{ background: flash.color }}
       aria-hidden
+      data-decorative-effect="flash"
     />
   );
 }
@@ -117,6 +119,7 @@ export function ParticleField({
     <div
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
       aria-hidden
+      data-decorative-effect="particles"
     >
       {particles.map((p) => (
         <div
@@ -161,6 +164,7 @@ export function ShakeWrapper({
   return (
     <div
       key={intensity}
+      data-impact-animation
       className={cn("animate-[screenShake_0.6s_ease-in-out]", baseClass)}
       style={
         {
@@ -186,6 +190,7 @@ export function DramaticCountdown({
   return (
     <div
       key={number}
+      data-impact-animation
       className={cn("animate-[countdownBoom_1s_ease-out]", className)}
     >
       {number}

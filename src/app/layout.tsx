@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import { DISPLAY_COMPATIBILITY_SCRIPT } from "@/lib/display-compatibility";
 
 const APP_NAME = "Classroom Tools Hub";
 const APP_DESCRIPTION = "All-in-one classroom toolkit: 10 fun timers, random name pickers, group generators, chance games, tally counters, sound pad, and a custom dashboard. Built for teachers — works offline on tablets and Chromebooks.";
@@ -75,6 +76,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: DISPLAY_COMPATIBILITY_SCRIPT }} />
+      </head>
       <body className="antialiased bg-background text-foreground">
         {children}
         <Toaster />

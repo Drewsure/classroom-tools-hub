@@ -3,6 +3,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Keep real card images and functional motion; remove expensive compositing.
+   Never disable all animations: an unfaded flash could cover the whole tool. */
+html[data-display-mode="compatible"] *,
+html[data-display-mode="compatible"] *::before,
+html[data-display-mode="compatible"] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  will-change: auto !important;
+}
+
+html[data-display-mode="compatible"] [data-decorative-effect],
+html[data-display-mode="compatible"] .tool-card-glow::before,
+html[data-display-mode="compatible"] .tool-card-glow::after {
+  display: none !important;
+}
+
+html[data-display-mode="compatible"] [data-impact-animation] {
+  animation: none !important;
+}
+
+/* Concrete token fallbacks for older Android browser color support. */
+html[data-display-mode="compatible"] {
+  --secondary: #e2e8f0;
+  --secondary-foreground: #0f172a;
+  --muted: #e2e8f0;
+  --muted-foreground: #334155;
+  --accent: #dbeafe;
+  --accent-foreground: #0f172a;
+  --border: #64748b;
+  --input: #64748b;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

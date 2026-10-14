@@ -14,6 +14,7 @@ export function AppRecovery({ retry }: { retry: () => void }) {
             <RefreshCw size={20} /> Reload app
           </button>
         </div>
+        <p><a href="/?safe=1" style={{ color: "#075985", fontSize: 17, textDecoration: "underline" }}>Open compatibility mode</a></p>
       </section>
     </main>
   );
