@@ -112,14 +112,14 @@ export function recordFor(classId: string): AttRecord {
   const rec = readRecord(date, classId) ?? { date, classId, students: Object.create(null) as Record<string, AttEntry> };
   const cls = readClasses().find((item) => item.id === classId);
   for (const student of cls?.students ?? []) {
-    if (!Object.hasOwn(rec.students, student.name)) rec.students[student.name] = defaultEntry();
+    if (!Object.prototype.hasOwnProperty.call(rec.students, student.name)) rec.students[student.name] = defaultEntry();
   }
   return rec;
 }
 export function ensureTodayRecord(cls: AttClass) {
   const rec = recordFor(cls.id);
   for (const student of cls.students) {
-    if (!Object.hasOwn(rec.students, student.name)) rec.students[student.name] = defaultEntry();
+    if (!Object.prototype.hasOwnProperty.call(rec.students, student.name)) rec.students[student.name] = defaultEntry();
   }
   writeRecord(rec);
 }

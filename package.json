@@ -15,8 +15,9 @@
     "test:classroom-cues": "node --test scripts/test-classroom-cues.mjs",
     "test:attendance": "node --test scripts/test-attendance-store.mjs scripts/test-attendance-dialog.mjs",
     "test:pe-reference": "node --test scripts/test-pe-reference.mjs",
+    "test:tablet-media": "node --test scripts/test-service-worker.mjs scripts/test-i-can-cards.mjs",
     "verify:assets": "node scripts/verify-public-assets.mjs",
-    "doctor": "npm run verify:registry && npm run verify:sounds && npm run test:sound-pad && npm run test:classroom-cues && npm run test:attendance && npm run test:pe-reference && npm run verify:assets && npx tsc --noEmit && npm run lint && npm run build",
+    "doctor": "npm run verify:registry && npm run verify:sounds && npm run test:sound-pad && npm run test:classroom-cues && npm run test:attendance && npm run test:pe-reference && npm run test:tablet-media && npm run verify:assets && npx tsc --noEmit && npm run lint && npm run build",
     "icons": "python3 scripts/generate-pwa-icons.py"
   },
   "dependencies": {

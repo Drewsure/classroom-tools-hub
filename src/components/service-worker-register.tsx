@@ -19,14 +19,17 @@ export function ServiceWorkerRegister() {
 
     // Wait until the page has fully loaded before registering — defer to keep
     // first-paint snappy on slow tablets.
+    let disposed = false;
+    let updateTimer: ReturnType<typeof setInterval> | undefined;
     const onLoad = () => {
       navigator.serviceWorker
-        .register("/sw.js", { scope: "/" })
+        .register("/sw.js", { scope: "/", updateViaCache: "none" })
         .then((reg) => {
+          if (disposed) return;
           // Ask for a fresh worker immediately, then periodically. This helps
           // iOS home-screen installs pick up Vercel deployments without waiting.
           reg.update().catch(() => {});
-          setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+          updateTimer = setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
         })
         .catch((err) => {
           // SW registration failure is non-fatal — the app still works online
@@ -38,8 +41,12 @@ export function ServiceWorkerRegister() {
       onLoad();
     } else {
       window.addEventListener("load", onLoad, { once: true });
-      return () => window.removeEventListener("load", onLoad);
     }
+    return () => {
+      disposed = true;
+      window.removeEventListener("load", onLoad);
+      if (updateTimer) clearInterval(updateTimer);
+    };
   }, []);
 
   return null;

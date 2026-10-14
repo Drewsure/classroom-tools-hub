@@ -17,6 +17,8 @@ import { useToolSkin } from "@/hooks/use-tool-skin";
 import { UniversalSkinPicker } from "./universal-skin-picker";
 import { SkinParticleField, SkinSceneDecorator } from "@/lib/skins";
 import { PHONIC_CARDS } from "@/lib/phonic-cards";
+import { I_CAN_CARDS, I_CAN_SONG_CARDS, I_CAN_SONG } from "@/lib/i-can-cards";
+import { ICanLesson } from "./i-can-lesson";
 import {
   Play,
   RotateCcw,
@@ -100,7 +102,11 @@ const WEATHER_GROUP: CardGroup = {
   })),
 };
 
-const BUILTIN_GROUPS: CardGroup[] = [PHONIC_GROUP, WEATHER_GROUP];
+const BUILTIN_GROUPS: CardGroup[] = [
+  PHONIC_GROUP, WEATHER_GROUP,
+  { id: "i-can", name: "I Can! Cards", icon: "custom", cards: I_CAN_CARDS },
+  { id: "i-can-song", name: "I Can! Song Sequence", icon: "custom", cards: I_CAN_SONG_CARDS },
+];
 
 /* ============================================================
    SAVED GROUPS (localStorage) — includes both selections of
@@ -144,6 +150,7 @@ export function FlashCardPresenter() {
 
   // Active group (which set of cards we're working with)
   const [activeGroupId, setActiveGroupId] = useState<string>("phonic");
+  const [songFocus, setSongFocus] = useState(false);
 
   // Build the full list of available groups (builtin + saved custom groups)
   const savedGroups = useMemo(() => readSavedGroups(), []);
@@ -198,6 +205,11 @@ export function FlashCardPresenter() {
   const [uploadedCards, setUploadedCards] = useState<PresenterCard[]>([]);
   const [uploadGroupName, setUploadGroupName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const songRef = useRef<HTMLAudioElement>(null);
+  useEffect(() => {
+    const audio = songRef.current;
+    return () => audio?.pause();
+  }, [activeGroupId]);
 
   // When active group changes, reset state
   useEffect(() => {
@@ -303,7 +315,7 @@ export function FlashCardPresenter() {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     } else {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen?.().catch(() => {});
     }
   }, []);
 
@@ -440,6 +452,13 @@ export function FlashCardPresenter() {
     return <Type className="h-4 w-4" />;
   };
 
+  if (songFocus && currentCard && activeGroupId.startsWith("i-can")) {
+    return <ICanLesson card={currentCard} index={Math.max(0, browseIndex)} total={allCards.length}
+      onPrevious={goPrev} onNext={goNext}
+      onFirst={() => { setCurrentCardId(allCards[0].id); setPhase("result"); }}
+      onCardSets={() => setSongFocus(false)} />;
+  }
+
   return (
     <div className="tool-projector-root flex flex-col items-center gap-4 py-1">
       {/* Title + fullscreen */}
@@ -477,7 +496,12 @@ export function FlashCardPresenter() {
               return (
                 <button
                   key={g.id}
-                  onClick={() => { setActiveGroupId(g.id); sound.playClick(); }}
+                  onClick={() => {
+                    setActiveGroupId(g.id);
+                    setSongFocus(g.id.startsWith("i-can"));
+                    if (g.id.startsWith("i-can")) setMode("browse");
+                    sound.playClick();
+                  }}
                   className={cn(
                     "flex min-h-10 items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-black transition-all",
                     isActive
@@ -507,6 +531,13 @@ export function FlashCardPresenter() {
           </div>
           </div>
         </div>
+      )}
+
+      {activeGroupId.startsWith("i-can") && (
+        <section aria-label="I Can song" className="w-full max-w-4xl">
+          <p className="mb-1 text-sm font-bold text-white">{I_CAN_SONG.title}</p>
+          <audio ref={songRef} controls preload="metadata" src={I_CAN_SONG.src} className="h-12 w-full" />
+        </section>
       )}
 
       {/* ===== Upload dialog ===== */}
@@ -663,7 +694,7 @@ export function FlashCardPresenter() {
                   <img
                     src={card.image}
                     alt={card.label}
-                    className="w-full h-full object-cover select-none"
+                    className="w-full h-full object-contain select-none"
                     draggable={false}
                   />
                   {isSel && (

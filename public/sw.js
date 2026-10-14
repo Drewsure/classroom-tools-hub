@@ -9,7 +9,7 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.5.20";
+const VERSION = "v1.5.21";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 
@@ -17,6 +17,18 @@ const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 const PRECACHE_URLS = [
   "/",
   "/manifest.json",
+  "/sounds/ministar-i-can.mp3",
+  "/images/i-can/flashcard_jump.png",
+  "/images/i-can/flashcard_run.png",
+  "/images/i-can/flashcard_stretch.png",
+  "/images/i-can/flashcard_spin.png",
+  "/images/i-can/flashcard_walk.png",
+  "/images/i-can/flashcard_cook.png",
+  "/images/i-can/flashcard_climb.png",
+  "/images/i-can/flashcard_sing.png",
+  "/images/i-can/flashcard_dance.png",
+  "/images/i-can/flashcard_swim.png",
+  "/images/i-can/flashcard_bonus_do_it_all.png",
   "/sounds/word-l.mp3?v=clean-1",
   "/icons/icon-32.png",
   "/icons/icon-192.png",
@@ -120,23 +132,27 @@ const PRECACHE_URLS = [
 // Install — pre-cache the app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) =>
-      // Keep install resilient: one optional media failure should not block the app shell.
-      Promise.allSettled(PRECACHE_URLS.map((url) => cache.add(url))),
-    ).then(() => self.skipWaiting()),
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      // Do not activate an update without a usable offline app shell.
+      await cache.add("/");
+      await Promise.allSettled(PRECACHE_URLS.filter((url) => url !== "/").map((url) => cache.add(url)));
+    }).then(() => self.skipWaiting()),
   );
 });
 
 // Activate — clean up old caches and take control
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE)
-          .map((k) => caches.delete(k)),
-      ),
-    ).then(() => self.clients.claim()),
+    caches.keys().then((keys) => {
+      const versions = [...new Set(keys.map((key) => key.match(/^cth-(?:static|runtime)-(.+)$/)?.[1])
+        .filter((version) => version && version !== VERSION))];
+      versions.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      const previous = versions[versions.length - 1];
+      // Keep the previous build's chunks for tabs still running that build.
+      const keep = new Set([STATIC_CACHE, RUNTIME_CACHE, `cth-static-${previous}`, `cth-runtime-${previous}`]);
+      return Promise.all(keys.filter((key) => /^cth-(static|runtime)-/.test(key) && !keep.has(key))
+        .map((key) => caches.delete(key)));
+    }).then(() => self.clients.claim()),
   );
 });
 
@@ -145,6 +161,47 @@ const notifyClients = async () => {
   const clients = await self.clients.matchAll({ includeUncontrolled: true });
   clients.forEach((client) => client.postMessage({ type: "SW_UPDATED" }));
 };
+
+async function storeResponse(cacheName, request, response) {
+  // Cache.put rejects partial responses; Safari media uses Range requests.
+  if (response.status !== 200) return;
+  try {
+    const copy = response.clone();
+    const cache = await caches.open(cacheName);
+    await cache.put(request, copy);
+  } catch { /* Storage pressure must not break online playback or startup. */ }
+}
+
+async function cachedRange(response, range) {
+  const bytes = await response.arrayBuffer();
+  const size = bytes.byteLength;
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+  let start = match?.[1] ? Number(match[1]) : 0;
+  let end = match?.[2] ? Number(match[2]) : size - 1;
+  if (match && !match[1] && match[2]) {
+    start = Math.max(0, size - Number(match[2]));
+    end = size - 1;
+  }
+  if (!match || (!match[1] && !match[2]) || start >= size || end < start || !Number.isSafeInteger(start) || !Number.isSafeInteger(end)) {
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${size}` } });
+  }
+  end = Math.min(end, size - 1);
+  const headers = new Headers(response.headers);
+  headers.delete("Content-Encoding");
+  headers.set("Content-Range", `bytes ${start}-${end}/${size}`);
+  headers.set("Content-Length", String(end - start + 1));
+  headers.set("Accept-Ranges", "bytes");
+  return new Response(bytes.slice(start, end + 1), { status: 206, headers });
+}
+
+async function navigationFallback(request) {
+  const runtime = await caches.open(RUNTIME_CACHE);
+  const shell = await caches.open(STATIC_CACHE);
+  return await runtime.match(request) || await shell.match("/") ||
+    await caches.match(request) || await caches.match("/") ||
+    new Response("Classroom Tools Hub is offline. Reconnect and try again. Saved class data has not been cleared.",
+      { status: 503, headers: { "Content-Type": "text/plain;charset=utf-8" } });
+}
 
 // Fetch — strategy routing
 self.addEventListener("fetch", (event) => {
@@ -160,17 +217,18 @@ self.addEventListener("fetch", (event) => {
 
   // Skip Next.js HMR / dev endpoints
   if (url.pathname.startsWith("/_next/webpack-hmr")) return;
+  if (request.headers.get("RSC") === "1") return;
 
   // --- Navigation requests (page loads): network-first, fall back to cached shell ---
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          if (response.status >= 500) return navigationFallback(request);
+          event.waitUntil(storeResponse(RUNTIME_CACHE, request, response));
           return response;
         })
-        .catch(() => caches.match(request).then((r) => r || caches.match("/"))),
+        .catch(() => navigationFallback(request)),
     );
     return;
   }
@@ -178,16 +236,13 @@ self.addEventListener("fetch", (event) => {
   // --- Sounds: cache-first (offline-critical) ---
   if (url.pathname.startsWith("/sounds/")) {
     event.respondWith(
-      caches.match(request).then((cached) =>
-        cached ||
-        fetch(request).then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
-          }
+      caches.match(request).then((cached) => {
+        if (cached) return request.headers.has("Range") ? cachedRange(cached, request.headers.get("Range")) : cached;
+        return fetch(request).then((response) => {
+          event.waitUntil(storeResponse(STATIC_CACHE, request, response));
           return response;
-        }).catch(() => cached),
-      ),
+        }).catch(() => new Response(null, { status: 503 }));
+      }),
     );
     return;
   }
@@ -222,7 +277,7 @@ self.addEventListener("fetch", (event) => {
         cache.match(request).then((cached) => {
           const fetchPromise = fetch(request)
             .then((response) => {
-              if (response.ok) cache.put(request, response.clone());
+              event.waitUntil(storeResponse(RUNTIME_CACHE, request, response));
               return response;
             })
             .catch(() => cached);

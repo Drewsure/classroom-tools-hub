@@ -388,6 +388,23 @@
   min-height: calc(100dvh - 7rem);
 }
 
+.i-can-lesson {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+  width: 100%;
+  height: calc(100vh - 10rem);
+  min-height: 200px;
+}
+
+@media (min-width: 768px) {
+  .i-can-lesson {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    grid-template-rows: minmax(0, 1fr);
+    height: calc(100vh - 8rem);
+  }
+}
+
 .tool-projector-stage {
   width: 100% !important;
   max-width: none !important;

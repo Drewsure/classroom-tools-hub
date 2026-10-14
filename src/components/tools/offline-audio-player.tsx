@@ -24,6 +24,7 @@ import {
   Save,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { I_CAN_SONG } from "@/lib/i-can-cards";
 
 /* ============================================================
    OFFLINE AUDIO PLAYER — Ministar English
@@ -310,6 +311,11 @@ export function OfflineAudioPlayer() {
   const [playMode, setPlayMode] = useState<PlayMode>("normal");
   const [speed, setSpeed] = useState(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const songRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    const song = songRef.current;
+    return () => song?.pause();
+  }, []);
   const objectUrlRef = useRef<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -775,6 +781,11 @@ export function OfflineAudioPlayer() {
 
   return (
     <div className="flex flex-col items-center gap-4 py-2 w-full">
+      <section aria-label="I Can song" className="w-full max-w-5xl rounded-lg border border-sky-300 bg-white p-3 text-slate-950">
+        <p className="mb-2 text-base font-black">{I_CAN_SONG.title}</p>
+        <audio ref={songRef} controls preload="metadata" src={I_CAN_SONG.src}
+          onPlay={() => audioRef.current?.pause()} className="h-12 w-full" />
+      </section>
       {/* Header */}
       <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 border border-white/10 shadow-lg">
         <div className="flex min-w-0 max-w-full items-center gap-3">
@@ -1410,7 +1421,7 @@ export function OfflineAudioPlayer() {
             onTimeUpdate={onTimeUpdate}
             onLoadedMetadata={onLoadedMetadata}
             onEnded={onEnded}
-            onPlay={onPlay}
+            onPlay={() => { songRef.current?.pause(); onPlay(); }}
             onPause={onPause}
           />
           <div className="flex items-center gap-3 flex-wrap">
