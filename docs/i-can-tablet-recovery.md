@@ -49,3 +49,15 @@ offline media ranges, cache version retention, server-failure fallback and insta
 Browser checks verified native MP3 playback (174.96 seconds), navigation, image loading and
 header/control clearance on phone, portrait/landscape tablet and desktop-sized viewports.
 These browser checks are not equivalent to an actual iPad/Android device test.
+
+## Persistent Android black screen
+After the push of 2dfe037, a network check confirmed production served worker v1.5.22
+and the display-mode bootstrap. This does not prove the tablet loaded that build.
+Open /tablet-check.html in the normal browser after deploying the diagnostic-page
+commit. This standalone white page uses no React, Tailwind, filters or animation,
+and does not access classroom storage. A screenshot captures browser/OS information,
+basic image/color support and the worker version available from the server. That
+version is not claimed to be the version controlling an already-open tablet tab.
+Compare normal Chrome, the installed app and a private-tab test without clearing
+the original app's data. Do not uninstall or clear website storage before exporting
+saved records. The physical tablet's root cause remains unconfirmed.

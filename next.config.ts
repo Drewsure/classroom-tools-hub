@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: false,
   async headers() {
-    return [{ source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }] }];
+    return ["/sw.js", "/tablet-check.html"].map((source) => ({
+      source,
+      headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+    }));
   },
 };
 

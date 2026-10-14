@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>Classroom Tablet Display Check</title>
+  <style>
+    html, body { background: #fff; color: #111; margin: 0; font-family: Arial, sans-serif; }
+    main { max-width: 680px; margin: auto; padding: 20px; }
+    h1 { font-size: 26px; }
+    p, a { font-size: 18px; line-height: 1.5; }
+    pre { white-space: pre-wrap; overflow-wrap: break-word; border: 2px solid #333; padding: 12px; font-size: 15px; line-height: 1.5; }
+    a { display: inline-block; color: #0645ad; padding: 12px 0; }
+    img { width: 96px; height: 96px; }
+    #swatches { height: 48px; display: flex; }
+    #swatches span { width: 33.333%; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Tablet Display Check</h1>
+    <p>If this text is visible, the plain page is displaying.</p>
+    <div id="swatches" aria-label="Red, green and blue display test">
+      <span style="background:#d00000"></span><span style="background:#008000"></span><span style="background:#0048d0"></span>
+    </div>
+    <p><img id="icon" src="/icons/icon-192.png" alt="Classroom app icon"></p>
+    <pre id="report" aria-live="polite">Diagnostic JavaScript has not run yet.</pre>
+    <a href="/?safe=1">Open classroom in compatibility mode</a>
+    <p>This check does not clear, read or change your class records. Send a screenshot of this page when reporting the display problem.</p>
+    <noscript><p>JavaScript is disabled in this browser.</p></noscript>
+  </main>
+  <script>
+    (function () {
+      var report = document.getElementById('report');
+      var lines = ['Display check: 1', 'JavaScript: running', 'Browser: ' + navigator.userAgent,
+        'Viewport: ' + window.innerWidth + ' x ' + window.innerHeight,
+        'HTTPS: ' + (window.location.protocol === 'https:' ? 'yes' : 'no'),
+        'Service worker controlling this page: ' + (navigator.serviceWorker && navigator.serviceWorker.controller ? 'yes' : 'no')];
+      function paint() { report.textContent = lines.join('\n'); }
+      function supports(value) {
+        return !!(window.CSS && window.CSS.supports && window.CSS.supports('color', value));
+      }
+      lines.push('Modern color support: ' + (supports('oklch(1 0 0)') && supports('color-mix(in oklab, white, black)') ? 'yes' : 'no'));
+      paint();
+      var icon = document.getElementById('icon');
+      function checkImage() {
+        lines.push('App icon: ' + (icon.naturalWidth > 0 ? 'loaded' : 'failed'));
+        paint();
+      }
+      if (icon.complete) checkImage();
+      else { icon.onload = checkImage; icon.onerror = checkImage; }
+      if (!window.fetch) { lines.push('Network version check: fetch unavailable'); paint(); return; }
+      fetch('/sw.js?display-check=1', { cache: 'no-store' }).then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.text();
+      }).then(function (text) {
+        var version = text.match(/const VERSION = "([^"]+)"/);
+        lines.push('Worker available from server: ' + (version ? version[1] : 'unknown'));
+        paint();
+      }).catch(function () { lines.push('Network version check: failed or offline'); paint(); });
+    })();
+  </script>
+</body>
+</html>
