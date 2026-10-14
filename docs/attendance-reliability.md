@@ -41,3 +41,9 @@ Run npm run doctor. Attendance tests cover fields, all-absent classes, class cha
 midnight sessions, old-record migration, roster edits, removed classes, backup recovery,
 invalid files, storage failures and partial-restore rollback. PE reference tests check
 command/body-part/movement coverage. Browser verification used synthetic students only.
+
+Attendance's Remove and All Absent actions use focus-trapped in-app confirmations.
+Cancel has initial focus; Escape cancels only the top prompt and does not close the tool.
+The action is disabled if a different class becomes active while the prompt is open.
+Damaged optional session metadata falls back to the current Japan date without changing
+lesson records. Backup restoration also repairs stale selected-class pointers.

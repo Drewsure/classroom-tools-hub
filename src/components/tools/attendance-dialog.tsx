@@ -3,6 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useAttendance, type CardLevel } from "@/hooks/use-attendance";
 import {
@@ -37,6 +41,7 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
   const [toast, setToast] = useState<string | null>(null);
   const [historyDate, setHistoryDate] = useState("");
   const backupInput = useRef<HTMLInputElement>(null);
+  const [confirmation, setConfirmation] = useState<{ kind: "remove" | "absent"; id: string; name: string } | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -44,11 +49,12 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      onClose();
+      if (confirmation) setConfirmation(null);
+      else onClose();
     };
     window.addEventListener("keydown", closeOnEscape, true);
     return () => window.removeEventListener("keydown", closeOnEscape, true);
-  }, [open, onClose]);
+  }, [open, onClose, confirmation]);
 
   useEffect(() => {
     if (!toast) return;
@@ -141,7 +147,7 @@ if (!open) return null;
                 ))}
               </select>
               <Button size="sm" variant="outline"
-                onClick={() => { if (window.confirm(`Remove class "${cls.name}"? Attendance history is kept.`)) att.removeClass(cls.id); }}
+                onClick={() => setConfirmation({ kind: "remove", id: cls.id, name: cls.name })}
                 className="rounded-full bg-rose-500/20 text-rose-200 border-rose-400/40 hover:bg-rose-500/30">
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Remove
               </Button>
@@ -151,7 +157,7 @@ if (!open) return null;
               <Button size="sm" onClick={() => att.markAll(1)} className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white">
                 <Check className="mr-1 h-3.5 w-3.5" /> All Present
               </Button>
-              <Button size="sm" variant="outline" onClick={() => att.markAll(0)}
+              <Button size="sm" variant="outline" onClick={() => setConfirmation({ kind: "absent", id: cls.id, name: cls.name })}
                 className="classroom-control-button rounded-full hover:text-slate-950">All Absent</Button>
               <Button size="sm" variant="outline" onClick={() => setShowYear(!showYear)}
                 className={cn("rounded-full", showYear ? "classroom-control-button-active" : "classroom-control-button hover:text-slate-950")}>
@@ -302,6 +308,29 @@ if (!open) return null;
             </div>
           </div>
         )}
+
+        <AlertDialog open={confirmation !== null} onOpenChange={(isOpen) => { if (!isOpen) setConfirmation(null); }}>
+          <AlertDialogContent overlayClassName="z-[130]" className="z-[140] border-slate-300 bg-white text-slate-950">
+            <AlertDialogTitle>{confirmation?.kind === "remove" ? "Remove class?" : "Mark everyone absent?"}</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-700">
+              {confirmation?.name}. {confirmation?.kind === "remove"
+                ? "Saved lesson records will be kept."
+                : "No students from this class will be available in student games."}
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="border-slate-300 bg-white text-slate-950">Cancel</AlertDialogCancel>
+              <AlertDialogAction disabled={confirmation?.id !== cls?.id}
+                className="bg-red-700 text-white hover:bg-red-800"
+                onClick={() => {
+                  if (!confirmation || confirmation.id !== cls?.id) return;
+                  if (confirmation.kind === "remove") att.removeClass(confirmation.id);
+                  else att.markAll(0);
+                }}>
+                {confirmation?.kind === "remove" ? "Remove class" : "Mark all absent"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {toast && (
           <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg z-[80]">

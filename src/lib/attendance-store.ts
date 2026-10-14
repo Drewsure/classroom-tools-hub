@@ -68,9 +68,11 @@ export function lessonDate(classId: string): string {
   if (typeof window === "undefined") return todayStr();
   const raw = window.localStorage.getItem(SESSION_KEY);
   if (raw) {
-    const session = JSON.parse(raw);
+    let session: unknown;
+    try { session = JSON.parse(raw); } catch { return todayStr(); }
     // Keep a class stable across midnight; expire abandoned sessions after 18 hours.
-    if (session.classId === classId && validDate(session.date) &&
+    if (object(session) && session.classId === classId && validDate(session.date) &&
+        typeof session.startedAt === "number" && Number.isFinite(session.startedAt) &&
         Date.now() - session.startedAt >= 0 && Date.now() - session.startedAt < 18 * 60 * 60 * 1000) {
       return session.date;
     }
@@ -94,13 +96,15 @@ export function readRecord(date: string, classId: string): AttRecord | null {
     throw new Error("Invalid attendance record");
   }
   // Older records did not have a Book field. Missing is not evidence of a book.
-  record.students = Object.fromEntries(Object.entries(record.students).map(([name, entry]) =>
-    [name, { ...defaultEntry(), ...(entry as AttEntry) }]));
+  record.students = Object.assign(Object.create(null), Object.fromEntries(
+    Object.entries(record.students).map(([name, entry]) =>
+      [name, { ...defaultEntry(), ...(entry as AttEntry) }])));
   return record;
 }
 export function writeRecord(rec: AttRecord) {
   const snapshot = rec.classSnapshot ?? readClasses().find((cls) => cls.id === rec.classId);
   const saved = { ...rec, classSnapshot: snapshot, updatedAt: new Date().toISOString() };
+  if (!validRecord(saved)) throw new Error("Invalid attendance record");
   window.localStorage.setItem(PREFIX + rec.date + "_" + rec.classId, JSON.stringify(saved));
 }
 export function recordFor(classId: string): AttRecord {
@@ -220,8 +224,11 @@ export function restoreAttendanceBackup(text: string): number {
       recovered++;
     }
   });
-  if (!readActiveId() && typeof data.activeClassId === "string" &&
-      classes.some((cls) => cls.id === data.activeClassId)) writes.set(ACTIVE_KEY, data.activeClassId);
+  const activeId = readActiveId();
+  if (!classes.some((cls) => cls.id === activeId)) {
+    const recoveredId = classes.find((cls) => cls.id === data.activeClassId)?.id ?? "";
+    writes.set(ACTIVE_KEY, recoveredId);
+  }
   const originals = new Map([...writes.keys()].map((key) => [key, window.localStorage.getItem(key)]));
   try {
     for (const [key, value] of writes) window.localStorage.setItem(key, value);

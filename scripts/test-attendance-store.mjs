@@ -161,3 +161,42 @@ test("restore repairs damaged records and class data while retaining their origi
   assert.ok(recovery.includes("broken classes"));
   assert.ok(recovery.includes("broken lesson"));
 });
+
+test("damaged session metadata cannot block an otherwise valid class", () => {
+  reset();
+  for (const raw of ["broken", "null", "[]", JSON.stringify({ classId: "test", date: store.todayStr(), startedAt: "invalid" })]) {
+    storage.setItem("classroom-tools-att-session", raw);
+    assert.equal(store.lessonDate("test"), store.todayStr());
+    assert.deepEqual(store.presentStudents(cls), ["Aki", "Ren"]);
+  }
+});
+
+test("restore repairs a stale active class pointer without replacing valid lessons", () => {
+  reset();
+  const backup = store.exportAttendanceBackup();
+  store.writeActiveId("deleted-class");
+  assert.equal(store.restoreAttendanceBackup(backup), 0);
+  assert.equal(store.readActiveId(), "test");
+});
+
+test("invalid lesson writes are rejected before touching saved data", () => {
+  reset();
+  const before = savedData();
+  const rec = store.recordFor("test");
+  rec.students.Aki.p = 2;
+  assert.throws(() => store.writeRecord(rec), /Invalid attendance record/);
+  assert.deepEqual(savedData(), before);
+});
+
+test("student names cannot inherit entries from the JavaScript object prototype", () => {
+  reset();
+  const special = { ...structuredClone(cls), students: [
+    { name: "constructor", grade: null, card: null },
+    { name: "__proto__", grade: null, card: null },
+  ] };
+  store.writeClasses([special]);
+  const rec = store.recordFor("test");
+  rec.students.constructor.p = 0;
+  store.writeRecord(rec);
+  assert.deepEqual(store.presentStudents(special), ["__proto__"]);
+});
