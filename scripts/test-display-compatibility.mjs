@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
+import sharp from "sharp";
 
 const source = readFileSync(new URL("../src/lib/display-compatibility.ts", import.meta.url), "utf8");
 const code = ts.transpileModule(source, {
@@ -52,15 +53,27 @@ test("plain launch is opt-in and also enables compatible tool rendering", () => 
   mode({ attributes: standardAttributes });
   assert.equal(standardAttributes["data-plain-launch"], undefined);
 });
-test("all generated tool icons omit embedded SVG filters and receive a fresh URL", () => {
+test("all 29 tool thumbnails use fresh, bounded PNGs and are precached", () => {
   const map = readFileSync(new URL("../src/lib/tool-art.generated.ts", import.meta.url), "utf8");
-  const paths = [...map.matchAll(/"(\/images\/manga-icons\/[^\"]+\.svg)"/g)];
+  const paths = [...map.matchAll(/"(\/images\/manga-icons\/bitmap-[^\"]+\.png)"/g)];
+  const worker = readFileSync(new URL("../public/sw.js", import.meta.url), "utf8");
   assert.equal(paths.length, 29);
   for (const match of paths) {
-    const icon = readFileSync(new URL("../public" + match[1], import.meta.url), "utf8");
-    assert.doesNotMatch(icon, /<filter|feDropShadow|filter=/);
+    const icon = readFileSync(new URL("../public" + match[1], import.meta.url));
+    assert.deepEqual([...icon.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    assert.equal(icon.readUInt32BE(16), 320);
+    assert.equal(icon.readUInt32BE(20), 320);
+    assert.ok(worker.includes(JSON.stringify(match[1])));
   }
-  assert.match(map, /\?v=flat-1/);
+  assert.doesNotMatch(map, /\.svg/);
+});
+test("every PNG thumbnail decodes to nonblank colorful artwork", async () => {
+  const map = readFileSync(new URL("../src/lib/tool-art.generated.ts", import.meta.url), "utf8");
+  for (const match of map.matchAll(/"(\/images\/manga-icons\/bitmap-[^\"]+\.png)"/g)) {
+    const icon = readFileSync(new URL("../public" + match[1], import.meta.url));
+    const stats = await sharp(icon).stats();
+    assert.ok(stats.channels.slice(0, 3).every(channel => channel.stdev > 20), match[1]);
+  }
 });
 test("flash overlays are hidden, not frozen opaque, and layout transforms stay intact", () => {
   const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");

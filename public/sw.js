@@ -9,12 +9,41 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.5.24";
+const VERSION = "v1.5.25";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 
 // Assets to pre-cache on install (app shell + classroom-critical media)
 const PRECACHE_URLS = [
+  "/images/manga-icons/bitmap-classic.png",
+  "/images/manga-icons/bitmap-stopwatch.png",
+  "/images/manga-icons/bitmap-rocket.png",
+  "/images/manga-icons/bitmap-bomb.png",
+  "/images/manga-icons/bitmap-candle.png",
+  "/images/manga-icons/bitmap-hourglass.png",
+  "/images/manga-icons/bitmap-circle.png",
+  "/images/manga-icons/bitmap-snail-race.png",
+  "/images/manga-icons/bitmap-traffic-light.png",
+  "/images/manga-icons/bitmap-bar.png",
+  "/images/manga-icons/bitmap-enter-names.png",
+  "/images/manga-icons/bitmap-name-picker.png",
+  "/images/manga-icons/bitmap-group-generator.png",
+  "/images/manga-icons/bitmap-student-shuffler.png",
+  "/images/manga-icons/bitmap-chance-games.png",
+  "/images/manga-icons/bitmap-custom-dice.png",
+  "/images/manga-icons/bitmap-spinner-wheel.png",
+  "/images/manga-icons/bitmap-color-generator.png",
+  "/images/manga-icons/bitmap-tally-counter.png",
+  "/images/manga-icons/bitmap-stopwatch-splits.png",
+  "/images/manga-icons/bitmap-math-facts.png",
+  "/images/manga-icons/bitmap-letter-cards.png",
+  "/images/manga-icons/bitmap-flash-card-presenter.png",
+  "/images/manga-icons/bitmap-weather-cards.png",
+  "/images/manga-icons/bitmap-custom-dashboard.png",
+  "/images/manga-icons/bitmap-activity-hub.png",
+  "/images/manga-icons/bitmap-pe-english-hub.png",
+  "/images/manga-icons/bitmap-sound-pad.png",
+  "/images/manga-icons/bitmap-audio-player.png",
   "/",
   "/manifest.json",
   "/sounds/ministar-i-can.mp3",

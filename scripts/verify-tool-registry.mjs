@@ -18,7 +18,7 @@ const duplicateToolIds = toolIds.filter((id, index) => toolIds.indexOf(id) !== i
 const rendererIds = [...launcherSource.matchAll(/case\s+"([^"]+)":/g)].map((match) => match[1]);
 const missingRenderers = toolIds.filter((id) => !rendererIds.includes(id));
 const orphanRenderers = rendererIds.filter((id) => !toolIds.includes(id));
-const mangaIconEntries = [...mangaArtSource.matchAll(/"([^"]+)":\s*"\/images\/manga-icons\/([^"]+\.svg)"/g)]
+const mangaIconEntries = [...mangaArtSource.matchAll(/"([^"]+)":\s*"\/images\/manga-icons\/([^"]+\.png)"/g)]
   .map((match) => ({ id: match[1], file: match[2] }));
 const mangaIconIds = mangaIconEntries.map((entry) => entry.id);
 const missingMangaIcons = toolIds.filter((id) => !mangaIconIds.includes(id));

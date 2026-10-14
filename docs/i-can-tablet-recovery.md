@@ -26,7 +26,7 @@ These observations show deployment differences, not proof of the tablet's flashi
 The tablet model/OS and an on-device retest are still required.
 
 ## Loading safeguards
-The new service worker is v1.5.24. Updates retain the previous build's caches for existing
+The new service worker is v1.5.25. Updates retain the previous build's caches for existing
 tabs, do not delete unrelated caches, require a healthy offline shell before activation,
 and do not replace it with server-error responses. RSC responses are not cached as HTML.
 Safari-style media Range requests receive correct 206 responses from offline audio.
@@ -85,3 +85,25 @@ rows of category buttons. Desktop non-touch screens retain the existing board.
 Production-browser checks at the tablet's reported 686px width confirmed ten timer
 cards fit vertically, all ten images loaded and no horizontal overflow. Search and
 timer start/pause/close worked. Physical-tablet testing of v1.5.24 is still required.
+
+## SVG-to-PNG rendering test
+The user then supplied a tablet screenshot with heavy streaking and repeated artwork
+in the illustrated board. This is not a successful on-device fix. Because the plain
+page's PNG icon displayed correctly, v1.5.25 tests PNG tool thumbnails in place of
+SVG images while retaining the same artwork and layout. This does not establish that
+SVG rendering or the tablet GPU is the root cause.
+
+The existing icon generator now retains vector sources and bakes 29 separate
+bitmap-*.png assets at 320x320 using Sharp. All tool-icon consumers use the new URLs,
+so previously cached SVG responses cannot substitute for the bitmaps. All 29 PNGs
+are precached and checked for PNG signatures, fixed dimensions, successful decoding
+and nonblank color content. The bitmap payload adds about 1.45 MB; full decoded
+thumbnail memory is bounded at about 11.3 MiB for all 29 images. The diagnostic page
+shows snail, picker and weather PNG examples for an independent tablet test.
+
+Local production-browser verification passed, but physical-tablet verification is
+pending. No classroom data is cleared by these changes.
+An npm audit during the lockfile update also reported five high-severity entries
+in the existing ESLint dependency chain, all stemming from the braces nested-pattern
+DoS advisory GHSA-vfj7-8cjw-p6xm. These are not claimed to cause browser corruption.
+No forced downgrade of eslint-config-next was applied during the emergency UI fix.
