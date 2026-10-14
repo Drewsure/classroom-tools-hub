@@ -352,6 +352,13 @@ function DicePanel({ skin, expanded, onToggleExpand }: PanelProps) {
   const spinRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const present = att.activeStudents();
+  const presentKey = JSON.stringify(present);
+  useEffect(() => {
+    if (spinRef.current) clearInterval(spinRef.current);
+    setUsed([]);
+    setCurrent(null);
+    setPhase("idle");
+  }, [presentKey, att.activeClass?.id]);
   const classTotal = att.activeClass?.students.length ?? 0;
   const classLabel = att.activeClass?.name ?? "No class selected";
   const attExcluded = classTotal - present.length;

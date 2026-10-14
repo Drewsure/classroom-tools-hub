@@ -58,6 +58,7 @@ const SIMON_COMMANDS = [
   "Touch your head", "Touch your shoulders", "Touch your right knee", "Touch your toes",
   "Touch your elbow", "Touch your ankle", "Touch your back", "Clap your hands 3 times",
   "Stand on one leg", "Spin around once", "Touch your nose", "Jump twice",
+  "Point to your eyes", "Touch your ears", "Point to your mouth", "Yell 'Hello!'",
   // Round 2: Dynamic Actions
   "Run in place!", "Hop like a frog", "March like a soldier", "Swim in the air",
   "Walk slowly", "Stretch tall", "Climb the ladder", "Sing one word",
@@ -75,6 +76,11 @@ const SIMON_TRICKS = [
 
 // ===== Body part visuals =====
 const BODY_PARTS = [
+  { id: "eyes", en: "Eyes", jp: "め", emoji: "EYES", top: "42%", left: "41%", calloutX: "81%", calloutY: "18%" },
+  { id: "ears", en: "Ears", jp: "みみ", emoji: "EARS", top: "48%", left: "17%", calloutX: "81%", calloutY: "18%" },
+  { id: "mouth", en: "Mouth", jp: "くち", emoji: "MOUTH", top: "60%", left: "50%", calloutX: "81%", calloutY: "18%" },
+  { id: "nose", en: "Nose", jp: "はな", emoji: "NOSE", top: "50%", left: "50%", calloutX: "81%", calloutY: "18%" },
+  { id: "feet", en: "Feet", jp: "あし", emoji: "FEET", top: "93%", left: "68%", calloutX: "78%", calloutY: "78%" },
   { id: "head", en: "Head", jp: "あたま", emoji: "HEAD", top: "29%", left: "50%", calloutX: "76%", calloutY: "18%" },
   { id: "shoulders", en: "Shoulders", jp: "かた", emoji: "SHOULDERS", top: "46%", left: "50%", calloutX: "76%", calloutY: "38%" },
   { id: "knees", en: "Knees", jp: "ひざ", emoji: "KNEES", top: "79%", left: "34%", calloutX: "78%", calloutY: "70%" },
@@ -122,6 +128,7 @@ const RANDOM_PE_FLASHCARDS = PE_FLASHCARDS.filter((card) => !RANDOM_CARD_BLOCKLI
 // ===== PE Dice Presets =====
 const PE_DICE_PRESETS: Record<string, DiceOption[]> = {
   movements: [
+    ...["yell", "shout", "whisper", "hop", "march", "clap", "wiggle", "stomp", "freeze", "sit", "step", "leap", "point", "flap", "cross", "roll"].map((id) => ({ id, text: id.charAt(0).toUpperCase() + id.slice(1), emoji: id.toUpperCase(), visual: "movement" as const })),
     { id: "stretch", text: "Stretch", emoji: "STRETCH", visual: "movement" },
     { id: "jump", text: "Jump", emoji: "JUMP", visual: "movement" },
     { id: "run", text: "Run", emoji: "RUN", visual: "movement" },
@@ -165,7 +172,29 @@ const STATIONS = [
   { name: "BALANCE PATH", emoji: "⚖️", phrases: ["Walk carefully", "Step over", "Stay balanced!"], desc: "Step, balance, and finish. Use slow careful English commands." },
 ];
 
+function FacePartVisual({ part }: { part: (typeof BODY_PARTS)[number] }) {
+  const target = { eyes: [88, 108], ears: [37, 125], nose: [110, 130], mouth: [110, 159] }[part.id as "eyes" | "ears" | "nose" | "mouth"];
+  return (
+    <div className="relative h-64 w-full rounded-lg border-4 border-slate-900 bg-sky-50">
+      <svg viewBox="0 0 220 260" className="h-full w-full" role="img" aria-label={`Arrow pointing to ${part.en.toLowerCase()}`}>
+        <defs><marker id={`face-arrow-${part.id}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#dc2626" /></marker></defs>
+        <ellipse cx="38" cy="125" rx="14" ry="22" fill="#ffedd5" stroke="#0f172a" strokeWidth="4" />
+        <ellipse cx="182" cy="125" rx="14" ry="22" fill="#ffedd5" stroke="#0f172a" strokeWidth="4" />
+        <ellipse cx="110" cy="126" rx="70" ry="80" fill="#ffedd5" stroke="#0f172a" strokeWidth="5" />
+        <path d="M43 97Q60 22 151 53L174 96L139 77L115 87L88 74Z" fill="#0f172a" />
+        <circle cx="88" cy="108" r="7" fill="#0f172a" /><circle cx="134" cy="108" r="7" fill="#0f172a" />
+        <path d="M110 117l-6 18h14" fill="none" stroke="#0f172a" strokeWidth="4" strokeLinejoin="round" />
+        <path d="M91 154Q110 173 130 154" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
+        <circle cx={target[0]} cy={target[1]} r="16" fill="none" stroke="#dc2626" strokeWidth="3" />
+        <line x1="184" y1="30" x2={target[0] + 12} y2={target[1] - 12} stroke="#dc2626" strokeWidth="4" markerEnd={`url(#face-arrow-${part.id})`} />
+        <text x="110" y="239" textAnchor="middle" fontSize="24" fontWeight="900" fill="#0f172a">{part.en}</text>
+      </svg>
+    </div>
+  );
+}
+
 function BodyPartVisual({ part }: { part: (typeof BODY_PARTS)[number] }) {
+  if (["eyes", "ears", "nose", "mouth"].includes(part.id)) return <FacePartVisual part={part} />;
   const isBackView = part.id === "back" || part.id === "backside";
 
   return (
@@ -255,6 +284,9 @@ function MovementVisual({ id, label }: { id?: string; label: string }) {
         <path d="M30 56h50M28 96h34M150 54h46M160 206h36M30 222h52" stroke="#38bdf8" strokeWidth="10" strokeLinecap="round" opacity=".45" />
         {id === "spin" ? (
           <path d="M62 82c32-42 104-42 128 8M176 76l18 20-28 6M158 198c-38 34-100 24-124-22M44 194l-18-20 28-6" fill="none" stroke="#f97316" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+        ) : null}
+        {id === "yell" || id === "whisper" ? (
+          <path d="M148 58l40-20M154 76h42M148 94l40 20" fill="none" stroke={id === "yell" ? "#dc2626" : "#0284c7"} strokeWidth={id === "yell" ? 8 : 3} strokeLinecap="round" />
         ) : null}
         {id === "sing" ? (
           <>
@@ -601,6 +633,12 @@ export function PEEnglishHub() {
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center">
                 {BODY_PARTS.map(bp => (
                   <div key={bp.en} className="break-words px-2 py-2 rounded-lg bg-white text-slate-950 text-sm font-bold">{bp.en}</div>
+                ))}
+              </div>
+              <p className="mt-4 text-sm font-bold uppercase text-slate-950">Movements Quick Reference:</p>
+              <div className="mt-2 grid grid-cols-3 gap-2 text-center sm:grid-cols-6">
+                {PE_DICE_PRESETS.movements.map((movement) => (
+                  <div key={movement.id} className="rounded-lg bg-white px-2 py-2 text-sm font-bold text-slate-950">{movement.text}</div>
                 ))}
               </div>
             </div>

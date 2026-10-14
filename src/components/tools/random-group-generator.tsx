@@ -52,11 +52,11 @@ export function RandomGroupGenerator() {
 
   // Sync FROM shared roster → local state when roster changes externally
   useEffect(() => {
-    if (students.length > 0) {
+    if (students.length > 0 || att.activeClass) {
       setNames(students);
       setPickedNames([]); // class changed: restart at full class
     }
-  }, [students]);
+  }, [students, att.activeClass?.id]);
 
   const [numGroups, setNumGroups] = useState(3);
   const [groups, setGroups] = useState<string[][] | null>(null);
@@ -76,7 +76,20 @@ export function RandomGroupGenerator() {
   const attPool = names.filter(attOk);
   const attExcluded = names.length - attPool.length;
 
+  const attendanceKey = JSON.stringify([att.activeClass?.id, att.activeStudents()]);
+  const eligibilityRef = useRef(0);
+  useEffect(() => {
+    eligibilityRef.current += 1;
+    if (shuffleRef.current) clearInterval(shuffleRef.current);
+    setShuffling(false); setGroups(null);
+    return () => {
+      eligibilityRef.current += 1;
+      if (shuffleRef.current) clearInterval(shuffleRef.current);
+    };
+  }, [attendanceKey]);
+
   const handleGenerate = useCallback(() => {
+    const selectionKey = eligibilityRef.current;
     // When removeOnPick is ON, only shuffle from the active pool (names not yet picked)
     const pool = attPool;
     if (pool.length < numGroups) return;
@@ -89,6 +102,7 @@ export function RandomGroupGenerator() {
     let ticks = 0;
     const totalTicks = 20;
     shuffleRef.current = setInterval(() => {
+      if (eligibilityRef.current !== selectionKey) return;
       const shuffled = [...pool].sort(() => Math.random() - 0.5);
       const tempGroups: string[][] = [];
       for (let i = 0; i < numGroups; i++) tempGroups.push([]);
@@ -123,7 +137,7 @@ export function RandomGroupGenerator() {
         }
       }
     }, 120);
-  }, [attPool, numGroups, sound, flashFn, shake, burstConfetti, removeOnPick]);
+  }, [attendanceKey, attPool, numGroups, sound, flashFn, shake, burstConfetti, removeOnPick]);
 
   const handleReset = useCallback(() => {
     if (shuffleRef.current) clearInterval(shuffleRef.current);

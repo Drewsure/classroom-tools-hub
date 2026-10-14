@@ -17,6 +17,7 @@ interface RosterManagerProps {
 export function RosterManager({ localStudents, onStudentsChange }: RosterManagerProps) {
   const {
     activeRoster,
+    activeClassName,
     allRosters,
     saveAsNew,
     loadRoster,
@@ -39,9 +40,8 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
   };
 
   const handleLoad = (id: string) => {
-    loadRoster(id);
-    const loaded = allRosters.find((r) => r.id === id);
-    if (loaded) onStudentsChange?.(loaded.students);
+    const students = loadRoster(id);
+    onStudentsChange?.(students);
     setShowLoadDialog(false);
   };
 
@@ -90,13 +90,13 @@ export function RosterManager({ localStudents, onStudentsChange }: RosterManager
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="truncate text-base font-black">
-                  {activeRoster?.name ?? "Unsaved List"}
+                  {activeClassName ?? activeRoster?.name ?? "Unsaved List"}
                 </span>
                 <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-black text-slate-700">
                   {localStudents.length} students
                 </span>
               </div>
-              {activeRoster && (
+              {!activeClassName && activeRoster && (
                 <button
                   onClick={() => {
                     setRenameMode(true);

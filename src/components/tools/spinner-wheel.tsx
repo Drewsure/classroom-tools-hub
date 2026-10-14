@@ -63,13 +63,26 @@ export function SpinnerWheel() {
 
   // Sync from shared roster
   useEffect(() => {
-    if (students.length > 0) {
+    if (students.length > 0 || att.activeClass) {
       setSegments(students);
       setPickedSegments([]); // class changed: restart at full class
     }
-  }, [students]);
+  }, [students, att.activeClass?.id]);
+
+  const attendanceKey = JSON.stringify([att.activeClass?.id, att.activeStudents()]);
+  const eligibilityRef = useRef(0);
+  useEffect(() => {
+    eligibilityRef.current += 1;
+    if (tickRef.current) clearInterval(tickRef.current);
+    setPhase("idle"); setWinner(null);
+    return () => {
+      eligibilityRef.current += 1;
+      if (tickRef.current) clearInterval(tickRef.current);
+    };
+  }, [attendanceKey]);
 
   const handleSpin = useCallback(() => {
+    const selectionKey = eligibilityRef.current;
     if (phase === "buildup" || phase === "spinning") return;
     if (pool.length < 2) return;
 
@@ -78,6 +91,7 @@ export function SpinnerWheel() {
     sound.playBuildUp();
 
     setTimeout(() => {
+      if (eligibilityRef.current !== selectionKey) return;
       setPhase("spinning");
       sound.playWhoosh();
 
@@ -88,6 +102,7 @@ export function SpinnerWheel() {
       // Tick sounds
       let tickCount = 0;
       tickRef.current = setInterval(() => {
+        if (eligibilityRef.current !== selectionKey) return;
         sound.playWheelTick();
         tickCount++;
         if (tickCount > 40) {
@@ -96,6 +111,7 @@ export function SpinnerWheel() {
       }, 70);
 
       setTimeout(() => {
+        if (eligibilityRef.current !== selectionKey) return;
         if (tickRef.current) clearInterval(tickRef.current);
         const segmentAngle = 360 / pool.length;
         const normalized = ((finalAngle % 360) + 360) % 360;
@@ -117,7 +133,7 @@ export function SpinnerWheel() {
         }
       }, 4000);
     }, 1500);
-  }, [phase, pool, sound, flashFn, shake, burstConfetti, removeOnPick]);
+  }, [attendanceKey, phase, pool, sound, flashFn, shake, burstConfetti, removeOnPick]);
 
   const handleReset = useCallback(() => {
     setPhase("idle");

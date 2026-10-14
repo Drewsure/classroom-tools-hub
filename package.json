@@ -13,8 +13,10 @@
     "verify:sounds": "node scripts/verify-sound-assets.mjs",
     "test:sound-pad": "node --test scripts/test-sound-pad-engine.mjs",
     "test:classroom-cues": "node --test scripts/test-classroom-cues.mjs",
+    "test:attendance": "node --test scripts/test-attendance-store.mjs",
+    "test:pe-reference": "node --test scripts/test-pe-reference.mjs",
     "verify:assets": "node scripts/verify-public-assets.mjs",
-    "doctor": "npm run verify:registry && npm run verify:sounds && npm run test:sound-pad && npm run test:classroom-cues && npm run verify:assets && npx tsc --noEmit && npm run lint && npm run build",
+    "doctor": "npm run verify:registry && npm run verify:sounds && npm run test:sound-pad && npm run test:classroom-cues && npm run test:attendance && npm run test:pe-reference && npm run verify:assets && npx tsc --noEmit && npm run lint && npm run build",
     "icons": "python3 scripts/generate-pwa-icons.py"
   },
   "dependencies": {

@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAttendance, type CardLevel } from "@/hooks/use-attendance";
-import { useStudentRoster } from "@/hooks/use-student-roster";
 import {
   ClipboardList, X, Check, Download, Upload, Trash2, CalendarDays, RefreshCw,
 } from "lucide-react";
@@ -21,7 +20,7 @@ function ToggleChip({ on, emoji, label, color, onClick }: {
   on: boolean; emoji: string; label: string; color: string; onClick: () => void;
 }) {
   return (
-    <button onClick={onClick} title={label}
+    <button onClick={onClick} title={label} aria-label={label} aria-pressed={on}
       className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 text-xl sm:text-2xl flex items-center justify-center transition-all active:scale-90 shrink-0",
         on ? color : "bg-white text-slate-500 border-slate-300 hover:bg-cyan-50 hover:text-slate-900")}>
       {emoji}
@@ -31,12 +30,13 @@ function ToggleChip({ on, emoji, label, color, onClick }: {
 
 export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const att = useAttendance();
-  const roster = useStudentRoster();
   const [showYear, setShowYear] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importMode, setImportMode] = useState<"merge" | "replace">("merge");
   const [toast, setToast] = useState<string | null>(null);
+  const [historyDate, setHistoryDate] = useState("");
+  const backupInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -56,33 +56,6 @@ export function AttendanceDialog({ open, onClose }: { open: boolean; onClose: ()
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Auto-sync: selecting a class makes it the active roster (load or create only — never overwrites students silently)
-  const activeClassId = att.activeClass?.id;
-  useEffect(() => {
-    if (!open || !att.activeClass) return;
-    const names = att.activeClass.students.map((s) => s.name);
-    const match = roster.allRosters.find((r) => r.name === att.activeClass!.name);
-    if (match) {
-      if (roster.activeRoster?.id !== match.id) roster.loadRoster(match.id);
-    } else if (names.length > 0) {
-      roster.saveAsNew(att.activeClass.name, names);
-    }
-  }, [open, activeClassId]);
-
-  const syncToRoster = () => {
-    if (!att.activeClass) return;
-    const names = att.activeClass.students.map((s) => s.name);
-    const match = roster.allRosters.find((r) => r.name === att.activeClass!.name);
-    if (match) {
-      roster.loadRoster(match.id);
-      roster.setStudents(names);
-      setToast(`Updated roster "${match.name}" (${names.length} students)`);
-    } else {
-      roster.saveAsNew(att.activeClass.name, names);
-      setToast(`Created roster "${att.activeClass.name}" (${names.length} students)`);
-    }
-  };
-
   const loadMinistarClasses = (mode: "merge" | "replace" = "merge") => {
     const n = att.importMinistarClasses(mode);
     setToast(n > 0 ? `Loaded ${n} Ministar classes` : "No Ministar classes found");
@@ -95,6 +68,8 @@ if (!open) return null;
   const total = cls?.students.length ?? 0;
   const dayList = cls ? att.yearDates(cls.id) : [];
   const stats = cls ? att.yearStats(cls.id) : [];
+  const history = cls ? att.history(cls.id) : [];
+  const historical = history.find((record) => record.date === historyDate);
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-labelledby="attendance-title" className="fixed inset-0 z-[110] glass-bg overflow-y-auto">
@@ -118,6 +93,27 @@ if (!open) return null;
           </Button>
         </div>
 
+        {att.storageError && <p role="alert" className="mb-3 rounded-lg border-2 border-red-700 bg-red-50 p-3 font-bold text-red-950">{att.storageError}</p>}
+        <div className="mb-3 flex flex-wrap gap-2">
+          <Button size="sm" onClick={att.exportBackup} className="classroom-control-button">
+            <Download className="mr-1 h-4 w-4" /> Backup records
+          </Button>
+          <Button size="sm" onClick={() => backupInput.current?.click()} className="classroom-control-button">
+            <Upload className="mr-1 h-4 w-4" /> Restore backup
+          </Button>
+          <input ref={backupInput} type="file" accept=".json,application/json" className="hidden" aria-label="Attendance backup file"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              if (file.size > 20_000_000) { setToast("Backup is too large"); return; }
+              try {
+                const count = att.restoreBackup(await file.text());
+                if (count >= 0) setToast(`Recovered ${count} missing lessons. Existing records kept.`);
+              } catch { setToast("Could not read backup file"); }
+            }} />
+        </div>
+
         {!cls ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 py-16 text-center">
             <ClipboardList className="h-12 w-12 text-white/20" />
@@ -139,15 +135,11 @@ if (!open) return null;
               <select value={cls.id} onChange={(e) => att.selectClass(e.target.value)}
                 className="classroom-input flex-1 min-w-[220px] rounded-xl px-3 py-2 text-sm font-black">
                 {att.classes.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-slate-900">
+                  <option key={c.id} value={c.id} className="bg-white text-slate-950">
                     {c.name} · {c.day} {c.time} ({c.students.length})
                   </option>
                 ))}
               </select>
-              <Button onClick={syncToRoster} size="sm" variant="outline"
-                className="classroom-control-button rounded-full hover:text-slate-950">
-                <RefreshCw className="mr-1 h-3.5 w-3.5" /> Sync to pickers
-              </Button>
               <Button size="sm" variant="outline"
                 onClick={() => { if (window.confirm(`Remove class "${cls.name}"? Attendance history is kept.`)) att.removeClass(cls.id); }}
                 className="rounded-full bg-rose-500/20 text-rose-200 border-rose-400/40 hover:bg-rose-500/30">
@@ -181,14 +173,17 @@ if (!open) return null;
                 className="classroom-control-button rounded-full hover:text-slate-950">
                 <Download className="mr-1 h-3.5 w-3.5" /> CSV Year
               </Button>
+              <Button size="sm" onClick={att.startToday} className="classroom-control-button">
+                <RefreshCw className="mr-1 h-4 w-4" /> Today's lesson
+              </Button>
             </div>
 
             <div className="flex flex-col gap-1.5">
               {cls.students.map((s) => {
                 const e = att.entryFor(s.name);
                 return (
-                  <div key={s.name} className="flex items-center gap-2 sm:gap-3 rounded-xl border border-white/70 bg-white/95 px-3 py-2 shadow-sm">
-                    <div className="flex-1 min-w-0">
+                  <div key={s.name} className="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-white/70 bg-white/95 px-3 py-2 shadow-sm">
+                    <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
                       <p className="text-base sm:text-xl font-black text-slate-950 truncate">{s.name}</p>
                       {s.grade && <p className="text-xs font-semibold text-slate-500">{s.grade}</p>}
                     </div>
@@ -201,6 +196,9 @@ if (!open) return null;
                     <ToggleChip on={e.bag === 1} emoji="🎒" label="Bag"
                       color="bg-violet-500/90 border-violet-300 text-white"
                       onClick={() => att.setField(s.name, "bag", e.bag ? 0 : 1)} />
+                    <ToggleChip on={e.book === 1} emoji="📖" label="Book"
+                      color="bg-sky-700 border-sky-900 text-white"
+                      onClick={() => att.setField(s.name, "book", e.book ? 0 : 1)} />
                     <button onClick={() => att.cycleCard(s.name)}
                       title={s.card ? `Card: ${CARD_LABEL[s.card]} — click to cycle` : "No card — click to cycle"}
                       className={cn("w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 text-sm font-black shrink-0 transition-all hover:scale-110 active:scale-95",
@@ -212,8 +210,7 @@ if (!open) return null;
               })}
             </div>
             <p className="text-sm text-slate-300 mt-2">
-              Present ON by default · Homework OFF · Bag ON · Active {activeCount}/{total}
-              — absent students get excluded from pickers in the next stage
+              Active {activeCount}/{total} · Present ✓ · Homework 📚 · Bag 🎒 · Book 📖
             </p>
 
             {showYear && (
@@ -221,10 +218,28 @@ if (!open) return null;
                 <div className="flex items-center gap-2 mb-2">
                   <CalendarDays className="h-4 w-4 text-sky-300" />
                   <h3 className="text-sm font-bold text-white">Year View — {cls.name}</h3>
-                  <span className="text-sm text-slate-300">{dayList.length}/40 lessons recorded</span>
+                  <span className="text-sm text-slate-300">{dayList.length} lessons recorded</span>
                 </div>
+                <select aria-label="Recorded lesson" value={historyDate} onChange={(event) => setHistoryDate(event.target.value)}
+                  className="classroom-input mb-3 w-full rounded-lg p-2">
+                  <option value="">Select recorded lesson</option>
+                  {history.map((record) => <option key={record.date} value={record.date}>{record.date}</option>)}
+                </select>
+                {historical && (
+                  <div className="mb-3 overflow-x-auto rounded-lg bg-white p-3 text-slate-950">
+                    <table className="w-full text-left text-sm">
+                      <thead><tr>{["Student", "Present", "Homework", "Bag", "Book"].map((label) => <th key={label} className="px-2 py-1">{label}</th>)}</tr></thead>
+                      <tbody>{Object.entries(historical.students).map(([name, entry]) => (
+                        <tr key={name}><th className="px-2 py-1">{name}</th>
+                          {[entry.p, entry.hw, entry.bag, entry.book].map((value, index) =>
+                            <td key={index} className="px-2 py-1">{value === undefined ? "-" : value ? "Yes" : "No"}</td>)}
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                )}
                 <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 mb-3">
-                  {Array.from({ length: 40 }, (_, i) => {
+                  {Array.from({ length: Math.max(40, dayList.length) }, (_, i) => {
                     const d = dayList[i];
                     return (
                       <div key={i}

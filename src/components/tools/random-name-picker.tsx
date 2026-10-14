@@ -49,11 +49,11 @@ export function RandomNamePicker() {
 
   // Sync FROM shared roster → local state when roster changes externally (e.g. load class)
   useEffect(() => {
-    if (students.length > 0) {
+    if (students.length > 0 || att.activeClass) {
       setNames(toEntries(students));
       setPickedNames([]); // class changed: restart at full class
     }
-  }, [students]);
+  }, [students, att.activeClass?.id]);
 
 
   const [spinning, setSpinning] = useState(false);
@@ -75,7 +75,20 @@ export function RandomNamePicker() {
   const pool = names.filter((n) => n.text && attOk(n.text));
   const attExcluded = names.length - pool.length;
 
+  const attendanceKey = JSON.stringify([att.activeClass?.id, att.activeStudents()]);
+  const eligibilityRef = useRef(0);
+  useEffect(() => {
+    eligibilityRef.current += 1;
+    if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+    setSpinning(false); setWinner(null); setHighlightIdx(null);
+    return () => {
+      eligibilityRef.current += 1;
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+    };
+  }, [attendanceKey]);
+
   const handleSpin = useCallback(() => {
+    const selectionKey = eligibilityRef.current;
     if (pool.length < 2 || spinning) return;
     setWinner(null);
     setSpinning(true);
@@ -86,6 +99,7 @@ export function RandomNamePicker() {
     let currentIdx = 0;
 
     spinIntervalRef.current = setInterval(() => {
+      if (eligibilityRef.current !== selectionKey) return;
       currentIdx = (currentIdx + 1) % pool.length;
       setHighlightIdx(currentIdx);
       sound.playTick(800 + (tickCount * 10));
@@ -114,7 +128,7 @@ export function RandomNamePicker() {
         }
       }
     }, 100);
-  }, [pool, spinning, sound, flashFn, shake, burstConfetti, removeOnPick]);
+  }, [attendanceKey, pool, spinning, sound, flashFn, shake, burstConfetti, removeOnPick]);
 
   const handleReset = useCallback(() => {
     if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);

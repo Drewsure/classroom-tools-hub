@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { useAttendance } from "@/hooks/use-attendance";
-import { useStudentRoster } from "@/hooks/use-student-roster";
 import { Users, Save } from "lucide-react";
 
 /* Compact class selector for the randomizer tools.
@@ -18,27 +16,11 @@ export function ClassSelect({
   currentNames?: string[];
 }) {
   const att = useAttendance();
-  const roster = useStudentRoster();
   const activeId = att.activeClass?.id ?? "";
-
-  useEffect(() => {
-    const cls = att.activeClass;
-    if (!cls) return;
-    const names = cls.students.map((s) => s.name);
-    const match = roster.allRosters.find((r) => r.name === cls.name);
-    if (match) {
-      const sameNames =
-        match.students.length === names.length &&
-        match.students.every((student, index) => student === names[index]);
-      if (roster.activeRoster?.id !== match.id) roster.loadRoster(match.id);
-      if (!sameNames) roster.setStudents(names);
-    } else {
-      roster.saveAsNew(cls.name, names);
-    }
-  }, [activeId]);
 
   const handleChange = (value: string) => {
     if (value === "__new__") {
+      att.selectClass("");
       onPick([]);
       return;
     }
@@ -46,14 +28,6 @@ export function ClassSelect({
     if (!cls) return;
     att.selectClass(value);
     const names = cls.students.map((s) => s.name);
-    // keep the shared roster in step (one-directional: registry -> roster)
-    const match = roster.allRosters.find((r) => r.name === cls.name);
-    if (match) {
-      roster.loadRoster(match.id);
-      roster.setStudents(names);
-    } else {
-      roster.saveAsNew(cls.name, names);
-    }
     onPick(names);
   };
 

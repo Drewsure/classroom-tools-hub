@@ -24,6 +24,7 @@ export function EnterNames() {
   // Sync from shared roster — just use students directly
   // The hook re-renders when the store changes, so we can derive names from it
   const [localOverrides, setLocalOverrides] = useState<string[] | null>(null);
+  useEffect(() => { setLocalOverrides(null); }, [students]);
   const names = localOverrides ?? students;
   const setNames = (newNames: string[]) => {
     setLocalOverrides(newNames);

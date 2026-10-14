@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { useAttendance } from "@/hooks/use-attendance";
+import {
+  updateActiveClassStudents, guardMutation, readActiveId as readAttendanceId, readClasses as readAttendanceClasses,
+  writeActiveId as writeAttendanceId, notify as notifyAttendance,
+} from "@/lib/attendance-store";
 
 /* ============================================================
    SHARED STUDENT ROSTER STORE
@@ -91,6 +96,7 @@ function notifyChange() {
  * - allRosters: list of all saved rosters
  */
 export function useStudentRoster() {
+  const attendance = useAttendance();
   // Use a version counter to trigger re-reads when the store changes.
   // The actual data is read from localStorage during render (not in an effect).
   const [version, setVersion] = useState(0);
@@ -114,13 +120,20 @@ export function useStudentRoster() {
   const activeRoster = rosters.find((r) => r.id === activeId) ?? null;
   // Stable array identity: identical content -> same reference, so effects
   // depending on [students] only fire on real changes (fixes infinite loop)
-  const rawStudents = activeRoster?.students ?? [];
+  const rawStudents = attendance.activeClass
+    ? attendance.activeClass.students.map((student) => student.name)
+    : activeRoster?.students ?? [];
   const studentsKey = JSON.stringify(rawStudents);
-  const students = useMemo(() => JSON.parse(studentsKey) as string[], [studentsKey]);
+  const classId = attendance.activeClass?.id ?? "";
+  const students = useMemo(() => JSON.parse(studentsKey) as string[], [studentsKey, classId]);
 
   /** Update the active roster's student list (creates a "Current" roster if none active) */
   const setStudents = useCallback(
     (newStudents: string[]) => {
+      if (readAttendanceId()) {
+        guardMutation(updateActiveClassStudents, false)(newStudents);
+        return;
+      }
       let current = readRosters();
       let currentActiveId = readActiveId();
       let roster = current.find((r) => r.id === currentActiveId);
@@ -204,9 +217,19 @@ export function useStudentRoster() {
 
   /** Switch to a different saved roster */
   const loadRoster = useCallback((id: string) => {
+    const roster = readRosters().find((item) => item.id === id);
+    if (!roster) return [];
+    const matches = readAttendanceClasses().filter((cls) => cls.name === roster.name);
+    const cls = matches.find((item) => item.id === readAttendanceId()) ?? (matches.length === 1 ? matches[0] : null);
+    if (cls) attendance.selectClass(cls.id);
+    else {
+      writeAttendanceId("");
+      notifyAttendance();
+    }
     writeActiveId(id);
     notifyChange();
-  }, []);
+    return cls ? cls.students.map((student) => student.name) : roster.students;
+  }, [attendance.selectClass]);
 
   /** Delete a saved roster */
   const deleteRoster = useCallback(
@@ -237,6 +260,7 @@ export function useStudentRoster() {
   }, []);
 
   return {
+    activeClassName: attendance.activeClass?.name ?? null,
     students,
     activeRoster,
     allRosters: rosters,

@@ -57,13 +57,26 @@ export function StudentOrderShuffler() {
 
   // Sync from shared roster
   useEffect(() => {
-    if (students.length > 0) {
+    if (students.length > 0 || att.activeClass) {
       setNames(students);
       setOrder(null); // class changed: restart at full class
     }
-  }, [students]);
+  }, [students, att.activeClass?.id]);
+
+  const attendanceKey = JSON.stringify([att.activeClass?.id, att.activeStudents()]);
+  const eligibilityRef = useRef(0);
+  useEffect(() => {
+    eligibilityRef.current += 1;
+    if (shuffleRef.current) clearInterval(shuffleRef.current);
+    setPhase("idle"); setOrder(null);
+    return () => {
+      eligibilityRef.current += 1;
+      if (shuffleRef.current) clearInterval(shuffleRef.current);
+    };
+  }, [attendanceKey]);
 
   const handleShuffle = useCallback(() => {
+    const selectionKey = eligibilityRef.current;
     if (phase === "buildup" || phase === "shuffling") return;
     if (pool.length < 2) return;
 
@@ -72,12 +85,14 @@ export function StudentOrderShuffler() {
     sound.playBuildUp();
 
     setTimeout(() => {
+      if (eligibilityRef.current !== selectionKey) return;
       setPhase("shuffling");
       sound.playWhoosh();
 
       let ticks = 0;
       const totalTicks = 25;
       shuffleRef.current = setInterval(() => {
+        if (eligibilityRef.current !== selectionKey) return;
         // Rapid shuffle for animation
         const shuffled = [...pool].sort(() => Math.random() - 0.5);
         setOrder(shuffled);
@@ -98,7 +113,7 @@ export function StudentOrderShuffler() {
         }
       }, 100);
     }, 1500);
-  }, [phase, pool, sound, flashFn, shake, burstConfetti]);
+  }, [attendanceKey, phase, pool, sound, flashFn, shake, burstConfetti]);
 
   const handleReset = useCallback(() => {
     if (shuffleRef.current) clearInterval(shuffleRef.current);

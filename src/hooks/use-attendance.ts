@@ -9,95 +9,18 @@ import { MINISTAR_WEEKLY_SCHEDULE_TEXT } from "@/lib/ministar-weekly-schedule";
    record under  attendance_YYYY-MM-DD_<classId>
    ============================================================ */
 
-export type CardLevel = "P" | "B" | "G";
-
-export interface AttStudent {
-  name: string;
-  grade: string | null;
-  card: CardLevel | null;
-}
-export interface AttClass {
-  id: string;
-  name: string;
-  day: string;
-  time: string;
-  students: AttStudent[];
-}
-export interface AttEntry { p: number; hw: number; bag: number; }
-export interface AttRecord { date: string; classId: string; students: Record<string, AttEntry>; }
-
-const CLASSES_KEY = "classroom-tools-att-classes";
-const ACTIVE_KEY = "classroom-tools-att-active";
-const CHANGE_EVENT = "classroom-attendance-change";
-const PREFIX = "attendance_";
+export type { CardLevel, AttStudent, AttClass, AttEntry, AttRecord } from "@/lib/attendance-store";
+import {
+  type CardLevel, type AttStudent, type AttClass, type AttEntry,
+  CHANGE_EVENT, ERROR_EVENT, PREFIX, readClasses, writeClasses, readActiveId, writeActiveId,
+  todayStr, lessonDate, startLesson, readRecord, writeRecord, defaultEntry, recordFor,
+  ensureTodayRecord, notify, presentStudents, guardMutation, attendanceError,
+  allRecords, exportAttendanceBackup, restoreAttendanceBackup,
+} from "@/lib/attendance-store";
 
 const DAY_WORDS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-function todayStr(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 function slugId(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "class";
-}
-
-function readClasses(): AttClass[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(CLASSES_KEY);
-    return raw ? (JSON.parse(raw) as AttClass[]) : [];
-  } catch { return []; }
-}
-
-function writeClasses(classes: AttClass[]) {
-  try { window.localStorage.setItem(CLASSES_KEY, JSON.stringify(classes)); } catch {}
-}
-
-function readActiveId(): string | null {
-  if (typeof window === "undefined") return null;
-  try { return window.localStorage.getItem(ACTIVE_KEY); } catch { return null; }
-}
-
-function writeActiveId(id: string) {
-  try { window.localStorage.setItem(ACTIVE_KEY, id); } catch {}
-}
-
-function readRecord(date: string, classId: string): AttRecord | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(PREFIX + date + "_" + classId);
-    return raw ? (JSON.parse(raw) as AttRecord) : null;
-  } catch { return null; }
-}
-
-function writeRecord(rec: AttRecord) {
-  try { window.localStorage.setItem(PREFIX + rec.date + "_" + rec.classId, JSON.stringify(rec)); } catch {}
-}
-
-function notify() {
-  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
-}
-
-function defaultEntry(): AttEntry {
-  // defaults per spec: Present ON, Bag ON, Homework OFF
-  return { p: 1, hw: 0, bag: 1 };
-}
-
-function recordFor(classId: string): AttRecord {
-  return readRecord(todayStr(), classId) ?? { date: todayStr(), classId, students: {} };
-}
-
-function ensureTodayRecord(cls: AttClass) {
-  const rec = recordFor(cls.id);
-  let changed = false;
-  for (const student of cls.students) {
-    if (!rec.students[student.name]) {
-      rec.students[student.name] = defaultEntry();
-      changed = true;
-    }
-  }
-  if (changed) writeRecord(rec);
 }
 
 /** Parse one student line: "Eito (Nenchou) B card" / "Momoko G card" / "Honoka" */
@@ -164,46 +87,60 @@ function downloadCSV(filename: string, rows: (string | number)[][]) {
 
 export function useAttendance() {
   const [version, setVersion] = useState(0);
+  const [storageError, setStorageError] = useState<string | null>(attendanceError);
 
   useEffect(() => {
     const onChange = () => setVersion((v) => v + 1);
+    const onError = () => setStorageError(attendanceError());
     window.addEventListener(CHANGE_EVENT, onChange);
     window.addEventListener("storage", onChange);
+    window.addEventListener(ERROR_EVENT, onError);
     return () => {
       window.removeEventListener(CHANGE_EVENT, onChange);
       window.removeEventListener("storage", onChange);
+      window.removeEventListener(ERROR_EVENT, onError);
     };
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   version;
 
-  const classes = readClasses();
-  let activeId = readActiveId();
-  if (!activeId || !classes.some((c) => c.id === activeId)) {
-    activeId = classes.length ? classes[0].id : null;
-    if (activeId) writeActiveId(activeId); // persist so toggles/badges target a real class
-  }
+  let classes: AttClass[] = [];
+  let activeId: string | null = null;
+  let readError: string | null = null;
+  try {
+    classes = readClasses();
+    activeId = readActiveId();
+  } catch { readError = "Saved attendance cannot be read. Restore a backup; do not clear this browser."; }
   const activeClass = classes.find((c) => c.id === activeId) ?? null;
+  let activeDate = todayStr();
+  try {
+    if (activeClass) {
+      activeDate = lessonDate(activeClass.id);
+      readRecord(activeDate, activeClass.id);
+    }
+  } catch { readError = "Saved lesson cannot be read. Export or restore a backup before making changes."; }
 
   const entryFor = useCallback((name: string): AttEntry => {
     const id = readActiveId();
     if (!id) return defaultEntry();
-    return readRecord(todayStr(), id)?.students[name] ?? defaultEntry();
+    try { return readRecord(lessonDate(id), id)?.students[name] ?? defaultEntry(); }
+    catch { return { p: 0, hw: 0, bag: 0, book: 0 }; }
   }, [activeId]);
 
   const activeStudents = useCallback((): string[] => {
     const id = readActiveId();
     if (!id) return [];
-    const cls = readClasses().find((c) => c.id === id);
-    if (!cls) return [];
-    const rec = readRecord(todayStr(), id);
-    return cls.students.filter((s) => (rec?.students[s.name] ?? defaultEntry()).p === 1).map((s) => s.name);
+    try {
+      const cls = readClasses().find((c) => c.id === id) ?? null;
+      return presentStudents(cls);
+    } catch { return []; }
   }, [activeId]);
 
-  const setField = useCallback((name: string, field: "p" | "hw" | "bag", value: 0 | 1) => {
+  const setField = useCallback((name: string, field: "p" | "hw" | "bag" | "book", value: 0 | 1) => {
     const id = readActiveId();
     if (!id) return;
+    if (!readClasses().find((cls) => cls.id === id)?.students.some((s) => s.name === name)) return;
     const rec = recordFor(id);
     const e = rec.students[name] ?? defaultEntry();
     rec.students[name] = { ...e, [field]: value };
@@ -253,6 +190,7 @@ export function useAttendance() {
       students: students.filter(Boolean).map((n) => ({ name: n, grade: null, card: null })),
     };
     writeClasses([...cs, cls]);
+    startLesson(cls.id);
     writeActiveId(cls.id);
     ensureTodayRecord(cls);
     notify();
@@ -260,8 +198,17 @@ export function useAttendance() {
   }, []);
   const selectClass = useCallback((id: string) => {
     const cls = readClasses().find((c) => c.id === id);
+    if (!cls) {
+      if (!id) {
+        writeActiveId("");
+        window.localStorage.removeItem("classroom-tools-active-roster");
+        notify();
+      }
+      return;
+    }
+    if (readActiveId() !== id) startLesson(id);
+    ensureTodayRecord(cls);
     writeActiveId(id);
-    if (cls) ensureTodayRecord(cls);
     notify();
   }, []);
 
@@ -274,9 +221,10 @@ export function useAttendance() {
       const i = cs.findIndex((x) => x.id === c.id);
       if (i >= 0) cs[i] = c;
       else cs.push(c);
-      ensureTodayRecord(c);
     }
     writeClasses(cs);
+    startLesson(parsed[0].id);
+    ensureTodayRecord(parsed[0]);
     writeActiveId(parsed[0].id);
     notify();
     return parsed.length;
@@ -332,36 +280,57 @@ export function useAttendance() {
     if (!id) return;
     const cls = readClasses().find((c) => c.id === id);
     if (!cls) return;
-    const rec = readRecord(todayStr(), id);
-    const rows: (string | number)[][] = [["Name", "Grade", "Present", "Homework", "Bag", "Card"]];
+    const rec = readRecord(lessonDate(id), id);
+    const rows: (string | number)[][] = [["Date", "Class", "Name", "Grade", "Present", "Homework", "Bag", "Book", "Card"]];
     for (const s of cls.students) {
       const e = rec?.students[s.name] ?? defaultEntry();
-      rows.push([s.name, s.grade ?? "", e.p ? "Yes" : "No", e.hw ? "Yes" : "No", e.bag ? "Yes" : "No", s.card ?? ""]);
+      rows.push([lessonDate(id), cls.name, s.name, s.grade ?? "", e.p ? "Yes" : "No", e.hw ? "Yes" : "No", e.bag ? "Yes" : "No", e.book ? "Yes" : "No", s.card ?? ""]);
     }
-    downloadCSV(`Attendance_${cls.id}_${todayStr()}.csv`, rows);
+    downloadCSV(`Attendance_${cls.id}_${lessonDate(id)}.csv`, rows);
   }, []);
 
   const exportYearCSV = useCallback(() => {
-    const cs = readClasses();
-    const rows: (string | number)[][] = [["Date", "Class", "Day", "Time", "Name", "Present", "Homework", "Bag", "Card"]];
-    for (const cls of cs) {
-      for (const d of yearDates(cls.id)) {
-        const rec = readRecord(d, cls.id);
-        for (const s of cls.students) {
-          const e = rec?.students[s.name];
-          if (!e) continue;
-          rows.push([d, cls.name, cls.day, cls.time, s.name, e.p ? "Yes" : "No", e.hw ? "Yes" : "No", e.bag ? "Yes" : "No", s.card ?? ""]);
-        }
+    const rows: (string | number)[][] = [["Date", "Class", "Day", "Time", "Name", "Present", "Homework", "Bag", "Book", "Card"]];
+    for (const rec of allRecords()) {
+      const cls = rec.classSnapshot ?? readClasses().find((c) => c.id === rec.classId);
+      for (const [name, e] of Object.entries(rec.students)) {
+        const student = cls?.students.find((s) => s.name === name);
+        rows.push([rec.date, cls?.name ?? rec.classId, cls?.day ?? "", cls?.time ?? "", name,
+          e.p ? "Yes" : "No", e.hw ? "Yes" : "No", e.bag ? "Yes" : "No", e.book === undefined ? "Not recorded" : e.book ? "Yes" : "No", student?.card ?? ""]);
       }
     }
     if (rows.length === 1) return;
     downloadCSV(`Attendance_${new Date().getFullYear()}.csv`, rows);
   }, [yearDates]);
 
+  const exportBackup = () => {
+    const url = URL.createObjectURL(new Blob([exportAttendanceBackup()], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Classroom_Attendance_Backup_${todayStr()}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   return {
-    classes, activeClass, today: todayStr(),
-    entryFor, activeStudents, setField, markAll, cycleCard,
-    selectClass, saveCustomList, importClasses, importMinistarClasses, removeClass,
-    yearDates, yearStats, exportDayCSV, exportYearCSV,
+    classes, activeClass, today: activeDate,
+    storageError: readError ?? storageError, entryFor, activeStudents,
+    setField: guardMutation(setField, undefined), markAll: guardMutation(markAll, undefined),
+    cycleCard: guardMutation(cycleCard, undefined), selectClass: guardMutation(selectClass, undefined),
+    saveCustomList: guardMutation(saveCustomList, ""), importClasses: guardMutation(importClasses, 0),
+    importMinistarClasses: guardMutation(importMinistarClasses, 0), removeClass: guardMutation(removeClass, undefined),
+    yearDates, yearStats: (classId: string) => {
+      try { return yearStats(classId); } catch { return []; }
+    }, exportDayCSV: guardMutation(exportDayCSV, undefined),
+    exportYearCSV: guardMutation(exportYearCSV, undefined), exportBackup: guardMutation(exportBackup, undefined),
+    restoreBackup: guardMutation(restoreAttendanceBackup, -1),
+    history: (classId: string) => {
+      try { return allRecords().filter((record) => record.classId === classId); } catch { return []; }
+    },
+    startToday: guardMutation(() => {
+      if (!activeClass) return;
+      startLesson(activeClass.id);
+      ensureTodayRecord(activeClass);
+      notify();
+    }, undefined),
   };
 }
