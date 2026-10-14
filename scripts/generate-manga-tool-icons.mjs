@@ -161,9 +161,6 @@ function iconSvg(tool) {
     <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
       <circle cx="3" cy="3" r="2.2" fill="#0f172a" opacity=".13"/>
     </pattern>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#0f172a" flood-opacity=".28"/>
-    </filter>
   </defs>
   <rect width="380" height="380" rx="46" fill="url(#bg)"/>
   <rect width="380" height="380" rx="46" fill="url(#dots)"/>
@@ -171,7 +168,7 @@ function iconSvg(tool) {
   <path d="M22 30h336v320H22z" fill="none" stroke="#0f172a" stroke-width="12" stroke-linejoin="round" opacity=".94"/>
   <path d="M48 56h284v198H48z" fill="#ffffff" opacity=".12" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
   ${mangaBackdrop(tool)}
-  <g transform="translate(14 44) scale(1.06)" filter="url(#shadow)">
+  <g transform="translate(14 44) scale(1.06)">
     ${propSvg(tool.prop, tool.a, tool.b)}
   </g>
   <path d="M56 282h268c14 0 24 10 24 24v22c0 14-10 24-24 24H56c-14 0-24-10-24-24v-22c0-14 10-24 24-24z" fill="#ffffff" stroke="#0f172a" stroke-width="9"/>
@@ -198,7 +195,8 @@ ${tools.map((tool) => `  "${tool.id}": "/images/manga-icons/${tool.id}.svg",`).j
 export type MangaToolId = keyof typeof MANGA_ICON_BY_TOOL;
 
 export function getMangaToolIcon(toolId: string): string | undefined {
-  return MANGA_ICON_BY_TOOL[toolId as MangaToolId];
+  const source = MANGA_ICON_BY_TOOL[toolId as MangaToolId];
+  return source ? source + "?v=flat-1" : undefined;
 }
 `;
 mkdirSync(dirname(mapPath), { recursive: true });

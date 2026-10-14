@@ -34,5 +34,6 @@ export const MANGA_ICON_BY_TOOL = {
 export type MangaToolId = keyof typeof MANGA_ICON_BY_TOOL;
 
 export function getMangaToolIcon(toolId: string): string | undefined {
-  return MANGA_ICON_BY_TOOL[toolId as MangaToolId];
+  const source = MANGA_ICON_BY_TOOL[toolId as MangaToolId];
+  return source ? source + "?v=flat-1" : undefined;
 }

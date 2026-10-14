@@ -7,9 +7,6 @@
     <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
       <circle cx="3" cy="3" r="2.2" fill="#0f172a" opacity=".13"/>
     </pattern>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#0f172a" flood-opacity=".28"/>
-    </filter>
   </defs>
   <rect width="380" height="380" rx="46" fill="url(#bg)"/>
   <rect width="380" height="380" rx="46" fill="url(#dots)"/>
@@ -18,7 +15,7 @@
   <path d="M22 30h336v320H22z" fill="none" stroke="#0f172a" stroke-width="12" stroke-linejoin="round" opacity=".94"/>
   <path d="M48 56h284v198H48z" fill="#ffffff" opacity=".12" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
   <path d="M304 54c28 24 36 62 24 104M278 90l50 24-46 28" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity=".84"/>
-  <g transform="translate(14 44) scale(1.06)" filter="url(#shadow)">
+  <g transform="translate(14 44) scale(1.06)">
     <circle cx="170" cy="78" r="28" fill="#ffffff" stroke="#0f172a" stroke-width="8"/><path d="M170 110l-32 58 50 28-26 58M158 142l62-18M186 196l58 48M136 168l-54 32" fill="none" stroke="#0f172a" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><path d="M236 92c18 12 32 30 40 52" fill="none" stroke="#f43f5e" stroke-width="10" stroke-linecap="round"/>
   </g>
   <path d="M56 282h268c14 0 24 10 24 24v22c0 14-10 24-24 24H56c-14 0-24-10-24-24v-22c0-14 10-24 24-24z" fill="#ffffff" stroke="#0f172a" stroke-width="9"/>

@@ -9,7 +9,7 @@
    The SW only activates in production builds.
    ============================================================ */
 
-const VERSION = "v1.5.22";
+const VERSION = "v1.5.23";
 const STATIC_CACHE = `cth-static-${VERSION}`;
 const RUNTIME_CACHE = `cth-runtime-${VERSION}`;
 

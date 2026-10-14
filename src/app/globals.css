@@ -13,6 +13,45 @@ html[data-display-mode="compatible"] *::after {
   filter: none !important;
   mix-blend-mode: normal !important;
   will-change: auto !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-attachment: scroll !important;
+}
+
+.plain-launch { display: none; }
+html[data-plain-launch="true"] .adventure-board,
+html[data-plain-launch="true"] body > main > div.absolute {
+  display: none;
+}
+html[data-plain-launch="true"] body > main {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+  background: #fff;
+  color: #111;
+}
+html[data-plain-launch="true"] .plain-launch {
+  display: block;
+  position: relative;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+.plain-launch h1 { font-size: 26px; font-weight: bold; }
+.plain-launch a { color: #0645ad; text-decoration: underline; }
+.plain-launch-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.plain-launch-tools button {
+  min-height: 52px;
+  padding: 10px;
+  border: 2px solid #475569;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #111;
+  font-size: 17px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+  cursor: pointer;
 }
 
 html[data-display-mode="compatible"] [data-decorative-effect],

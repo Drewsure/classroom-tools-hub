@@ -10,7 +10,7 @@ const code = ts.transpileModule(source, {
 }).outputText;
 const { DISPLAY_COMPATIBILITY_SCRIPT } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
 
-function mode({ userAgent = "Chrome desktop", search = "", supports = true, cssMissing = false } = {}) {
+function mode({ userAgent = "Chrome desktop", search = "", supports = true, cssMissing = false, attributes = {} } = {}) {
   let result;
   const window = { location: { search } };
   if (!cssMissing) window.CSS = { supports: () => supports };
@@ -18,8 +18,8 @@ function mode({ userAgent = "Chrome desktop", search = "", supports = true, cssM
     window,
     navigator: { userAgent },
     document: { documentElement: { setAttribute: (key, value) => {
-      assert.equal(key, "data-display-mode");
-      result = value;
+      attributes[key] = value;
+      if (key === "data-display-mode") result = value;
     } } },
   });
   return result;
@@ -39,6 +39,24 @@ test("the safe link works alongside other query parameters", () => {
 test("missing or unsupported color APIs enable compatible display", () => {
   assert.equal(mode({ cssMissing: true }), "compatible");
   assert.equal(mode({ supports: false }), "compatible");
+});
+test("plain launch is opt-in and also enables compatible tool rendering", () => {
+  const attributes = {};
+  assert.equal(mode({ search: "?safe=2", attributes }), "compatible");
+  assert.equal(attributes["data-plain-launch"], "true");
+  const standardAttributes = {};
+  mode({ attributes: standardAttributes });
+  assert.equal(standardAttributes["data-plain-launch"], undefined);
+});
+test("all generated tool icons omit embedded SVG filters and receive a fresh URL", () => {
+  const map = readFileSync(new URL("../src/lib/tool-art.generated.ts", import.meta.url), "utf8");
+  const paths = [...map.matchAll(/"(\/images\/manga-icons\/[^\"]+\.svg)"/g)];
+  assert.equal(paths.length, 29);
+  for (const match of paths) {
+    const icon = readFileSync(new URL("../public" + match[1], import.meta.url), "utf8");
+    assert.doesNotMatch(icon, /<filter|feDropShadow|filter=/);
+  }
+  assert.match(map, /\?v=flat-1/);
 });
 test("flash overlays are hidden, not frozen opaque, and layout transforms stay intact", () => {
   const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");

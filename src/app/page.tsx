@@ -177,7 +177,7 @@ export default function Home() {
     <main className="relative h-screen overflow-hidden bg-[#f7fbff] text-slate-950">
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(125,211,252,0.42),rgba(254,240,138,0.5)_44%,rgba(251,207,232,0.42))]" />
       <div className="absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.95),transparent_34%),radial-gradient(circle_at_78%_10%,rgba(34,197,94,0.24),transparent_24%)]" />
-      <div className="relative z-10 mx-auto flex h-screen w-full max-w-[96rem] flex-col gap-2.5 px-3 py-3 sm:px-4">
+      <div className="adventure-board relative z-10 mx-auto flex h-screen w-full max-w-[96rem] flex-col gap-2.5 px-3 py-3 sm:px-4">
         <header className="rounded-[1.4rem] border border-white/80 bg-white/[0.86] p-3 shadow-xl shadow-sky-900/10 backdrop-blur-xl">
           <div className="grid gap-3 lg:grid-cols-[auto_minmax(18rem,1fr)_auto] lg:items-center">
             <div className="flex min-w-0 items-center gap-3">
@@ -342,13 +342,25 @@ export default function Home() {
         </section>
       </div>
 
+      <section className="plain-launch" aria-label="Plain classroom launch">
+        <h1>Classroom Tools Hub</h1>
+        <p><a href="/tablet-check.html">Tablet display check</a></p>
+        <div className="plain-launch-tools">
+          {TOOLS.map((tool) => (
+            <button key={tool.id} type="button" onClick={() => setActiveTool(tool)}>
+              {tool.name}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {activeTool ? (
         <ToolLauncher
           tool={activeTool}
           onClose={() => {
             setActiveTool(null);
             if (window.location.hash) {
-              history.replaceState(null, "", window.location.pathname);
+              history.replaceState(null, "", window.location.pathname + window.location.search);
             }
           }}
         />

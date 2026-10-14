@@ -26,7 +26,7 @@ These observations show deployment differences, not proof of the tablet's flashi
 The tablet model/OS and an on-device retest are still required.
 
 ## Loading safeguards
-The new service worker is v1.5.22. Updates retain the previous build's caches for existing
+The new service worker is v1.5.23. Updates retain the previous build's caches for existing
 tabs, do not delete unrelated caches, require a healthy offline shell before activation,
 and do not replace it with server-error responses. RSC responses are not cached as HTML.
 Safari-style media Range requests receive correct 206 responses from offline audio.
@@ -61,3 +61,12 @@ version is not claimed to be the version controlling an already-open tablet tab.
 Compare normal Chrome, the installed app and a private-tab test without clearing
 the original app's data. Do not uninstall or clear website storage before exporting
 saved records. The physical tablet's root cause remains unconfirmed.
+
+The tablet subsequently displayed the plain diagnostic page but still flashed and
+went blank in /?safe=1. Embedded SVG icon filters are now removed at the generator,
+with a fresh image URL so old cache entries cannot silently retain those filters.
+Compatibility mode also removes text/box shadows and fixed background attachment.
+/?safe=2 provides an opt-in plain launch board with all 29 tool buttons. This is a
+diagnostic/recovery option, not a replacement for the normal illustrated board.
+Closing a tool preserves the safe query parameter. Local browser checks verified
+launching, starting, pausing and closing a timer; on-device verification is pending.
